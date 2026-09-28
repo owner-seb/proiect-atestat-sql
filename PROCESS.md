@@ -1,0 +1,68 @@
+# Process: Development Log
+
+## How we work
+Each piece of work follows the same loop:
+1. **Plan**: pick the next unchecked item in `PLAN.md` and define how it will be verified.
+2. **Implement**: make the smallest change that does it, following `CODING_RULES.md`.
+3. **Verify**: run the check written in the plan (in the browser, served over HTTP).
+4. **Log**: add a dated entry below: what was done, decisions and their reasons, problems and how they were solved.
+
+This log is the raw material for the "Etapele realizării proiectului" chapter of the written documentation,
+so entries should record *why*, not only *what*.
+
+### Entry template
+```
+## YYYY-MM-DD: <short title>
+**Done:** ...
+**Decisions:** ... (why)
+**Problems:** ... → solution
+**Next:** ...
+```
+
+---
+
+## 2026-09-28: Topic, stack and project setup
+**Done:** Chose the project topic and technologies. Created `CLAUDE.md` (project context), `PLAN.md` (phases),
+`PROCESS.md` (this log) and `CODING_RULES.md` (draft).
+
+**Decisions:**
+- **Topic: SQL Playground.** SQL is part of the school curriculum, and an interactive site where queries
+  really run is more convincing in a demo than static theory pages.
+- **Stack: plain HTML/CSS/JavaScript, no framework or build step.** Every line can be explained to the committee,
+  and Cloudflare Pages can serve the folder directly.
+- **SQL engine: sql.js (SQLite compiled to WebAssembly).** It runs entirely in the browser, so no server or
+  database hosting is needed, which fits a static site. It is vendored locally so the site works without internet.
+- **Language:** the site content and documentation are in Romanian (the exam language). The code is in English (standard practice).
+- **Only `site/` is published**, so the project notes are not exposed publicly.
+
+**Problems:** none yet.
+
+**Next:** answer the open questions in `PLAN.md`, confirm `CODING_RULES.md`, then start Phase 0.
+
+## 2026-09-28: Requirements clarified with the teacher
+**Done:** Updated `PLAN.md`, `CLAUDE.md` and `CODING_RULES.md` with the requirements.
+
+**Decisions:**
+- **The website is the deliverable** (instead of the 40-page PDF/PowerPoint). The teacher set no rules on language or length.
+- **Two pages:** the home page is the working SQL site, and "Cum funcționează?" explains how the site and its code work.
+  This follows the order of the oral defence: demo first, then how it works, then the code.
+- **Every line of code is commented**, and all colors and sizes are named CSS variables, so any change the examiners ask for
+  can be found with Ctrl+F and made live.
+- **Oracle SQL**, because that is what is taught at school. Oracle can't run in a browser, so the SQLite engine is made to imitate it
+  (a DUAL table and Oracle functions written in JS), and the differences are explained honestly on the "Cum funcționează?" page.
+- **School database theme:** clase, profesori, materii, elevi, note.
+- **Deploy through GitHub + Cloudflare Pages**, so every push publishes automatically and there are no manual uploads.
+- **Deadline:** February 2027.
+
+**Next:** confirm the Oracle approach and the rules, then Phase 0 (git, GitHub, Cloudflare).
+
+## 2026-09-28: Phase 0, repository setup
+**Done:** Created the folder structure (`site/` with `css/`, `js/`, `data/`, `vendor/`) and a placeholder `index.html`.
+Initialized git and published the public GitHub repository `owner-seb/proiect-atestat-sql`.
+
+**Decisions:**
+- The commit author email is GitHub's private "noreply" address, so no personal email appears in the public history.
+
+**Problems:** none.
+
+**Next:** connect the repository to Cloudflare Pages (done by the student in the dashboard), then Phase 1.

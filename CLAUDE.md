@@ -16,7 +16,7 @@ The website **is** the whole deliverable (no PDF/PowerPoint). It has two pages: 
   Code identifiers, code comments and commit messages are in **English**.
 - **Deployable folder:** only `site/` is published (Cloudflare Pages "build output directory" = `site`, no build command).
   Project notes (`CLAUDE.md`, `PLAN.md`, `PROCESS.md`, `CODING_RULES.md`), `serve.py`, `wrangler.toml` and `tests/` live at the root and must never be inside `site/`.
-- **Live site:** https://proiect-atestat-sql.pages.dev (Cloudflare Pages project `proiect-atestat-sql`, direct upload, not Git-connected).
+- **Live site:** https://proiect.atzpeak.com (custom subdomain, added by the student) = https://proiect-atestat-sql.pages.dev (Cloudflare Pages project `proiect-atestat-sql`, direct upload, not Git-connected).
 - **Deploy:** after committing and pushing to GitHub (`owner-seb/proiect-atestat-sql`), run from the project root:
   ```bash
   npx -y wrangler@4 pages deploy --branch main --commit-hash $(git rev-parse HEAD) --commit-message "$(git log -1 --format=%s)"
@@ -24,6 +24,8 @@ The website **is** the whole deliverable (no PDF/PowerPoint). It has two pages: 
   `wrangler.toml` supplies the project name and `pages_build_output_dir = "site"`. Don't delete it: without it, wrangler 4
   "autoconfigures" a Workers project and writes files into the repo. The student is logged in via `wrangler login`.
   The student has authorized Claude to commit, push and deploy after each verified step.
+- **Trying changes safely:** work on a git branch and deploy it with `--branch <name>` → preview at `https://<name>.proiect-atestat-sql.pages.dev`;
+  production (`--branch main`) only after the student approves. Tag `v1-stabil` = the first approved version (restore with `git checkout v1-stabil`).
 - **Deadline:** February 2027.
 
 ## Run locally

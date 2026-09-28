@@ -98,3 +98,29 @@ as a badge with a green or red dot.
 **Problems:** none. Checked on desktop and at 360px width: the font loads, the Romanian letters render, and there are no console errors.
 
 **Next:** get the live Cloudflare URL and check it, then Phase 2.
+
+## 2026-09-28: Phases 2 and 3 plus the lesson content, built by a team of agents
+**Done:** Worked as a small team: one coordinator and three developer agents in parallel, each owning separate files.
+- **Database developer:** `data/seed.sql` (school database: profesori 15, clase 8, materii 12, elevi 40, note 153, with Oracle types
+  and named constraints) and `js/db.js` (Oracle functions NVL, NVL2, SYSDATE, TO_DATE, TO_CHAR, INITCAP, MOD, LPAD, RPAD,
+  MONTHS_BETWEEN, ADD_MONTHS, TRUNC, a Unicode UPPER/LOWER, a DUAL table, case-sensitive LIKE, foreign keys, reset, schema,
+  and scratch databases for the checker).
+- **Front-end developer:** the SQL editor (Rulează, Ctrl+Enter, Resetează baza de date), result tables, Romanian messages,
+  and the schema panel (`js/render.js`, `js/main.js`, `index.html`, `style.css`).
+- **Lessons writer:** `js/lessons.js`, with 9 lessons, 26 examples and 34 exercises in Romanian, Oracle style.
+
+**Decisions:**
+- Before the agents started, the coordinator wrote the table structure and each file's functions ("contracts") into `PLAN.md`,
+  so the three could work at the same time without waiting for each other.
+- Oracle's bare `SYSDATE` and `COMMIT`/`ROLLBACK` are handled by rewriting the SQL before it runs (`prepareOracleSql`).
+- `TRUNC`/`LPAD`/`RPAD`/`TO_CHAR` accept a variable number of arguments. sql.js can't register the same name twice with different counts.
+
+**Problems:**
+- The lessons needed `SYSDATE` without parentheses, which SQLite reads as a column name → fixed with the rewrite above.
+- Registering `TRUNC` twice silently ran the wrong function → a single function that checks its argument count.
+- The "blurry" look was mostly the preview pane (it renders at pixel ratio 1). The gradient title is slightly soft on low-resolution screens.
+
+**Tests:** 148/148 database tests (row counts, constraints, every Oracle function compared with Oracle's values, reset,
+scratch databases), and all 59 lesson queries run on the real database. Checked in the browser, including at 360px width.
+
+**Next:** Phase 4 UI + Phase 5 checker (lessons on the page, exercises checked automatically).

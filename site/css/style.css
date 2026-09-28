@@ -37,16 +37,28 @@
   --color-title-gradient: linear-gradient(45deg, #ffffff, #a259ff, #ffffff); /* colors of the big page title */
   --color-success: #4ade80; /* color of success messages */
   --color-error: #f87171; /* color of error messages */
+  --color-button-primary: #a259ff; /* background color of the "Rulează" (run) button */
+  --color-button-primary-text: #000000; /* text color of the "Rulează" (run) button */
+  --color-button-secondary: #111111; /* background color of the "Resetează baza de date" (reset) button */
+  --color-editor-background: #0a0a0a; /* background color of the SQL editor */
+  --color-table-header: #1a1a1a; /* background color of the result table header (column names) */
+  --color-table-row-alt: rgba(255, 255, 255, 0.03); /* background color of every second row in result tables */
+  --color-table-line: rgba(255, 255, 255, 0.06); /* color of the lines between rows in result tables */
 
   --font-main: 'JetBrains Mono', ui-monospace, Consolas, monospace; /* font of all text */
   --font-size-base: 1rem; /* normal text size */
   --font-size-title: clamp(1.75rem, 6vw, 3rem); /* size of the big page title (smaller on phones) */
   --font-size-heading: 1.5rem; /* size of section headings */
+  --font-size-code: 0.9rem; /* text size in the SQL editor and in result tables */
+  --font-size-small: 0.8rem; /* size of small text (hints, row counts, column types) */
 
   --space: 1rem; /* basic spacing between elements */
   --radius: 10px; /* roundness of card corners */
   --radius-menu: 16px; /* roundness of the top menu bar */
   --max-width: 60rem; /* maximum width of the page content */
+  --editor-height: 10rem; /* starting height of the SQL editor */
+  --results-max-height: 24rem; /* maximum height of a result table (taller tables scroll) */
+  --schema-panel-width: 16rem; /* width of the "Structura bazei de date" panel on computers */
 }
 
 /* ===== Whole page ===== */
@@ -248,4 +260,243 @@ strong {
   color: var(--color-text-muted); /* footer text color */
   padding: 2rem var(--space); /* space around the footer */
   font-size: 0.8rem; /* smaller footer text */
+}
+
+/* ===== SQL editor section (home page) ===== */
+.editor-section {
+  margin-bottom: 2rem; /* space below the editor section */
+}
+
+.editor-layout {
+  display: grid; /* editor and structure panel placed in a grid */
+  grid-template-columns: minmax(0, 1fr); /* phones: one column (editor above, structure panel below) */
+  gap: 1.5rem; /* space between the editor and the structure panel */
+  align-items: start; /* each box is only as tall as its content */
+}
+
+@media (min-width: 900px) {
+  .editor-layout {
+    grid-template-columns: minmax(0, 1fr) var(--schema-panel-width); /* computers: editor on the left, structure panel on the right */
+  }
+}
+
+.editor-layout > .card {
+  margin-bottom: 0; /* the grid gap already adds the space between boxes */
+}
+
+.editor-label {
+  display: block; /* the label sits on its own line, above the editor */
+  margin-bottom: 0.5rem; /* space between the label and the editor */
+  font-size: 0.85rem; /* label text size */
+  color: var(--color-text-muted); /* label text color */
+}
+
+/* The text box where the SQL is written */
+.sql-editor {
+  display: block; /* take a full line */
+  width: 100%; /* as wide as the card */
+  min-height: var(--editor-height); /* starting height of the editor */
+  resize: vertical; /* the user can only make it taller or shorter */
+  padding: 0.75rem 1rem; /* space inside the editor */
+  background: var(--color-editor-background); /* editor background color */
+  color: var(--color-text); /* editor text color */
+  font-family: var(--font-main); /* same monospace font as the rest of the site */
+  font-size: var(--font-size-code); /* editor text size */
+  line-height: 1.6; /* space between lines in the editor */
+  border: 1px solid var(--color-border); /* editor border */
+  border-radius: var(--radius); /* rounded editor corners */
+}
+
+.sql-editor:focus {
+  outline: none; /* remove the browser's default outline (replaced by the glow below) */
+  border-color: var(--color-accent); /* purple border while typing */
+  box-shadow: 0 0 12px var(--color-accent-glow); /* purple glow while typing */
+}
+
+/* Row with the buttons and the Ctrl+Enter hint */
+.editor-buttons {
+  display: flex; /* buttons side by side */
+  flex-wrap: wrap; /* on small screens, move to the next line */
+  align-items: center; /* center them vertically */
+  gap: 0.75rem; /* space between the buttons */
+  margin-top: 1rem; /* space between the editor and the buttons */
+}
+
+.editor-hint {
+  font-size: var(--font-size-small); /* small hint text */
+  color: var(--color-text-muted); /* gray hint text */
+}
+
+/* ===== Buttons ===== */
+.button {
+  padding: 0.6rem 1.2rem; /* space inside the buttons */
+  font-family: var(--font-main); /* same font as the rest of the site */
+  font-size: 0.9rem; /* button text size */
+  border: 1px solid var(--color-accent); /* purple button border */
+  border-radius: var(--radius); /* rounded button corners */
+  cursor: pointer; /* hand cursor on hover */
+}
+
+/* Main button ("Rulează"): purple background, black bold text, purple glow */
+.button-primary {
+  background: var(--color-button-primary); /* run button background color */
+  color: var(--color-button-primary-text); /* run button text color */
+  font-weight: 700; /* bold run button text */
+  box-shadow: 0 0 15px var(--color-accent-glow); /* purple glow around the run button */
+}
+
+.button-primary:hover {
+  box-shadow: 0 0 25px var(--color-accent-glow); /* stronger glow on mouse hover */
+}
+
+/* Second button ("Resetează baza de date"): dark background, purple border */
+.button-secondary {
+  background: var(--color-button-secondary); /* reset button background color */
+  color: var(--color-text); /* reset button text color */
+}
+
+.button-secondary:hover {
+  color: var(--color-accent); /* reset button text turns purple on mouse hover */
+}
+
+/* ===== Results area (tables and messages) ===== */
+.results {
+  margin-top: 1.5rem; /* space between the buttons and the results */
+}
+
+.result-block + .result-block {
+  margin-top: 1.5rem; /* space between two result tables */
+}
+
+/* Box around a result table: wide or tall tables scroll inside it, not the whole page */
+.table-wrapper {
+  overflow: auto; /* scroll bars appear only inside this box */
+  max-height: var(--results-max-height); /* maximum height before scrolling */
+  border: 1px solid var(--color-border); /* border around the table */
+  border-radius: var(--radius); /* rounded corners */
+}
+
+.result-table {
+  width: 100%; /* table at least as wide as the card */
+  border-collapse: collapse; /* single lines between cells */
+  font-size: var(--font-size-code); /* result table text size */
+}
+
+.result-table th,
+.result-table td {
+  padding: 0.45rem 0.8rem; /* space inside each cell */
+  text-align: left; /* values aligned to the left */
+  white-space: nowrap; /* keep each value on one line (the box scrolls instead) */
+  border-bottom: 1px solid var(--color-table-line); /* line between rows */
+}
+
+.result-table th {
+  position: sticky; /* column names stay visible while scrolling down */
+  top: 0; /* stick to the top of the table box */
+  background: var(--color-table-header); /* column names background color */
+  color: var(--color-accent); /* column names text color */
+  font-weight: 700; /* bold column names */
+}
+
+.result-table tbody tr:nth-child(even) {
+  background: var(--color-table-row-alt); /* every second row slightly lighter (easier to read) */
+}
+
+.null-value {
+  color: var(--color-text-muted); /* NULL values shown in gray */
+  font-style: italic; /* and in italics, so they differ from the text 'NULL' */
+}
+
+.row-count {
+  margin: 0.5rem 0 0; /* space above the row count */
+  font-size: var(--font-size-small); /* small row count text */
+  color: var(--color-text-muted); /* gray row count text */
+}
+
+/* Messages: errors (red), success (green), information (gray) */
+.message {
+  margin: 0; /* no extra space around the message */
+  padding: 0.75rem 1rem; /* space inside the message box */
+  border-left: 3px solid var(--color-accent); /* colored line on the left of the message */
+  border-radius: var(--radius); /* rounded message corners */
+  background: var(--color-accent-soft); /* message background color */
+  font-size: 0.9rem; /* message text size */
+  white-space: pre-wrap; /* keep line breaks from the message text */
+  overflow-wrap: anywhere; /* break very long words so they fit on phones */
+}
+
+.message-error {
+  color: var(--color-error); /* error message text color (red) */
+  border-left-color: var(--color-error); /* red line on the left */
+  background: rgba(248, 113, 113, 0.08); /* light red background */
+}
+
+.message-success {
+  color: var(--color-success); /* success message text color (green) */
+  border-left-color: var(--color-success); /* green line on the left */
+  background: rgba(74, 222, 128, 0.08); /* light green background */
+}
+
+.message-info {
+  color: var(--color-text-muted); /* information message text color (gray) */
+}
+
+/* ===== Database structure panel ("Structura bazei de date") ===== */
+.schema-panel h3 {
+  margin-bottom: 0.75rem; /* space below the panel heading */
+  font-size: 1rem; /* panel heading size */
+}
+
+.schema-table {
+  border-bottom: 1px solid var(--color-border); /* line between tables */
+  padding: 0.4rem 0; /* space above and below each table */
+}
+
+.schema-table summary {
+  cursor: pointer; /* hand cursor: the table name can be clicked */
+  font-weight: 700; /* bold table name */
+}
+
+.schema-table summary:hover {
+  color: var(--color-accent); /* table name turns purple on mouse hover */
+}
+
+.schema-table summary:focus-visible {
+  outline: 2px solid var(--color-accent); /* visible outline when using the keyboard */
+  outline-offset: 2px; /* small gap between the name and the outline */
+}
+
+.column-list {
+  list-style: none; /* no bullets in the column list */
+  margin: 0.4rem 0; /* space above and below the column list */
+  padding-left: 1rem; /* columns indented under the table name */
+  font-size: var(--font-size-small); /* small column text */
+}
+
+.column-list li {
+  display: flex; /* column name and type on the same line */
+  flex-wrap: wrap; /* move the type to the next line if there is no room */
+  justify-content: space-between; /* name on the left, type on the right */
+  gap: 0 0.5rem; /* space between name and type */
+}
+
+.column-type {
+  color: var(--color-text-muted); /* column types in gray */
+}
+
+/* Small button under each table: writes "SELECT * FROM <table>;" in the editor */
+.schema-query-button {
+  margin: 0 0 0.3rem 1rem; /* indented like the columns */
+  padding: 0.2rem 0.5rem; /* space inside the small button */
+  background: transparent; /* no background */
+  color: var(--color-accent); /* purple button text */
+  font-family: var(--font-main); /* same font as the rest of the site */
+  font-size: var(--font-size-small); /* small button text */
+  border: 1px solid var(--color-border); /* thin purple border */
+  border-radius: 6px; /* rounded corners */
+  cursor: pointer; /* hand cursor on hover */
+}
+
+.schema-query-button:hover {
+  border-color: var(--color-accent); /* stronger border on mouse hover */
 }

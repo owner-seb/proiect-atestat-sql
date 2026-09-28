@@ -2,7 +2,7 @@
 
 Goal: a static website in Romanian where a student learns **Oracle SQL** through short lessons, runs real queries
 in the browser on a sample school database, and solves exercises that are checked automatically.
-It is deployed on Cloudflare Pages through GitHub.
+It is deployed on Cloudflare Pages (https://proiect-atestat-sql.pages.dev); the code is on GitHub.
 
 **The website is the whole deliverable** (it replaces the 40-page PDF/PowerPoint option). There are no requirements
 on language or length. The project just has to present the theme.
@@ -18,6 +18,7 @@ on language or length. The project just has to present the theme.
 Proiect Atestat/
 ├── CLAUDE.md  PLAN.md  PROCESS.md  CODING_RULES.md   (notes, not published)
 ├── serve.py                      (local no-cache server: python3 serve.py → http://localhost:8000)
+├── wrangler.toml                 (Cloudflare Pages settings for deploying)
 ├── tests/                        (node tests: test-db.mjs, test-lessons.mjs; not published)
 └── site/                         (published to Cloudflare Pages)
     ├── index.html                (home: hero → lessons + exercises → SQL editor)
@@ -88,9 +89,9 @@ students with no grades (for LEFT JOIN), a class with no homeroom teacher, NULL 
 ### Phase 0: Setup
 - [x] Create the folder structure. `git init`, first commit.
 - [x] Create the GitHub repository and push (`owner-seb/proiect-atestat-sql`, public).
-- [x] Connect the repo in the Cloudflare dashboard: Workers & Pages → Create → Pages → Connect to Git.
-      Framework preset: None. Build command: empty. Build output directory: `site`.
-- → verify: a push to `main` updates the live `*.pages.dev` URL.
+- [x] Cloudflare Pages project `proiect-atestat-sql` (direct upload with wrangler; the dashboard Git connection never completed).
+      Live: https://proiect-atestat-sql.pages.dev. Deploy command in `CLAUDE.md`.
+- → verify: after a deploy, the live URL shows the latest version (checked 2026-09-28: DB loads, queries run, no console errors).
 
 ### Phase 1: Skeleton + sql.js
 - [x] Vendor sql.js into `site/vendor/` (v1.14.2, MIT license included).

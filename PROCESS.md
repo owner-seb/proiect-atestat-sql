@@ -166,3 +166,16 @@ live changes, then restored the files. Two fixer agents then fixed everything, e
 **Tests:** `node tests/test-db.mjs` passes 207, `node tests/test-lessons.mjs` passes 171. Screenshots of both pages checked on desktop and phone.
 
 **Next:** the student rehearses the demo and the live changes (Phase 7). Confirm the live Cloudflare URL.
+
+## 2026-09-28: Published on Cloudflare Pages
+**Done:** The site is live at **https://proiect-atestat-sql.pages.dev**. Checked there: the database loads, queries run
+(`UPPER('ștefan')` → `ȘTEFAN`), the lessons show, the "Cum funcționează?" page opens, there are no console errors, and the project notes are not public.
+
+**Decisions:**
+- The GitHub → Cloudflare dashboard connection had never finished (no Pages project existed). The student logged in with
+  `wrangler login` (Cloudflare's command-line tool), and the site is uploaded directly with `wrangler pages deploy`.
+- `wrangler.toml` at the root holds the project name and says to publish only `site/`. Deploy = one command (in `CLAUDE.md`).
+
+**Problems:** Wrangler 4, run without a Pages config, silently created a Workers config (`wrangler.jsonc`) and edited `.gitignore`
+→ reverted, and `wrangler.toml` with `pages_build_output_dir` now prevents it. New projects are sent to Workers by default
+→ the project was created once with `--force` as a classic Pages project.

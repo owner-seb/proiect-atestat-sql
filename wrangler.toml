@@ -1,0 +1,3 @@
+# Cloudflare Pages settings (used by: npx wrangler pages deploy)
+name = "proiect-atestat-sql"  # Pages project name → https://proiect-atestat-sql.pages.dev
+pages_build_output_dir = "site"  # only the site/ folder is published

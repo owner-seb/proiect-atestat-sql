@@ -15,9 +15,15 @@ The website **is** the whole deliverable (no PDF/PowerPoint). It has two pages: 
 - **Language:** all UI text, lesson content and documentation are in **Romanian** (with correct diacritics ș ț ă î â).
   Code identifiers, code comments and commit messages are in **English**.
 - **Deployable folder:** only `site/` is published (Cloudflare Pages "build output directory" = `site`, no build command).
-  Project notes (`CLAUDE.md`, `PLAN.md`, `PROCESS.md`, `CODING_RULES.md`) live at the root and must never be inside `site/`.
-- **Deploy:** GitHub → Cloudflare Pages Git integration. A push to `main` deploys automatically.
-  The student has authorized Claude to commit and push after each verified step. No Cloudflare API token is needed.
+  Project notes (`CLAUDE.md`, `PLAN.md`, `PROCESS.md`, `CODING_RULES.md`), `serve.py`, `wrangler.toml` and `tests/` live at the root and must never be inside `site/`.
+- **Live site:** https://proiect-atestat-sql.pages.dev (Cloudflare Pages project `proiect-atestat-sql`, direct upload, not Git-connected).
+- **Deploy:** after committing and pushing to GitHub (`owner-seb/proiect-atestat-sql`), run from the project root:
+  ```bash
+  npx -y wrangler@4 pages deploy --branch main --commit-hash $(git rev-parse HEAD) --commit-message "$(git log -1 --format=%s)"
+  ```
+  `wrangler.toml` supplies the project name and `pages_build_output_dir = "site"`. Don't delete it: without it, wrangler 4
+  "autoconfigures" a Workers project and writes files into the repo. The student is logged in via `wrangler login`.
+  The student has authorized Claude to commit, push and deploy after each verified step.
 - **Deadline:** February 2027.
 
 ## Run locally

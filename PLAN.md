@@ -93,7 +93,7 @@ Real Oracle cannot run in a browser. The engine is **SQLite (sql.js)**, and we m
 - → verify: the student can answer "how does X work?" for every file by using only this page.
 
 ### Phase 7: Polish + exam rehearsal
-- [ ] Responsive layout, light/dark theme, accessibility.
+- [ ] Responsive layout and accessibility (dark theme only, matching sebastian-ungureanu.com).
 - [ ] Rehearse the likely examiner requests: change the heading color, the background color, the font size, a text, a table's data.
 - → verify: each request above is done in under a minute with Ctrl+F.
 

@@ -82,3 +82,19 @@ color and size as a commented variable, and a dark theme. `js/db.js` creates the
 **Problems:** none. Tested in the browser at desktop and phone width (360px), with no console errors and no requests outside the site.
 
 **Next:** Phase 2, the school database (`seed.sql`) and the Oracle functions.
+
+## 2026-09-28: New design, matching the student's own site
+**Done:** Restyled both pages to match the student's own site, sebastian-ungureanu.com: black background,
+purple accent `#a259ff` with a glow, JetBrains Mono for all text, a floating pill-shaped menu bar with an "SQL" logo box,
+a gradient page title, a purple `>` before headings, dark cards with thin purple borders, and the database status shown
+as a badge with a green or red dot.
+
+**Decisions:**
+- The first design was a generic blue and white. The student wanted the project to look like their own brand.
+- The font is stored locally in `site/fonts/`, so it works offline. Two files are used: basic Latin, and "latin-ext"
+  for ă, ș and ț, which the student's site's font files don't include.
+- The site is dark only (like the student's site), so the light theme was removed.
+
+**Problems:** none. Checked on desktop and at 360px width: the font loads, the Romanian letters render, and there are no console errors.
+
+**Next:** get the live Cloudflare URL and check it, then Phase 2.

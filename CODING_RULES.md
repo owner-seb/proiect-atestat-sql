@@ -16,7 +16,7 @@
 ## 2. Stack and dependencies
 - Plain HTML5, CSS3 and vanilla JavaScript, loaded as ES modules (`<script type="module">`).
 - No frameworks, no npm, no bundler, no build step.
-- The only external library is **sql.js**, vendored in `site/vendor/`. Adding any other dependency requires an explicit decision, logged in `PROCESS.md`.
+- The only external library is **sql.js**, vendored in `site/vendor/`. The only other external asset is the JetBrains Mono font (OFL), in `site/fonts/`. Adding any other dependency requires an explicit decision, logged in `PROCESS.md`.
 - No CDN links at runtime. The site must work offline once served.
 
 ## 3. Language
@@ -42,7 +42,10 @@
 ## 6. HTML and CSS
 - Semantic HTML: `header`, `nav`, `main`, `section`, `button` (not clickable `div`s), and `label` for every input.
 - All styles in `site/css/`. No inline `style=""` attributes.
-- Colors and spacing as CSS variables on `:root`, including a dark theme via `prefers-color-scheme`.
+- Colors and spacing as CSS variables on `:root`.
+- **Design:** match the student's own site, sebastian-ungureanu.com. It is dark-only (black background, `#111` surfaces,
+  `#ededed` text), with a purple accent `#a259ff` plus glow, JetBrains Mono for all text (stored in `site/fonts/`),
+  a floating pill-shaped menu bar, a purple `>` before headings, and a white-purple gradient on big titles. There is no light theme.
 - Mobile-first: works at 360px width with no horizontal page scroll (wide result tables scroll inside their own container).
 - Keyboard accessible: visible focus styles, and Ctrl+Enter runs the query.
 

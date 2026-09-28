@@ -13,10 +13,13 @@
   <script type="module" src="js/main.js"></script> <!-- page logic; runs after the page is loaded -->
 </head>
 <body>
-  <!-- Top header bar: site title + navigation menu (same on every page) -->
+  <!-- Top menu bar: logo + navigation menu (same on every page) -->
   <header class="site-header">
     <div class="site-header-inner">
-      <h1 class="site-title">SQL Playground</h1> <!-- site title in the header -->
+      <a class="brand" href="index.html"> <!-- logo: goes to the home page -->
+        <span class="brand-logo">SQL</span> <!-- small logo box -->
+        <span>Playground</span> <!-- site name next to the logo -->
+      </a>
       <nav class="site-nav" aria-label="Meniu principal"> <!-- navigation menu -->
         <a href="index.html" aria-current="page">Acasă</a> <!-- link to the home page (current page) -->
         <a href="cum-functioneaza.html">Cum funcționează?</a> <!-- link to the "how it works" page -->
@@ -25,14 +28,14 @@
   </header>
 
   <main>
-    <!-- Introduction section -->
-    <section class="card">
-      <h2>Învață Oracle SQL direct în browser</h2> <!-- main heading of the home page -->
-      <p>
+    <!-- Hero: big title at the top of the home page -->
+    <section class="hero">
+      <h1 class="hero-title">Învață Oracle SQL direct în browser</h1> <!-- big title of the home page -->
+      <p class="hero-text">
         Lecții scurte, un editor în care rulezi interogări reale și exerciții verificate automat,
         pe o bază de date a unei școli.
       </p> <!-- short description of the site -->
-      <p id="db-status" class="status">Se încarcă baza de date...</p> <!-- database status message (filled in by main.js) -->
+      <p id="db-status" class="status">Se încarcă baza de date...</p> <!-- database status badge (filled in by main.js) -->
     </section>
   </main>
 

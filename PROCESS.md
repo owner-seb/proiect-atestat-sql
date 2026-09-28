@@ -195,3 +195,7 @@ lost their place in the exercises.
 **Safety:** before these changes, the approved version was tagged `v1-stabil` (git tag, pushed to GitHub). The new layout was
 developed on the branch `layout-v2` and published only as a Cloudflare preview, so the live site stayed on v1 until approval.
 **Not yet updated:** the "Cum funcționează?" page still describes the old order of the home page (planned for a later session).
+- **Second version (same day), after the student's feedback "clean, minimalist, functional":** on computers, the home page title is a slim strip
+  (title and description on the left, database status on the right). All three columns have the same small uppercase title above an
+  identical box. The structure and editor columns fill the screen height, the result table uses the free height under the editor, and the scroll bars are thin.
+  The structure panel is compact, with each column name and type on one line and "SELECT * FROM ..." as a small link.

@@ -75,22 +75,36 @@ const WRONG_ANSWERS = {
     ['DELETE FROM note WHERE nota <= 5;', 'rows'],
     ['DELETE FROM note;', 'rows'],
   ],
+  // DDL: the checkQuery tries bad rows with INSERT OR IGNORE; a missing or wrong constraint lets them in, so the table
+  // differs. The checker then does not name a row count (the test rows are not the user's), only 'unele valori' -> 'values'
   'ddl-1': [
-    ["CREATE TABLE cercuri (id_cerc NUMBER(3) PRIMARY KEY, denumire VARCHAR2(40) NOT NULL, zi_saptamana VARCHAR2(10));\nINSERT INTO cercuri VALUES (1, 'Șah', 'Luni');", 'rows'],
+    ["CREATE TABLE cercuri (id_cerc NUMBER(3) PRIMARY KEY, denumire VARCHAR2(40) NOT NULL, zi_saptamana VARCHAR2(10));\nINSERT INTO cercuri VALUES (1, 'Șah', 'Luni');", 'values'],
     ["CREATE TABLE cerc (id_cerc NUMBER(3) PRIMARY KEY, denumire VARCHAR2(40), zi_saptamana VARCHAR2(10));", 'error'],
-    // right data, but no constraints at all -> the constraint flags in the checkQuery differ
+    // right data, but no constraints at all -> both bad rows are added
     ["CREATE TABLE cercuri (id_cerc NUMBER(3), denumire VARCHAR2(40), zi_saptamana VARCHAR2(10));\nINSERT INTO cercuri VALUES (1, 'Șah', 'Luni');\nINSERT INTO cercuri VALUES (2, 'Informatică', 'Joi');", 'values'],
-    // primary key present, NOT NULL on denumire missing
+    // primary key present, NOT NULL on denumire missing -> the row without denumire is added
     ["CREATE TABLE cercuri (id_cerc NUMBER(3) PRIMARY KEY, denumire VARCHAR2(40), zi_saptamana VARCHAR2(10));\nINSERT INTO cercuri VALUES (1, 'Șah', 'Luni');\nINSERT INTO cercuri VALUES (2, 'Informatică', 'Joi');", 'values'],
+    // NOT NULL present, primary key missing -> the repeated id_cerc is added
+    ["CREATE TABLE cercuri (id_cerc NUMBER(3), denumire VARCHAR2(40) NOT NULL, zi_saptamana VARCHAR2(10));\nINSERT INTO cercuri VALUES (1, 'Șah', 'Luni');\nINSERT INTO cercuri VALUES (2, 'Informatică', 'Joi');", 'values'],
   ],
   'ddl-2': [
     ["CREATE TABLE olimpiade (id_olimpiada NUMBER(4) PRIMARY KEY, id_elev NUMBER(5) REFERENCES elevi (id_elev), disciplina VARCHAR2(30) NOT NULL, punctaj NUMBER(5,2) CHECK (punctaj BETWEEN 0 AND 100));\nINSERT INTO olimpiade VALUES (1, 1, 'Informatică', 78.5);", 'values'],
     // right data, but no constraints at all
     ["CREATE TABLE olimpiade (id_olimpiada NUMBER(4), id_elev NUMBER(5), disciplina VARCHAR2(30), punctaj NUMBER(5,2));\nINSERT INTO olimpiade VALUES (1, 1, 'Informatică', 87.5);", 'values'],
-    // every constraint except the foreign key
+    // every constraint except the foreign key -> same rows, but the are_fk column is 0
     ["CREATE TABLE olimpiade (id_olimpiada NUMBER(4) PRIMARY KEY, id_elev NUMBER(5), disciplina VARCHAR2(30) NOT NULL, punctaj NUMBER(5,2) CHECK (punctaj BETWEEN 0 AND 100));\nINSERT INTO olimpiade VALUES (1, 1, 'Informatică', 87.5);", 'values'],
     // every constraint except the CHECK
     ["CREATE TABLE olimpiade (id_olimpiada NUMBER(4) PRIMARY KEY, id_elev NUMBER(5) REFERENCES elevi (id_elev), disciplina VARCHAR2(30) NOT NULL, punctaj NUMBER(5,2));\nINSERT INTO olimpiade VALUES (1, 1, 'Informatică', 87.5);", 'values'],
+    // every constraint except NOT NULL on disciplina
+    ["CREATE TABLE olimpiade (id_olimpiada NUMBER(4) PRIMARY KEY, id_elev NUMBER(5) REFERENCES elevi (id_elev), disciplina VARCHAR2(30), punctaj NUMBER(5,2) CHECK (punctaj BETWEEN 0 AND 100));\nINSERT INTO olimpiade VALUES (1, 1, 'Informatică', 87.5);", 'values'],
+    // CHECK written on the wrong column (id_olimpiada instead of punctaj)
+    ["CREATE TABLE olimpiade (id_olimpiada NUMBER(4) PRIMARY KEY, id_elev NUMBER(5) REFERENCES elevi (id_elev), disciplina VARCHAR2(30) NOT NULL, punctaj NUMBER(5,2), CHECK (id_olimpiada BETWEEN 0 AND 100));\nINSERT INTO olimpiade VALUES (1, 1, 'Informatică', 87.5);", 'values'],
+    // CHECK with a wrong range: 0 is not allowed, 150 is
+    ["CREATE TABLE olimpiade (id_olimpiada NUMBER(4) PRIMARY KEY, id_elev NUMBER(5) REFERENCES elevi (id_elev), disciplina VARCHAR2(30) NOT NULL, punctaj NUMBER(5,2) CHECK (punctaj > 0));\nINSERT INTO olimpiade VALUES (1, 1, 'Informatică', 87.5);", 'values'],
+    // CHECK with a wrong range: 0 is not allowed
+    ["CREATE TABLE olimpiade (id_olimpiada NUMBER(4) PRIMARY KEY, id_elev NUMBER(5) REFERENCES elevi (id_elev), disciplina VARCHAR2(30) NOT NULL, punctaj NUMBER(5,2) CHECK (punctaj BETWEEN 1 AND 100));\nINSERT INTO olimpiade VALUES (1, 1, 'Informatică', 87.5);", 'values'],
+    // CHECK with a wrong range: up to 1000 instead of 100
+    ["CREATE TABLE olimpiade (id_olimpiada NUMBER(4) PRIMARY KEY, id_elev NUMBER(5) REFERENCES elevi (id_elev), disciplina VARCHAR2(30) NOT NULL, punctaj NUMBER(5,2) CHECK (punctaj BETWEEN 0 AND 1000));\nINSERT INTO olimpiade VALUES (1, 1, 'Informatică', 87.5);", 'values'],
   ],
   'ddl-3': [
     ["CREATE TABLE sali (id_sala NUMBER(3) PRIMARY KEY, cod VARCHAR2(10) NOT NULL UNIQUE, capacitate NUMBER(3) CHECK (capacitate > 0));\nINSERT INTO sali VALUES (1, 'L1', 25);", 'values'],
@@ -99,6 +113,12 @@ const WRONG_ANSWERS = {
     ["CREATE TABLE sali (id_sala NUMBER(3), cod VARCHAR2(10), capacitate NUMBER(3));\nINSERT INTO sali VALUES (1, 'L1', 30);", 'values'],
     // every constraint except UNIQUE on cod
     ["CREATE TABLE sali (id_sala NUMBER(3) PRIMARY KEY, cod VARCHAR2(10) NOT NULL, capacitate NUMBER(3) CHECK (capacitate > 0));\nINSERT INTO sali VALUES (1, 'L1', 30);", 'values'],
+    // every constraint except NOT NULL on cod
+    ["CREATE TABLE sali (id_sala NUMBER(3) PRIMARY KEY, cod VARCHAR2(10) UNIQUE, capacitate NUMBER(3) CHECK (capacitate > 0));\nINSERT INTO sali VALUES (1, 'L1', 30);", 'values'],
+    // CHECK written on the wrong column (id_sala instead of capacitate)
+    ["CREATE TABLE sali (id_sala NUMBER(3) PRIMARY KEY CHECK (id_sala > 0), cod VARCHAR2(10) NOT NULL UNIQUE, capacitate NUMBER(3));\nINSERT INTO sali VALUES (1, 'L1', 30);", 'values'],
+    // CHECK with a wrong limit: 1 is not allowed
+    ["CREATE TABLE sali (id_sala NUMBER(3) PRIMARY KEY, cod VARCHAR2(10) NOT NULL UNIQUE, capacitate NUMBER(3) CHECK (capacitate > 1));\nINSERT INTO sali VALUES (1, 'L1', 30);", 'values'],
   ],
 };
 
@@ -115,12 +135,18 @@ const OTHER_CORRECT_ANSWERS = [
   ['subinterogari-2', "SELECT e.nume, e.prenume FROM elevi e JOIN clase c ON e.id_clasa = c.id_clasa WHERE c.nume = '11A';"],
   ['dml-1', "INSERT INTO elevi VALUES (900, 'Ionescu', 'Maria', TO_DATE('15.03.2009', 'DD.MM.YYYY'), 'Brașov', NULL, 1);\nCOMMIT; -- gata"],
   ['dml-3', 'DELETE FROM note WHERE nota IN (1, 2, 3, 4);'],
-  // the DDL checkQuery checks the constraints themselves, not their names (SQLite does not keep the names
-  // in a way that can be read), so a table with unnamed constraints is accepted
+  // the DDL checkQuery tests the constraints themselves (by trying bad rows), not their names,
+  // so a table with unnamed inline constraints is accepted
   ['ddl-1', "CREATE TABLE cercuri (id_cerc NUMBER(3) PRIMARY KEY, denumire VARCHAR2(40) NOT NULL, zi_saptamana VARCHAR2(10));\nINSERT INTO cercuri VALUES (2, 'Informatică', 'Joi');\nINSERT INTO cercuri VALUES (1, 'Șah', 'Luni');"],
-  // uppercase names and table-level constraints are accepted too
+  // uppercase names and a table-level primary key are accepted too
+  ['ddl-1', "CREATE TABLE CERCURI (ID_CERC NUMBER(3), DENUMIRE VARCHAR2(40) NOT NULL, ZI_SAPTAMANA VARCHAR2(10), CONSTRAINT PK_C PRIMARY KEY (ID_CERC));\nINSERT INTO CERCURI VALUES (1, 'Șah', 'Luni');\nINSERT INTO CERCURI VALUES (2, 'Informatică', 'Joi');"],
+  // uppercase names and table-level constraints
   ['ddl-2', "CREATE TABLE OLIMPIADE (ID_OLIMPIADA NUMBER(4), ID_ELEV NUMBER(5), DISCIPLINA VARCHAR2(30) NOT NULL, PUNCTAJ NUMBER(5,2),\n  CONSTRAINT o_pk PRIMARY KEY (ID_OLIMPIADA), CONSTRAINT o_fk FOREIGN KEY (ID_ELEV) REFERENCES ELEVI (ID_ELEV), CONSTRAINT o_ck CHECK (PUNCTAJ BETWEEN 0 AND 100));\nINSERT INTO OLIMPIADE VALUES (1, 1, 'Informatică', 87.5);"],
+  // inline unnamed constraints, and the range written with >= and <= instead of BETWEEN
+  ['ddl-2', "CREATE TABLE olimpiade (id_olimpiada NUMBER(4) PRIMARY KEY, id_elev NUMBER(5) REFERENCES elevi (id_elev), disciplina VARCHAR2(30) NOT NULL, punctaj NUMBER(5,2) CHECK (punctaj >= 0 AND punctaj <= 100));\nINSERT INTO olimpiade VALUES (1, 1, 'Informatică', 87.5);"],
   ['ddl-3', "CREATE TABLE sali (id_sala NUMBER(3) PRIMARY KEY, cod VARCHAR2(10) NOT NULL UNIQUE, capacitate NUMBER(3) CHECK (capacitate > 0));\nINSERT INTO sali VALUES (1, 'L1', 30);"],
+  // uppercase names and named table-level constraints
+  ['ddl-3', "CREATE TABLE SALI (ID_SALA NUMBER(3), COD VARCHAR2(10) CONSTRAINT NN_SALI_COD NOT NULL, CAPACITATE NUMBER(3),\n  CONSTRAINT PK_SALI PRIMARY KEY (ID_SALA), CONSTRAINT UQ_SALI_COD UNIQUE (COD), CONSTRAINT CK_SALI_CAPACITATE CHECK (CAPACITATE > 0));\nINSERT INTO SALI VALUES (1, 'L1', 30);"],
 ];
 
 // ----- Small helpers -----

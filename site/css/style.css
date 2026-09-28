@@ -14,7 +14,7 @@
   unicode-range: U+0000-00FF, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212; /* characters in this file */
 }
 
-@font-face {
+@font-face { /* second file of the same font: letters with diacritics */
   font-family: 'JetBrains Mono'; /* same font name, second file */
   src: url('../fonts/jetbrains-mono-latin-ext-wght-normal.woff2') format('woff2'); /* extra letters: ă ș ț */
   font-weight: 100 800; /* variable font: one file for all weights */
@@ -29,15 +29,15 @@
   --color-header-background: #111111; /* background color of the top menu bar */
   --color-text: #ededed; /* main text color */
   --color-text-muted: #9a9a9a; /* color of secondary text (footer, notes) */
-  --color-accent: #a259ff; /* purple accent: ">" signs, links, borders, highlights */
-  --color-accent-glow: rgba(162, 89, 255, 0.6); /* purple glow around highlighted elements */
-  --color-accent-soft: rgba(162, 89, 255, 0.15); /* light purple background (current menu link, badge) */
-  --color-border: rgba(162, 89, 255, 0.15); /* color of card borders */
+  --color-accent: #a259ff; /* purple accent: ">" signs, links, borders, highlights; every other purple on the site is made from this color */
+  --color-accent-glow: color-mix(in srgb, var(--color-accent) 60%, transparent); /* glow around highlighted elements (the accent color, 60% visible) */
+  --color-accent-soft: color-mix(in srgb, var(--color-accent) 15%, transparent); /* light accent background (badge, messages, notes), 15% visible */
+  --color-border: color-mix(in srgb, var(--color-accent) 15%, transparent); /* color of card borders (the accent color, 15% visible) */
   --color-heading: #ededed; /* color of section headings (h2, h3) */
-  --color-title-gradient: linear-gradient(45deg, #ffffff, #a259ff, #ffffff); /* colors of the big page title */
+  --color-title-gradient: linear-gradient(45deg, #ffffff, var(--color-accent), #ffffff); /* colors of the big page title: white, accent, white */
   --color-success: #4ade80; /* color of success messages */
   --color-error: #f87171; /* color of error messages */
-  --color-button-primary: #a259ff; /* background color of the "Rulează" (run) button */
+  --color-button-primary: var(--color-accent); /* background and glow color of the "Rulează" (run) and "Verifică" (check) buttons (same as the accent) */
   --color-button-primary-text: #000000; /* text color of the "Rulează" (run) button */
   --color-button-secondary: #111111; /* background color of the "Resetează baza de date" (reset) button */
   --color-editor-background: #0a0a0a; /* background color of the SQL editor */
@@ -62,9 +62,9 @@
 
   /* Lessons and exercises */
   --color-chip-background: #111111; /* background color of the numbered lesson buttons */
-  --color-code-background: rgba(162, 89, 255, 0.12); /* background of code words inside the lesson text */
-  --color-code-text: #c9a6ff; /* color of code words inside the lesson text */
-  --radius-pill: 999px; /* fully rounded (pill) shape of the numbered lesson buttons */
+  --color-code-background: color-mix(in srgb, var(--color-accent) 12%, transparent); /* background of code words in the text (the accent color, 12% visible) */
+  --color-code-text: color-mix(in srgb, var(--color-accent) 55%, #ffffff); /* color of code words in the text (the accent color mixed with white) */
+  --radius-pill: 999px; /* fully rounded (pill) shape: lesson buttons, status badge, pill links and labels */
   --exercise-editor-height: 5rem; /* starting height of the answer box of an exercise */
   --scroll-offset: 7.5rem; /* space kept above a section when the page scrolls to it (room for the menu bar) */
 }
@@ -72,13 +72,14 @@
 /* ===== Whole page ===== */
 * {
   box-sizing: border-box; /* width includes padding and border (easier sizing) */
+  font-variant-ligatures: none; /* show <= >= <> != || === as separate signs, never joined into one symbol */
 }
 
-body {
+body { /* the whole page */
   margin: 0; /* remove the browser's default margin */
   min-height: 100vh; /* fill at least the whole screen height */
   background:
-    radial-gradient(ellipse at top, rgba(162, 89, 255, 0.12), transparent 60%), /* purple glow at the top of the page */
+    radial-gradient(ellipse at top, color-mix(in srgb, var(--color-accent) 12%, transparent), transparent 60%), /* accent-colored glow at the top of the page */
     var(--color-background); /* page background color */
   color: var(--color-text); /* main text color */
   font-family: var(--font-main); /* main font */
@@ -96,7 +97,7 @@ body {
   padding: 0 var(--space); /* side space on small screens */
 }
 
-.site-header-inner {
+.site-header-inner { /* the visible capsule of the menu bar */
   display: flex; /* logo and menu side by side */
   flex-wrap: wrap; /* on small screens, the menu moves below the logo */
   align-items: center; /* center them vertically */
@@ -104,9 +105,9 @@ body {
   gap: 0.5rem; /* space between logo and menu */
   padding: 0.4rem 0.6rem; /* space inside the menu bar */
   background: var(--color-header-background); /* menu bar background color */
-  border: 1px solid rgba(162, 89, 255, 0.3); /* purple border of the menu bar */
+  border: 1px solid color-mix(in srgb, var(--color-accent) 30%, transparent); /* accent-colored border of the menu bar (30% visible) */
   border-radius: var(--radius-menu); /* rounded menu bar corners */
-  box-shadow: 0 4px 20px rgba(162, 89, 255, 0.15); /* soft purple glow under the menu bar */
+  box-shadow: 0 4px 20px var(--color-accent-soft); /* soft accent-colored glow under the menu bar */
 }
 
 /* Logo: small "SQL" box + site name */
@@ -120,10 +121,10 @@ body {
   font-size: 0.9rem; /* site name size */
 }
 
-.brand-logo {
+.brand-logo { /* the small "SQL" logo box */
   padding: 0.2rem 0.45rem; /* space inside the logo box */
   background: #000000; /* logo box background */
-  border: 1px solid rgba(162, 89, 255, 0.3); /* logo box border */
+  border: 1px solid color-mix(in srgb, var(--color-accent) 30%, transparent); /* logo box border (accent color, 30% visible) */
   border-radius: 8px; /* rounded logo box corners */
 }
 
@@ -133,7 +134,7 @@ body {
   gap: 0.25rem; /* space between menu links */
 }
 
-.site-nav a {
+.site-nav a { /* each link of the menu */
   color: var(--color-text); /* menu link color */
   text-decoration: none; /* no underline on menu links */
   font-size: 0.85rem; /* menu link text size */
@@ -141,11 +142,11 @@ body {
   border-radius: var(--radius); /* rounded corners on the link highlight */
 }
 
-.site-nav a:hover {
+.site-nav a:hover { /* menu link under the mouse */
   color: var(--color-accent); /* menu link color on mouse hover */
 }
 
-.site-nav a[aria-current="page"] {
+.site-nav a[aria-current="page"] { /* menu link of the page shown now */
   background: var(--color-accent); /* current page link: purple background */
   color: #000000; /* current page link: black text */
   font-weight: 700; /* current page link: bold */
@@ -164,7 +165,7 @@ main {
   padding: 4rem 0 3rem; /* space above and below the hero */
 }
 
-.hero-title {
+.hero-title { /* the big title at the top of a page */
   margin: 0 0 var(--space); /* space below the big title */
   font-size: var(--font-size-title); /* big title size */
   letter-spacing: 2px; /* space between letters of the big title */
@@ -175,7 +176,7 @@ main {
   color: transparent; /* hide the normal text color so the gradient shows */
 }
 
-.hero-text {
+.hero-text { /* the text under the big title */
   max-width: 40rem; /* keep the text lines short */
   margin: 0 auto 2rem; /* centered, with space below */
   letter-spacing: 1px; /* space between letters */
@@ -189,27 +190,27 @@ h3 {
   line-height: 1.4; /* line spacing of headings */
 }
 
-h2 {
+h2 { /* section headings only */
   font-size: var(--font-size-heading); /* section heading size */
 }
 
-h2::before,
+h2::before, /* the sign before section headings (h2) */
 h3::before {
   content: '> '; /* the ">" sign before every heading (terminal style) */
   color: var(--color-accent); /* color of the ">" sign */
 }
 
-a {
+a { /* all links */
   color: var(--color-accent); /* link color */
 }
 
-a:focus-visible,
+a:focus-visible, /* links reached with the keyboard (Tab) */
 button:focus-visible {
   outline: 2px solid var(--color-accent); /* visible outline when using the keyboard */
   outline-offset: 2px; /* small gap between element and outline */
 }
 
-strong {
+strong { /* bold words */
   color: var(--color-accent); /* bold words are purple */
 }
 
@@ -222,7 +223,7 @@ strong {
   margin-bottom: 1.5rem; /* space below each card */
 }
 
-.card > :first-child {
+.card > :first-child { /* the first element directly inside a card */
   margin-top: 0; /* no extra space at the top of a card */
 }
 
@@ -234,13 +235,13 @@ strong {
   padding: 0.5rem 1.1rem; /* space inside the badge */
   background: var(--color-accent-soft); /* badge background */
   border: 1px solid var(--color-accent); /* badge border */
-  border-radius: 999px; /* fully rounded badge (pill shape) */
+  border-radius: var(--radius-pill); /* fully rounded badge (pill shape) */
   font-size: 0.85rem; /* badge text size */
   font-weight: 700; /* bold badge text */
   letter-spacing: 1px; /* space between letters */
 }
 
-.status::before {
+.status::before { /* the colored dot at the start of the status badge */
   content: ''; /* empty element used as the colored dot */
   width: 0.6rem; /* dot width */
   height: 0.6rem; /* dot height */
@@ -248,16 +249,16 @@ strong {
   background: var(--color-text-muted); /* dot color while loading (gray) */
 }
 
-.status-success::before {
+.status-success::before { /* the dot when the database is ready */
   background: var(--color-success); /* dot color when the database is ready (green) */
   box-shadow: 0 0 8px var(--color-success); /* green glow around the dot */
 }
 
-.status-error {
+.status-error { /* the status badge when something went wrong */
   color: var(--color-error); /* badge text color when something went wrong */
 }
 
-.status-error::before {
+.status-error::before { /* the dot when something went wrong */
   background: var(--color-error); /* dot color when something went wrong (red) */
   box-shadow: 0 0 8px var(--color-error); /* red glow around the dot */
 }
@@ -275,24 +276,24 @@ strong {
   margin-bottom: 2rem; /* space below the editor section */
 }
 
-.editor-layout {
+.editor-layout { /* the grid with the editor and the structure panel */
   display: grid; /* editor and structure panel placed in a grid */
   grid-template-columns: minmax(0, 1fr); /* phones: one column (editor above, structure panel below) */
   gap: 1.5rem; /* space between the editor and the structure panel */
   align-items: start; /* each box is only as tall as its content */
 }
 
-@media (min-width: 900px) {
-  .editor-layout {
+@media (min-width: 900px) { /* screens at least 900px wide (computers) */
+  .editor-layout { /* the editor grid on computers */
     grid-template-columns: minmax(0, 1fr) var(--schema-panel-width); /* computers: editor on the left, structure panel on the right */
   }
 }
 
-.editor-layout > .card {
+.editor-layout > .card { /* the boxes directly inside the editor grid */
   margin-bottom: 0; /* the grid gap already adds the space between boxes */
 }
 
-.editor-label {
+.editor-label { /* the text above the editor ("Scrie o interogare SQL:") */
   display: block; /* the label sits on its own line, above the editor */
   margin-bottom: 0.5rem; /* space between the label and the editor */
   font-size: 0.85rem; /* label text size */
@@ -315,7 +316,7 @@ strong {
   border-radius: var(--radius); /* rounded editor corners */
 }
 
-.sql-editor:focus {
+.sql-editor:focus { /* the editor while typing in it */
   outline: none; /* remove the browser's default outline (replaced by the glow below) */
   border-color: var(--color-accent); /* purple border while typing */
   box-shadow: 0 0 12px var(--color-accent-glow); /* purple glow while typing */
@@ -330,7 +331,7 @@ strong {
   margin-top: 1rem; /* space between the editor and the buttons */
 }
 
-.editor-hint {
+.editor-hint { /* the "Ctrl+Enter pentru a rula" hint */
   font-size: var(--font-size-small); /* small hint text */
   color: var(--color-text-muted); /* gray hint text */
 }
@@ -350,11 +351,11 @@ strong {
   background: var(--color-button-primary); /* run button background color */
   color: var(--color-button-primary-text); /* run button text color */
   font-weight: 700; /* bold run button text */
-  box-shadow: 0 0 15px var(--color-accent-glow); /* purple glow around the run button */
+  box-shadow: 0 0 15px color-mix(in srgb, var(--color-button-primary) 60%, transparent); /* glow around the run button, in the button's own color */
 }
 
-.button-primary:hover {
-  box-shadow: 0 0 25px var(--color-accent-glow); /* stronger glow on mouse hover */
+.button-primary:hover { /* run button under the mouse */
+  box-shadow: 0 0 25px color-mix(in srgb, var(--color-button-primary) 60%, transparent); /* stronger glow on mouse hover */
 }
 
 /* Second button ("Resetează baza de date"): dark background, purple border */
@@ -363,7 +364,7 @@ strong {
   color: var(--color-text); /* reset button text color */
 }
 
-.button-secondary:hover {
+.button-secondary:hover { /* second button under the mouse */
   color: var(--color-accent); /* reset button text turns purple on mouse hover */
 }
 
@@ -372,7 +373,7 @@ strong {
   margin-top: 1.5rem; /* space between the buttons and the results */
 }
 
-.result-block + .result-block {
+.result-block + .result-block { /* a result table that comes right after another result table */
   margin-top: 1.5rem; /* space between two result tables */
 }
 
@@ -384,13 +385,13 @@ strong {
   border-radius: var(--radius); /* rounded corners */
 }
 
-.result-table {
+.result-table { /* the table with the query results */
   width: 100%; /* table at least as wide as the card */
   border-collapse: collapse; /* single lines between cells */
   font-size: var(--font-size-code); /* result table text size */
 }
 
-.result-table th,
+.result-table th, /* the cells of the result table (column names and values) */
 .result-table td {
   padding: 0.45rem 0.8rem; /* space inside each cell */
   text-align: left; /* values aligned to the left */
@@ -398,7 +399,7 @@ strong {
   border-bottom: 1px solid var(--color-table-line); /* line between rows */
 }
 
-.result-table th {
+.result-table th { /* the column names of the result table */
   position: sticky; /* column names stay visible while scrolling down */
   top: 0; /* stick to the top of the table box */
   background: var(--color-table-header); /* column names background color */
@@ -406,16 +407,16 @@ strong {
   font-weight: 700; /* bold column names */
 }
 
-.result-table tbody tr:nth-child(even) {
+.result-table tbody tr:nth-child(even) { /* every second row of the result table */
   background: var(--color-table-row-alt); /* every second row slightly lighter (easier to read) */
 }
 
-.null-value {
+.null-value { /* a cell that holds NULL */
   color: var(--color-text-muted); /* NULL values shown in gray */
   font-style: italic; /* and in italics, so they differ from the text 'NULL' */
 }
 
-.row-count {
+.row-count { /* the "N rânduri" text under a result table */
   margin: 0.5rem 0 0; /* space above the row count */
   font-size: var(--font-size-small); /* small row count text */
   color: var(--color-text-muted); /* gray row count text */
@@ -433,19 +434,19 @@ strong {
   overflow-wrap: anywhere; /* break very long words so they fit on phones */
 }
 
-.message-error {
+.message-error { /* an error message */
   color: var(--color-error); /* error message text color (red) */
   border-left-color: var(--color-error); /* red line on the left */
   background: rgba(248, 113, 113, 0.08); /* light red background */
 }
 
-.message-success {
+.message-success { /* a success message */
   color: var(--color-success); /* success message text color (green) */
   border-left-color: var(--color-success); /* green line on the left */
   background: rgba(74, 222, 128, 0.08); /* light green background */
 }
 
-.message-info {
+.message-info { /* an information message */
   color: var(--color-text-muted); /* information message text color (gray) */
 }
 
@@ -455,40 +456,40 @@ strong {
   font-size: 1rem; /* panel heading size */
 }
 
-.schema-table {
+.schema-table { /* one table in the structure panel */
   border-bottom: 1px solid var(--color-border); /* line between tables */
   padding: 0.4rem 0; /* space above and below each table */
 }
 
-.schema-table summary {
+.schema-table summary { /* the table name (click it to open or close the column list) */
   cursor: pointer; /* hand cursor: the table name can be clicked */
   font-weight: 700; /* bold table name */
 }
 
-.schema-table summary:hover {
+.schema-table summary:hover { /* table name under the mouse */
   color: var(--color-accent); /* table name turns purple on mouse hover */
 }
 
-.schema-table summary:focus-visible {
+.schema-table summary:focus-visible { /* table name reached with the keyboard (Tab) */
   outline: 2px solid var(--color-accent); /* visible outline when using the keyboard */
   outline-offset: 2px; /* small gap between the name and the outline */
 }
 
-.column-list {
+.column-list { /* the list of columns of a table */
   list-style: none; /* no bullets in the column list */
   margin: 0.4rem 0; /* space above and below the column list */
   padding-left: 1rem; /* columns indented under the table name */
   font-size: var(--font-size-small); /* small column text */
 }
 
-.column-list li {
+.column-list li { /* one column in the list */
   display: flex; /* column name and type on the same line */
   flex-wrap: wrap; /* move the type to the next line if there is no room */
   justify-content: space-between; /* name on the left, type on the right */
   gap: 0 0.5rem; /* space between name and type */
 }
 
-.column-type {
+.column-type { /* the type of a column, e.g. VARCHAR2(30) */
   color: var(--color-text-muted); /* column types in gray */
 }
 
@@ -505,7 +506,7 @@ strong {
   cursor: pointer; /* hand cursor on hover */
 }
 
-.schema-query-button:hover {
+.schema-query-button:hover { /* the small button under the mouse */
   border-color: var(--color-accent); /* stronger border on mouse hover */
 }
 
@@ -518,7 +519,7 @@ strong {
   scroll-margin-top: var(--scroll-offset); /* space above the section after scrolling */
 }
 
-.lessons-section {
+.lessons-section { /* the whole lessons section */
   margin-bottom: 2rem; /* space below the lessons section */
 }
 
@@ -546,11 +547,11 @@ strong {
   cursor: pointer; /* hand cursor on hover */
 }
 
-.lesson-chip:hover {
+.lesson-chip:hover { /* lesson button under the mouse */
   border-color: var(--color-accent); /* stronger border on mouse hover */
 }
 
-.lesson-chip-progress {
+.lesson-chip-progress { /* the progress inside a lesson button, e.g. "2/4" */
   font-size: var(--font-size-small); /* small progress text, e.g. "2/4" */
   font-weight: 400; /* normal (not bold) progress text */
   color: var(--color-text-muted); /* gray progress text */
@@ -561,7 +562,7 @@ strong {
   border-color: var(--color-success); /* green border */
 }
 
-.lesson-chip-done .lesson-chip-progress {
+.lesson-chip-done .lesson-chip-progress { /* the progress text inside a lesson button of a finished lesson */
   color: var(--color-success); /* green progress text */
 }
 
@@ -573,7 +574,7 @@ strong {
   box-shadow: 0 0 15px var(--color-accent-glow); /* purple glow */
 }
 
-.lesson-chip[aria-current="true"] .lesson-chip-progress {
+.lesson-chip[aria-current="true"] .lesson-chip-progress { /* the progress text inside the button of the open lesson */
   color: var(--color-button-primary-text); /* black progress text on the purple button */
 }
 
@@ -585,15 +586,15 @@ strong {
   letter-spacing: 1px; /* space between letters */
 }
 
-.lesson h3 {
+.lesson h3 { /* the title of the open lesson */
   margin-top: 0.25rem; /* small space between "Lecția 3 din 9" and the lesson title */
 }
 
-.lesson-list {
+.lesson-list { /* bullet lists inside a lesson */
   padding-left: 1.25rem; /* bullets indented a little */
 }
 
-.lesson-list li + li {
+.lesson-list li + li { /* every line of a lesson list except the first one */
   margin-top: 0.35rem; /* space between the lines of a list */
 }
 
@@ -620,7 +621,7 @@ strong {
   line-height: 1.6; /* space between the lines of code */
 }
 
-.lesson .code-block code {
+.lesson .code-block code { /* the SQL inside a code box of a lesson */
   padding: 0; /* no extra space: the box already has it */
   background: none; /* no extra background inside the code box */
   color: var(--color-text); /* normal text color for the SQL */
@@ -634,7 +635,7 @@ strong {
   border-left: 3px solid var(--color-accent); /* purple line on the left of the example */
 }
 
-.lesson-example-text {
+.lesson-example-text { /* the explanation under an example */
   margin: 0 0 0.75rem; /* space between the explanation and the button */
   color: var(--color-text-muted); /* gray explanation text */
   font-size: 0.9rem; /* explanation text size */
@@ -647,18 +648,18 @@ strong {
   border-top: 1px solid var(--color-border); /* line above the exercises */
 }
 
-.exercises-title {
+.exercises-title { /* the "Exerciții" heading */
   margin: 0; /* no extra space around the "Exerciții" heading */
   font-size: 1.1rem; /* "Exerciții" heading size */
   color: var(--color-heading); /* heading color */
 }
 
-.exercises-title::before {
+.exercises-title::before { /* the sign before the "Exerciții" heading */
   content: '> '; /* the ">" sign before the heading, like the other headings */
   color: var(--color-accent); /* color of the ">" sign */
 }
 
-.lesson-progress {
+.lesson-progress { /* the "Rezolvate: 2 din 4" text */
   margin: 0.25rem 0 1rem; /* space around "Rezolvate: 2 din 4" */
   font-size: var(--font-size-small); /* small progress text */
   color: var(--color-text-muted); /* gray progress text */
@@ -672,35 +673,41 @@ strong {
   border-radius: var(--radius); /* rounded corners */
 }
 
-.exercise-title {
+.exercise-title { /* the "Exercițiul 2" title */
   margin: 0 0 0.5rem; /* space below "Exercițiul 2" */
   font-size: 0.95rem; /* exercise title size */
   color: var(--color-accent); /* purple exercise title */
 }
 
-.exercise-solved {
+.exercise-solved { /* the green "rezolvat" mark next to the exercise title */
   margin-left: 0.5rem; /* space between the title and the mark */
-  color: var(--color-success); /* green "✓ rezolvat" mark */
+  color: var(--color-success); /* green "rezolvat" mark */
   font-size: var(--font-size-small); /* small mark text */
 }
 
-.exercise-editor {
+.exercise-editor { /* the answer box of an exercise */
   min-height: var(--exercise-editor-height); /* the answer box is shorter than the main editor */
 }
 
-.exercise-hint {
+.exercise-hint { /* the hint of an exercise */
   margin-top: 1rem; /* space between the buttons and the hint */
 }
 
-.exercise .code-block {
-  margin-top: 1rem; /* space between the buttons and the solution */
+.exercise-solution { /* box with the "Soluția:" label and the correct SQL, under the feedback */
+  margin-top: 1rem; /* space between the feedback and the solution */
 }
 
-.exercise-feedback .message {
+.exercise-solution-label { /* the "Soluția:" label above the correct SQL */
+  margin: 0 0 0.35rem; /* small space between the label and the SQL */
+  font-size: var(--font-size-small); /* small label text */
+  color: var(--color-accent); /* accent-colored label */
+}
+
+.exercise-feedback .message { /* the "Corect!" / error message of an exercise */
   margin-top: 1rem; /* space between the buttons and the "Corect!" / error message */
 }
 
-.exercise-feedback .results {
+.exercise-feedback .results { /* the user's rows under the message of an exercise */
   margin-top: 0.75rem; /* space between the message and the user's rows */
 }
 
@@ -728,7 +735,7 @@ strong {
   scroll-margin-top: var(--scroll-offset); /* when a table of contents link jumps here, the heading is not hidden under the menu bar */
 }
 
-.how-page h3 {
+.how-page h3 { /* small headings on the how it works page */
   margin-top: 1.75rem; /* space above the small headings inside a card */
 }
 
@@ -738,7 +745,6 @@ strong {
   background: var(--color-code-background); /* light purple background behind code (same as in the lessons) */
   color: var(--color-code-text); /* light purple code text (same as in the lessons) */
   font-family: var(--font-main); /* same font as the rest of the site (browsers use another font for code) */
-  font-variant-ligatures: none; /* show "===" as three signs, not joined into one symbol */
   border-radius: 4px; /* slightly rounded code background */
   font-size: 0.9em; /* code text a bit smaller than the text around it */
   overflow-wrap: anywhere; /* long function names break instead of widening the page on phones */
@@ -753,16 +759,16 @@ strong {
   margin-bottom: 2rem; /* space between the links and the first card */
 }
 
-.how-toc a {
+.how-toc a { /* each pill link of the table of contents */
   padding: 0.3rem 0.9rem; /* space inside each pill link */
   border: 1px solid var(--color-border); /* thin purple border of the pill links */
-  border-radius: 999px; /* fully rounded pill links */
+  border-radius: var(--radius-pill); /* fully rounded pill links */
   color: var(--color-text); /* pill link text color */
   text-decoration: none; /* no underline on the pill links */
   font-size: var(--font-size-small); /* small pill link text */
 }
 
-.how-toc a:hover {
+.how-toc a:hover { /* pill link under the mouse */
   border-color: var(--color-accent); /* stronger purple border on mouse hover */
   box-shadow: 0 0 10px var(--color-accent-glow); /* purple glow on mouse hover */
 }
@@ -777,13 +783,13 @@ strong {
   list-style: none; /* no bullets */
 }
 
-@media (min-width: 600px) {
-  .how-stats {
+@media (min-width: 600px) { /* screens at least 600px wide (tablets and computers) */
+  .how-stats { /* the three big numbers on wider screens */
     grid-template-columns: repeat(3, minmax(0, 1fr)); /* computers: three numbers side by side */
   }
 }
 
-.how-stats li {
+.how-stats li { /* the box of one big number */
   padding: 1rem; /* space inside each number box */
   border: 1px solid var(--color-border); /* thin purple border of each number box */
   border-radius: var(--radius); /* rounded number box corners */
@@ -792,7 +798,7 @@ strong {
   color: var(--color-text-muted); /* gray text under the number */
 }
 
-.how-stat-number {
+.how-stat-number { /* the big number itself */
   display: block; /* the number sits on its own line, above the text */
   font-size: 2.5rem; /* size of the big numbers */
   font-weight: 700; /* bold big numbers */
@@ -811,7 +817,7 @@ strong {
   font-size: 0.9rem; /* text size of the explanations */
 }
 
-.how-badges li {
+.how-badges li { /* one technology: pill + explanation */
   display: flex; /* pill and explanation one under the other */
   flex-direction: column; /* pill on top, explanation below */
   align-items: flex-start; /* the pill is only as wide as its text */
@@ -819,13 +825,13 @@ strong {
   color: var(--color-text-muted); /* gray explanation text */
 }
 
-.how-badge {
+.how-badge { /* the pill with the technology name */
   display: inline-block; /* pill with its own padding */
   color: var(--color-text); /* white technology name */
   padding: 0.15rem 0.75rem; /* space inside the pill */
   background: var(--color-accent-soft); /* light purple pill background */
   border: 1px solid var(--color-accent); /* purple pill border */
-  border-radius: 999px; /* fully rounded pill */
+  border-radius: var(--radius-pill); /* fully rounded pill */
   font-weight: 700; /* bold technology name */
 }
 
@@ -836,15 +842,15 @@ strong {
   gap: 0.5rem; /* space between the pills */
 }
 
-.how-badges-code li {
+.how-badges-code li { /* one pill with a code word */
   display: block; /* a simple pill (not the pill + explanation layout of the technologies list) */
   padding: 0.2rem 0.75rem; /* space inside each pill */
   color: var(--color-text); /* white pill text */
   border: 1px solid var(--color-accent); /* purple pill border */
-  border-radius: 999px; /* fully rounded pill */
+  border-radius: var(--radius-pill); /* fully rounded pill */
 }
 
-.how-badges-code code {
+.how-badges-code code { /* the code word inside a pill */
   padding: 0; /* the pill already has space inside */
   background: none; /* the pill already has a border, no extra background */
 }
@@ -855,19 +861,58 @@ strong {
   margin: 1rem 0; /* space above and below the table */
 }
 
-.how-table-wide {
+.how-table-wide { /* tables with 3 columns */
   min-width: 34rem; /* tables with 3 columns: on phones they scroll sideways inside their box instead of squeezing the text */
 }
 
-.how-table th,
+.how-table th, /* the cells of the tables on this page */
 .how-table td {
   white-space: normal; /* long explanations wrap on several lines */
   vertical-align: top; /* cells of the same row start at the same height */
 }
 
-.how-page .how-table code {
+.how-page .how-table code { /* code inside the tables of this page */
   white-space: nowrap; /* file names and code in tables stay on one line (the table scrolls sideways instead) */
   overflow-wrap: normal; /* never cut a file name in the middle */
+}
+
+/* "Unde modific?" table on phones: each row becomes a small card (what to change, what to search, which file) */
+@media (max-width: 599px) {
+  .how-table-stack thead { /* phones: hide the column names (each value gets its own label below) */
+    display: none; /* the header row is not shown */
+  }
+
+  .how-table-stack,
+  .how-table-stack tbody,
+  .how-table-stack tr,
+  .how-table-stack td { /* phones: the table, its rows and its cells become normal blocks, one under the other */
+    display: block; /* no table columns: everything is stacked */
+    min-width: 0; /* no minimum width: the cards fit the phone screen */
+  }
+
+  .how-table-stack tr { /* phones: one row = one card */
+    padding: 0.5rem 0; /* space above and below each card */
+    border-bottom: 1px solid var(--color-border); /* line between two cards */
+  }
+
+  .how-table-stack td { /* phones: one value of a row */
+    padding: 0.1rem 0.8rem; /* small space around each value */
+    border-bottom: none; /* the line is under the whole card, not under each value */
+  }
+
+  .how-table-stack td:first-child { /* phones: "what you want to change" */
+    font-weight: 700; /* bold, as the title of the card */
+  }
+
+  .how-table-stack td:nth-child(2)::before { /* phones: label before the search text */
+    content: 'Caută: '; /* label text */
+    color: var(--color-text-muted); /* gray label */
+  }
+
+  .how-table-stack td:nth-child(3)::before { /* phones: label before the file name */
+    content: 'Fișier: '; /* label text */
+    color: var(--color-text-muted); /* gray label */
+  }
 }
 
 /* Flow diagram: vertical boxes connected by arrows (query path, startup, publishing) */
@@ -879,7 +924,7 @@ strong {
   counter-reset: flow-step; /* start counting the steps from 1 in each diagram */
 }
 
-.how-flow-step {
+.how-flow-step { /* one box of a flow diagram */
   position: relative; /* lets the arrow and the step number be placed around the box */
   display: flex; /* the parts of the box one under the other */
   flex-direction: column; /* file label, title, text from top to bottom */
@@ -893,11 +938,11 @@ strong {
   counter-increment: flow-step; /* this box is the next step */
 }
 
-.how-flow-step:last-child {
+.how-flow-step:last-child { /* the last box of a flow diagram */
   margin-bottom: 0; /* no arrow after the last box, so no extra space */
 }
 
-.how-flow-step::before {
+.how-flow-step::before { /* the step number badge on the top border of a box */
   content: counter(flow-step); /* the step number: 1, 2, 3 ... */
   position: absolute; /* placed on the top border of the box */
   top: -0.75rem; /* half above the border */
@@ -906,13 +951,13 @@ strong {
   padding: 0 0.4rem; /* space inside the badge */
   background: var(--color-accent); /* purple step number badge */
   color: var(--color-button-primary-text); /* black step number */
-  border-radius: 999px; /* round step number badge */
+  border-radius: var(--radius-pill); /* round step number badge */
   font-size: var(--font-size-small); /* small step number */
   font-weight: 700; /* bold step number */
   text-align: center; /* number centered in the badge */
 }
 
-.how-flow-step:not(:last-child)::after {
+.how-flow-step:not(:last-child)::after { /* the arrow under every box except the last one */
   content: '↓'; /* the arrow between two boxes */
   position: absolute; /* placed under the box */
   bottom: -2.3rem; /* in the space between this box and the next */
@@ -924,31 +969,31 @@ strong {
   text-shadow: 0 0 10px var(--color-accent-glow); /* purple glow around the arrow */
 }
 
-.how-flow-file {
+.how-flow-file { /* the small file label at the top of a box */
   align-self: flex-start; /* the label is only as wide as its text */
   padding: 0 0.6rem; /* space inside the file label */
   border: 1px solid var(--color-border); /* thin border of the file label */
-  border-radius: 999px; /* pill-shaped file label */
+  border-radius: var(--radius-pill); /* pill-shaped file label */
   color: var(--color-text-muted); /* gray file label text */
   font-size: var(--font-size-small); /* small file label text */
 }
 
-.how-flow-title {
+.how-flow-title { /* the title of a box (a function name) */
   font-weight: 700; /* bold step title */
   overflow-wrap: anywhere; /* long function names break on phones */
 }
 
-.how-flow-text {
+.how-flow-text { /* the explanation inside a box */
   font-size: 0.9rem; /* step explanation text size */
   color: var(--color-text-muted); /* gray step explanation */
 }
 
-.how-flow-engine {
+.how-flow-engine { /* the box of the SQL engine (highlighted) */
   background: var(--color-accent-soft); /* the SQL engine box has a purple background */
   box-shadow: 0 0 20px var(--color-accent-glow); /* stronger glow: the engine is the heart of the site */
 }
 
-.how-page .how-flow-example {
+.how-page .how-flow-example { /* the example result inside a box */
   display: block; /* example result on its own line */
   padding: 0.5rem 0.75rem; /* space inside the example box */
   background: var(--color-background); /* black example background */
@@ -966,7 +1011,7 @@ strong {
   font-size: 0.85rem; /* outcome text size */
 }
 
-.how-branches li {
+.how-branches li { /* one possible outcome */
   padding: 0.6rem 0.75rem; /* space inside each outcome box */
   border: 1px dashed var(--color-accent); /* dashed purple border: these are alternatives */
   border-radius: var(--radius); /* rounded outcome box corners */
@@ -978,14 +1023,14 @@ strong {
   color: var(--color-text-muted); /* gray legend text */
 }
 
-.how-er {
+.how-er { /* the database diagram */
   display: grid; /* table boxes placed in a grid */
   grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); /* as many columns as fit (one on phones) */
   gap: 1rem; /* space between the table boxes */
   margin: 1rem 0; /* space above and below the diagram */
 }
 
-.how-er-table {
+.how-er-table { /* the box of one table in the diagram */
   border: 1px solid var(--color-accent); /* purple border of a table box */
   border-radius: var(--radius); /* rounded table box corners */
   background: var(--color-editor-background); /* dark table box background */
@@ -993,7 +1038,7 @@ strong {
   overflow: hidden; /* keep the header color inside the rounded corners */
 }
 
-.how-page .how-er-name {
+.how-page .how-er-name { /* the name bar at the top of a table box */
   display: flex; /* table name and row count on one line */
   flex-wrap: wrap; /* row count moves below on very small screens */
   justify-content: space-between; /* name on the left, row count on the right */
@@ -1007,24 +1052,24 @@ strong {
   font-size: 1rem; /* table name size */
 }
 
-.how-er-name::before {
+.how-er-name::before { /* the sign before a table name in the diagram */
   content: none; /* no ">" before the table names in the diagram */
 }
 
-.how-er-count {
+.how-er-count { /* the row count next to a table name */
   color: var(--color-text-muted); /* gray row count */
   font-size: var(--font-size-small); /* small row count */
   font-weight: 400; /* normal (not bold) row count */
 }
 
-.how-er-columns {
+.how-er-columns { /* the list of columns in a table box */
   margin: 0; /* no space around the column list */
   padding: 0.5rem 0.75rem; /* space inside the column list */
   list-style: none; /* no bullets */
   font-size: var(--font-size-small); /* small column text */
 }
 
-.how-er-columns li {
+.how-er-columns li { /* one column in a table box */
   display: flex; /* column name and type on the same line */
   flex-wrap: wrap; /* type moves to the next line if there is no room */
   justify-content: space-between; /* name on the left, type on the right */
@@ -1033,11 +1078,11 @@ strong {
   border-bottom: 1px solid var(--color-table-line); /* thin line between columns */
 }
 
-.how-er-columns li:last-child {
+.how-er-columns li:last-child { /* the last column in a table box */
   border-bottom: none; /* no line after the last column */
 }
 
-.how-er-type {
+.how-er-type { /* the type of a column in a table box */
   color: var(--color-text-muted); /* gray column types */
 }
 
@@ -1053,12 +1098,12 @@ strong {
   line-height: 1.5; /* label height */
 }
 
-.how-key-pk {
+.how-key-pk { /* the PK (primary key) label */
   background: var(--color-accent); /* primary key label: purple background */
   color: var(--color-button-primary-text); /* primary key label: black text */
 }
 
-.how-key-fk {
+.how-key-fk { /* the FK (foreign key) label */
   color: var(--color-accent); /* foreign key label: purple text, no background */
 }
 
@@ -1067,11 +1112,11 @@ strong {
   padding-left: 1.25rem; /* list indent */
 }
 
-.how-list li {
+.how-list li { /* one item of a list on this page */
   margin-bottom: 0.5rem; /* space between list items */
 }
 
-.how-list li::marker {
+.how-list li::marker { /* the bullet of a list item */
   color: var(--color-accent); /* purple bullets */
 }
 
@@ -1089,7 +1134,7 @@ strong {
   overflow-x: auto; /* long code lines scroll inside the box on phones */
 }
 
-.how-page .how-code code {
+.how-page .how-code code { /* the code inside the code excerpt box */
   padding: 0; /* no extra space: the box already has it */
   background: none; /* no purple background behind the whole code block */
   color: var(--color-text); /* normal text color for the code, like the SQL in the lessons */
@@ -1104,4 +1149,8 @@ strong {
   border-radius: var(--radius); /* rounded note corners */
   background: var(--color-accent-soft); /* light purple note background */
   font-size: 0.9rem; /* note text size */
+}
+
+.how-page .how-note code { /* code inside a note */
+  white-space: nowrap; /* names like --color-accent stay whole (never broken after the "--") */
 }

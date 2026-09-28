@@ -21,11 +21,12 @@ The website **is** the whole deliverable (no PDF/PowerPoint). It has two pages: 
 - **Deadline:** February 2027.
 
 ## Run locally
-sql.js fetches its `.wasm` file, which fails under `file://`. Always serve over HTTP:
+sql.js fetches its `.wasm` file, which fails under `file://` (double-clicking index.html won't work). Always serve over HTTP
+with the project's own server, which also turns off browser caching (so a normal F5 shows every edit, which matters for live changes in the exam):
 ```bash
-python3 -m http.server 8000 --directory site
+python3 serve.py
 ```
-Then open http://localhost:8000.
+Then open http://localhost:8000. (`python3 -m http.server` works too, but the browser then caches CSS/JS/seed.sql and F5 shows stale files.)
 
 ## Project files: read these before working
 - `PLAN.md`: phases, the current phase, and open questions.

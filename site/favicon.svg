@@ -1,0 +1,9 @@
+<!--
+  favicon.svg - small icon shown in the browser tab (used by index.html and cum-functioneaza.html).
+  Same look as the "SQL" logo box: black rounded square, purple border and a purple ">" sign.
+  The colors are written here directly, because an icon file cannot read the variables from style.css.
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"> <!-- the icon: a 32 x 32 drawing area -->
+  <rect x="1" y="1" width="30" height="30" rx="7" fill="#000000" stroke="#a259ff" stroke-width="2"/> <!-- black box with a purple border (icon background and border color) -->
+  <path d="M10 9 L19 16 L10 23" fill="none" stroke="#a259ff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/> <!-- the ">" sign (icon sign color) -->
+</svg> <!-- end of the icon -->

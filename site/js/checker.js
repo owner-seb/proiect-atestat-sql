@@ -8,14 +8,19 @@
   - the order of the rows matters only when the exercise asks for it (orderMatters: true);
   - numbers are rounded to 6 decimals before comparing, so 7 and 7.0 are equal;
   - for INSERT/UPDATE/DELETE/CREATE exercises (they have a checkQuery), the table contents
-    after the user's SQL are compared with the table contents after the solution.
+    after the user's SQL are compared with the table contents after the solution;
+    the checkQuery is hidden, so its table is never shown to the user, only a message in words.
 */
 
 import { createScratchDatabase, prepareOracleSql } from './db.js'; // separate databases + Oracle SQL rewrite
-import { formatCount } from './render.js'; // Romanian text for numbers, e.g. "40 de rânduri"
+import { formatCount, translateError } from './render.js'; // Romanian text for numbers and for SQL errors
 
 // Numbers are rounded to this many decimals before comparing (hides tiny rounding errors)
 const DECIMALS = 6;
+
+// Message for a DML/DDL exercise whose table is different from the expected one
+const TABLE_DIFFERENT = 'După comanda ta, tabelul nu arată cum trebuie: unele valori sau constrângeri sunt diferite. '
+  + 'Verifică rândurile și, la CREATE TABLE, constrângerile (PRIMARY KEY, NOT NULL, UNIQUE, CHECK, FOREIGN KEY).';
 
 /**
  * Checks the user's answer to an exercise.
@@ -26,6 +31,7 @@ const DECIMALS = 6;
  *   correct - true if the answer is right
  *   message - the feedback text in Romanian
  *   result  - the rows the user's SQL produced ({ columns, values }), to show under the message, or null
+ *             (always null for DML/DDL exercises: the table read by the hidden checkQuery is not shown)
  */
 export function checkExercise(exercise, userSql) {
   if (userSql.trim() === '') { // the box is empty
@@ -35,21 +41,38 @@ export function checkExercise(exercise, userSql) {
   try {
     userResult = runOnScratchDatabase(userSql, exercise.checkQuery); // run the user's SQL on its own copy
   } catch (error) {
-    return { correct: false, message: 'Eroare SQL: ' + error.message, result: null }; // wrong SQL: show the error
+    return { correct: false, message: 'Eroare SQL: ' + translateExerciseError(error.message), result: null }; // wrong SQL: show the error in Romanian
   }
   const expectedResult = runOnScratchDatabase(exercise.solution, exercise.checkQuery); // run the solution on another copy
   const difference = findDifference(userResult, expectedResult, exercise); // '' when they are the same
+  const shownResult = exercise.checkQuery === undefined ? userResult : null; // hide the checkQuery's table
   if (difference === '') { // same result as the solution
-    return { correct: true, message: 'Corect! Exercițiul este rezolvat.', result: userResult };
+    return { correct: true, message: 'Corect! Exercițiul este rezolvat.', result: shownResult };
   }
-  return { correct: false, message: difference, result: userResult }; // explain what is different
+  return { correct: false, message: difference, result: shownResult }; // explain what is different
+}
+
+/**
+ * Translates an SQL error of an exercise into Romanian.
+ * Same as translateError (render.js), except for a missing table: the advice to press the reset button
+ * does not help here, because every check runs on a fresh copy of the database; usually the name is wrong.
+ * Parameter: message - the error message (error.message).
+ * Returns: the message in Romanian.
+ */
+function translateExerciseError(message) {
+  const match = /^no such table: (.+)$/.exec(message); // match[1] is the table name
+  if (match !== null) { // a table that does not exist
+    return 'Tabelul ' + match[1] + ' nu există. Verifică numele tabelului.';
+  }
+  return translateError(message); // every other error: the usual translation
 }
 
 /**
  * Runs SQL on a new, separate copy of the school database, then closes that copy.
  * Parameters:
  *   sql        - the SQL to run (the user's answer or the solution)
- *   checkQuery - optional SELECT that reads the table after the SQL (for INSERT/UPDATE/DELETE/CREATE)
+ *   checkQuery - optional hidden SQL that reads the table after the SQL (for INSERT/UPDATE/DELETE/CREATE);
+ *                it may have several statements; the last SELECT that returns rows is used
  * Returns: the last result set ({ columns, values }), or null if there are no rows.
  * Throws an error if the SQL is wrong.
  */
@@ -60,7 +83,7 @@ function runOnScratchDatabase(sql, checkQuery) {
     if (checkQuery === undefined) { // a normal SELECT exercise
       return lastResultSet(results); // compare what the SQL itself returned
     }
-    return lastResultSet(database.exec(checkQuery)); // DML/DDL exercise: read the table after the change
+    return lastResultSet(database.exec(checkQuery)); // DML/DDL exercise: read the table after the change (checkQuery is run as written)
   } finally {
     database.close(); // always free the copy, even after an error
   }
@@ -88,8 +111,10 @@ function lastResultSet(results) {
  * Returns: '' when the results are the same, otherwise a message in Romanian.
  */
 function findDifference(userResult, expectedResult, exercise) {
-  // start of the messages: a DML/DDL exercise talks about the table, a SELECT exercise about the result
-  const subject = exercise.checkQuery === undefined ? 'Rezultatul tău are' : 'După comanda ta, tabelul are';
+  if (exercise.checkQuery !== undefined) { // DML/DDL exercise: the hidden columns must not be counted or named
+    return findTableDifference(userResult, expectedResult, exercise.checkQuery);
+  }
+  const subject = 'Rezultatul tău are'; // start of the messages below
   const userRows = userResult === null ? [] : userResult.values; // the user's rows
   const expectedRows = expectedResult === null ? [] : expectedResult.values; // the correct rows
 
@@ -122,6 +147,32 @@ function findDifference(userResult, expectedResult, exercise) {
     return 'Rândurile sunt corecte, dar nu sunt în ordinea cerută. Verifică ORDER BY.';
   }
   return ''; // no difference: the answer is correct
+}
+
+/**
+ * Compares the table read by the hidden checkQuery after the user's SQL with the one after the solution
+ * (for DML/DDL exercises). A different number of rows is named only when the checkQuery just reads the table;
+ * any other difference gets a message in words.
+ * Parameters:
+ *   userResult, expectedResult - { columns, values } or null (no rows)
+ *   checkQuery                 - the hidden SQL of the exercise
+ * Returns: '' when the tables are the same, otherwise a message in Romanian.
+ */
+function findTableDifference(userResult, expectedResult, checkQuery) {
+  const userRows = userResult === null ? [] : userResult.values; // rows after the user's SQL
+  const expectedRows = expectedResult === null ? [] : expectedResult.values; // rows after the solution
+  // the checkQuery of a CREATE TABLE exercise first INSERTs its own test rows (to try the constraints),
+  // so there the number of rows is not the user's number and is not shown
+  const addsTestRows = /\bINSERT\b/i.test(checkQuery);
+  if (!addsTestRows && userRows.length !== expectedRows.length) { // e.g. a row was not inserted or too many were deleted
+    return 'După comanda ta, tabelul are ' + formatCount(userRows.length, 'rând', 'rânduri')
+      + ', dar ar trebui să aibă ' + formatCount(expectedRows.length, 'rând', 'rânduri') + '.';
+  }
+  const sameColumns = userResult === null || userResult.columns.length === expectedResult.columns.length; // null = both empty
+  if (sameColumns && sameList(sortedCopy(userRows.map(rowKey)), sortedCopy(expectedRows.map(rowKey)))) { // same rows
+    return ''; // no difference (the order of the rows does not matter for a table)
+  }
+  return TABLE_DIFFERENT; // different values or constraints, explained in words
 }
 
 /**

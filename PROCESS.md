@@ -144,3 +144,25 @@ scratch databases), and all 59 lesson queries run on the real database. Checked 
 - Two agents edited `style.css` at the same time → each owned a separate, clearly marked section, and the result was checked afterwards.
 
 **Next:** round 3, a review of the whole project (code rules, exam rehearsal) and fixes.
+
+## 2026-09-28: Round 3: review, exam rehearsal and fixes
+**Done:** Two review agents checked the whole project. A code reviewer looked at bugs, Oracle correctness, security and
+the coding rules. An exam tester played through the whole demo on desktop and phone, and actually made the examiner-style
+live changes, then restored the files. Two fixer agents then fixed everything, each owning separate files.
+
+**Main findings → fixes:**
+- **Live edits didn't show after F5.** `python3 -m http.server` lets the browser cache CSS/JS/seed.sql, so an examiner
+  would see no change → added `serve.py`, a tiny server that sends `Cache-Control: no-store`. Run with `python3 serve.py`.
+- **"Change the purple" needed 12 edits** → every purple is now derived from `--color-accent` with `color-mix()`. One line recolors the site.
+- **ROLLBACK was silently ignored**, so a wrong DML answer plus ROLLBACK was "Corect!" → ROLLBACK now gives a clear Romanian error.
+  **LIMIT** (not Oracle) now gives an error too.
+- **A cartesian product could freeze the page** → at most 500 rows are drawn per table.
+- **SQL errors were in English** → `translateError()` shows the common errors in Romanian.
+- **DDL exercises accepted wrong constraints** → the hidden check now tries invalid rows (`INSERT OR IGNORE`); if they get in, a constraint is missing.
+- Other fixes: `SUBSTR` behaves like Oracle (position 0), the rows-affected count covers multiple statements,
+  font ligatures are off (so `<=` and `<>` don't merge), the HAVING example actually filters, constraint names follow one convention,
+  the "Unde modific?" table has unique Ctrl+F terms and is readable on phones, and a favicon was added.
+
+**Tests:** `node tests/test-db.mjs` passes 207, `node tests/test-lessons.mjs` passes 171. Screenshots of both pages checked on desktop and phone.
+
+**Next:** the student rehearses the demo and the live changes (Phase 7). Confirm the live Cloudflare URL.

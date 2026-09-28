@@ -11,6 +11,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"> <!-- fit the page to phone screens -->
   <title>SQL Playground - Învață Oracle SQL</title> <!-- text shown in the browser tab -->
   <link rel="stylesheet" href="css/style.css"> <!-- all the styles of the site -->
+  <link rel="icon" href="favicon.svg" type="image/svg+xml"> <!-- small icon shown in the browser tab (file favicon.svg) -->
   <script src="vendor/sql-wasm.js"></script> <!-- SQL engine (sql.js); provides initSqlJs -->
   <script type="module" src="js/main.js"></script> <!-- page logic; runs after the page is loaded -->
 </head>
@@ -33,10 +34,7 @@
     <!-- Hero: big title at the top of the home page -->
     <section class="hero">
       <h1 class="hero-title">Învață Oracle SQL direct în browser</h1> <!-- big title of the home page -->
-      <p class="hero-text">
-        Lecții scurte, un editor în care rulezi interogări reale și exerciții verificate automat,
-        pe o bază de date a unei școli.
-      </p> <!-- short description of the site -->
+      <p class="hero-text">Lecții scurte, un editor în care rulezi interogări reale și exerciții verificate automat, pe o bază de date a unei școli.</p> <!-- short description of the site -->
       <p id="db-status" class="status">Se încarcă baza de date...</p> <!-- database status badge (filled in by main.js) -->
     </section>
 
@@ -55,7 +53,7 @@
       <div class="editor-layout"> <!-- two columns on computers, one column on phones -->
 
         <!-- Left column: the editor, the buttons and the results -->
-        <div class="card editor-card">
+        <div class="card">
           <label for="sql-editor" class="editor-label">Scrie o interogare SQL:</label> <!-- text above the editor -->
           <textarea id="sql-editor" class="sql-editor" rows="6" spellcheck="false" autocomplete="off" autocapitalize="off">SELECT nume, prenume, oras FROM elevi;</textarea> <!-- the SQL editor, with a sample query -->
           <div class="editor-buttons"> <!-- row with the buttons and the keyboard hint -->
@@ -80,7 +78,7 @@
 
   <!-- Footer (same on every page) -->
   <footer class="site-footer">
-    Proiect pentru atestatul de competențe profesionale la informatică <!-- footer text -->
+    Proiect pentru atestatul de competențe profesionale la informatică <!-- site footer text -->
   </footer>
 </body>
 </html>

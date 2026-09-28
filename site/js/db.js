@@ -3,7 +3,8 @@
   Used by: index.html (through main.js) and the exercise checker.
   The engine is sql.js (SQLite compiled to WebAssembly), loaded from vendor/sql-wasm.js.
   SQLite is not Oracle, so this file adds what is missing: the DUAL table, Oracle functions
-  (NVL, TO_CHAR, TO_DATE, ...), case-sensitive LIKE, foreign key checks and SYSDATE without parentheses.
+  (NVL, TO_CHAR, TO_DATE, SUBSTR, ...), case-sensitive LIKE, foreign key checks and SYSDATE without parentheses.
+  It also stops ROLLBACK and LIMIT with a Romanian message (see prepareOracleSql).
 */
 
 // Folder that contains sql-wasm.wasm (the compiled SQLite engine)
@@ -30,6 +31,23 @@ let seedText = null;
 // The main database (used by the editor); stays null until createDatabase() has finished
 let db = null;
 
+// SQLite's count of all changed rows, read just before the last runQuery (used by countChangedRows)
+let changesBefore = 0;
+
+// Parts of the SQL text that prepareOracleSql must NOT change: texts in apostrophes ('...'),
+// names in double quotes ("..."), line comments (-- ...) and block comments (/* ... */).
+// The "?" and "$" let a part that is never closed go on to the end of the SQL text.
+// The outer ( ) makes split() keep these parts in its list (see prepareOracleSql).
+const SKIPPED_PARTS = /('[^']*'?|"[^"]*"?|--[^\n]*|\/\*[\s\S]*?(?:\*\/|$))/;
+
+// Error shown for ROLLBACK (the SQL is stopped before it runs, so nothing is changed)
+const ROLLBACK_ERROR = 'ROLLBACK nu este suportat aici: modificările nu pot fi anulate. '
+  + 'Nicio comandă nu a fost executată. Folosește butonul «Resetează baza de date».';
+
+// Error shown for LIMIT (a SQLite word that does not exist in Oracle)
+const LIMIT_ERROR = 'LIMIT nu există în Oracle. În Oracle s-ar folosi FETCH FIRST sau ROWNUM, '
+  + 'care nu sunt disponibile aici; folosește o subinterogare cu MAX/MIN sau o condiție WHERE.';
+
 /**
  * Loads the sql.js engine and seed.sql, then creates the main database.
  * Returns: nothing (the database is kept in the "db" variable above).
@@ -40,7 +58,9 @@ export async function createDatabase() {
   sqlLibrary = await window.initSqlJs({
     locateFile: (fileName) => WASM_FOLDER + fileName, // tell sql.js where to find the .wasm file
   });
-  const response = await fetch(SEED_FILE); // download seed.sql from the site
+  // download seed.sql from the site; 'no-cache' asks the server for the newest version every time,
+  // so changes made to seed.sql show up after a simple page refresh (F5)
+  const response = await fetch(SEED_FILE, { cache: 'no-cache' });
   if (!response.ok) { // the file was not found or the server failed
     throw new Error('Nu s-a putut încărca fișierul ' + SEED_FILE); // message shown to the user
   }
@@ -69,7 +89,7 @@ function buildDatabase() {
  * Parameter: database - the database to add the table to.
  */
 function addOracleDual(database) {
-  database.run("CREATE TABLE dual (dummy VARCHAR2(1))"); // one column, like in Oracle
+  database.run('CREATE TABLE dual (dummy VARCHAR2(1))'); // one column, like in Oracle
   database.run("INSERT INTO dual VALUES ('X')"); // one row with the value 'X', like in Oracle
 }
 
@@ -80,7 +100,9 @@ function addOracleDual(database) {
  * Throws an error if the SQL is wrong (the caller shows the error message).
  */
 export function runQuery(sql) {
-  return db.exec(prepareOracleSql(sql)); // adapt the Oracle SQL, then sql.js runs it and returns the results
+  const preparedSql = prepareOracleSql(sql); // adapt the Oracle SQL (may throw for ROLLBACK or LIMIT)
+  changesBefore = totalChanges(); // remember the count of changed rows before running (for countChangedRows)
+  return db.exec(preparedSql); // sql.js runs it and returns the results
 }
 
 /**
@@ -88,29 +110,52 @@ export function runQuery(sql) {
  * (used by runQuery and by the exercise checker on its scratch databases):
  * - SYSDATE is written without parentheses in Oracle, but SQLite would read it as a column name,
  *   so it becomes SYSDATE();
- * - COMMIT and ROLLBACK are removed, because SQLite gives an error when no transaction was started.
- *   (Here every change is saved at once; only the reset button brings back the original data.)
- * Texts in quotes, like 'SYSDATE', are not changed.
+ * - COMMIT is removed, because SQLite gives an error when no transaction was started
+ *   (here every change is saved at once);
+ * - ROLLBACK stops the SQL with an error: changes cannot be undone here, only the reset button
+ *   brings back the original data;
+ * - LIMIT stops the SQL with an error, because it does not exist in Oracle.
+ * Texts in quotes ('SYSDATE', "limit") and comments (after two dashes, or between slash-star and star-slash)
+ * are not changed or checked, so e.g. an apostrophe inside a comment does no harm.
  * Parameter: sql - the SQL text written by the user.
- * Returns: the adapted SQL text.
+ * Returns: the adapted SQL text. Throws an error (in Romanian) for ROLLBACK or LIMIT.
  */
 export function prepareOracleSql(sql) {
-  const parts = sql.split("'"); // cut the SQL at every apostrophe
-  for (let i = 0; i < parts.length; i += 2) { // pieces 0, 2, 4, ... are outside quotes
+  // cut the SQL into pieces: the skipped parts (quotes, comments) land at the odd positions 1, 3, 5, ...
+  // and the real SQL code between them at the even positions 0, 2, 4, ...
+  const parts = sql.split(SKIPPED_PARTS);
+  for (let i = 0; i < parts.length; i += 2) { // only the pieces of real SQL code
+    if (/\bROLLBACK\b/i.test(parts[i])) { // the word ROLLBACK (any letter case)
+      throw new Error(ROLLBACK_ERROR);
+    }
+    // the word LIMIT, but not inside a longer name like "limita" or "limită"; \b is not used here because
+    // it does not treat ă, î, ș, ț as letters (it would find LIMIT in "limită"), so \p{L} (any letter),
+    // \p{N} (any digit) and _ must not come right before or right after the word
+    if (/(?<![\p{L}\p{N}_])LIMIT(?![\p{L}\p{N}_])/iu.test(parts[i])) {
+      throw new Error(LIMIT_ERROR);
+    }
     // whole word SYSDATE (any letter case) that is not already followed by "(" gets "()"
     parts[i] = parts[i].replace(/\bSYSDATE\b(?!\s*\()/gi, 'SYSDATE()');
-    // whole word COMMIT or ROLLBACK (any letter case), with its ";" if there is one, is removed
-    parts[i] = parts[i].replace(/\b(COMMIT|ROLLBACK)\b\s*;?/gi, '');
+    // whole word COMMIT (any letter case), with its ";" if there is one, is removed
+    parts[i] = parts[i].replace(/\bCOMMIT\b\s*;?/gi, '');
   }
-  return parts.join("'"); // glue the pieces back together, with the apostrophes
+  return parts.join(''); // glue all the pieces back together
 }
 
 /**
- * Returns: how many rows the last INSERT, UPDATE or DELETE on the main database changed.
- * Note: a SELECT does not reset this number, so call it only after an INSERT, UPDATE or DELETE.
+ * Returns: how many rows the last runQuery changed, adding up all its INSERT, UPDATE and DELETE
+ * statements (e.g. "INSERT ...; INSERT ...;" gives 2). A SELECT or a CREATE TABLE changes 0 rows.
  */
 export function countChangedRows() {
-  return db.getRowsModified(); // number kept by SQLite
+  return totalChanges() - changesBefore; // changed rows now, minus the changed rows before the last runQuery
+}
+
+/**
+ * Returns: how many rows were changed on the main database since it was created
+ * (SQLite's total_changes() function counts every row changed by INSERT, UPDATE and DELETE).
+ */
+function totalChanges() {
+  return db.exec('SELECT total_changes()')[0].values[0][0]; // first result, first row, first column
 }
 
 /**
@@ -186,6 +231,7 @@ function addOracleFunctions(database) {
   addFunctionWithOptionalArgument(database, 'TRUNC', trunc, 1, 2); // TRUNC(number [, decimals])
   addFunctionWithOptionalArgument(database, 'LPAD', lpad, 2, 3); // LPAD(text, length [, fill])
   addFunctionWithOptionalArgument(database, 'RPAD', rpad, 2, 3); // RPAD(text, length [, fill])
+  addFunctionWithOptionalArgument(database, 'SUBSTR', substr, 2, 3); // SUBSTR(text, position [, length]), replaces SQLite's
 }
 
 /**
@@ -443,6 +489,36 @@ function padText(text, length, fill, side) {
     return value.slice(0, size); // Oracle cuts it to the given length
   }
   return side === 'left' ? value.padStart(size, String(fill)) : value.padEnd(size, String(fill)); // add the fill
+}
+
+/**
+ * SUBSTR(text, position [, length]): a piece of the text, like in Oracle.
+ * Replaces SQLite's SUBSTR, which works differently for position 0 (SUBSTR('Ana', 0, 1) gives '' there).
+ * - position 1 is the first character; position 0 is also the first character (like Oracle);
+ * - a negative position counts from the end: SUBSTR('Popescu', -3) = 'scu';
+ * - without length, the piece goes to the end of the text;
+ * - an empty piece (length 0 or less, or a position outside the text) gives NULL,
+ *   because Oracle has no empty text ('' is NULL in Oracle).
+ * Letters like ș and ț count as one character each.
+ */
+function substr(text, position, length) {
+  if (text === null || position === null || length === null) { // Oracle: NULL in, NULL out
+    return null;
+  }
+  const characters = Array.from(String(text)); // the text as a list of characters (numbers become text too)
+  let start = Math.trunc(position); // Oracle drops the decimals of the position
+  if (start === 0) { // Oracle treats position 0 as 1
+    start = 1;
+  }
+  if (start < 0) { // count from the end: -1 is the last character
+    start = characters.length + start + 1; // e.g. 'Popescu' (7 characters), -3 -> 5
+  }
+  if (start < 1) { // the position is before the start of the text
+    return null;
+  }
+  const end = length === undefined ? characters.length : start - 1 + Math.trunc(length); // where the piece stops
+  const piece = characters.slice(start - 1, end).join(''); // slice counts from 0, so start - 1
+  return piece === '' ? null : piece; // empty piece -> NULL, like Oracle
 }
 
 /**

@@ -6,7 +6,7 @@
 */
 
 import { createDatabase, runQuery, countChangedRows, resetDatabase, getSchema } from './db.js'; // database functions
-import { renderResults, renderMessage, formatCount } from './render.js'; // functions that show results and messages
+import { renderResults, renderMessage, formatCount, translateError } from './render.js'; // show results and messages, translate errors
 import { startLessons } from './lessons-ui.js'; // shows the lessons and the exercises
 
 // ===== Page elements used by this file =====
@@ -31,7 +31,7 @@ async function start() {
     await createDatabase(); // load the SQL engine and create the database
     const results = runQuery('SELECT 1 FROM DUAL'); // simple test query
     const value = results[0].values[0][0]; // first result, first row, first column
-    statusText.textContent = 'Baza de date este pregătită (SELECT 1 FROM DUAL → ' + value + ')'; // success message
+    statusText.textContent = 'Baza de date este pregătită (SELECT 1 FROM DUAL = ' + value + ')'; // success message
     statusText.classList.add('status-success'); // show it in the success color
     showSchema(); // list the tables of the database
   } catch (error) {
@@ -64,7 +64,7 @@ function runEditorQuery() {
       showResultWithoutRows(sql); // no rows: explain what happened
     }
   } catch (error) {
-    renderMessage(resultsBox, 'Eroare SQL: ' + error.message, 'error'); // friendly error message (red)
+    renderMessage(resultsBox, 'Eroare SQL: ' + translateError(error.message), 'error'); // error message in Romanian (red)
   }
   showSchema(); // refresh the structure panel (the SQL may have created or dropped a table)
 }
@@ -82,17 +82,23 @@ function tryInEditor(sql) {
 
 /**
  * Shows a message when the SQL ran but returned no rows.
- * The message depends on the first word of the SQL (SELECT, INSERT, CREATE...).
+ * If rows were changed (by any INSERT, UPDATE or DELETE in the SQL), it shows how many.
+ * Otherwise the message depends on the first word of the SQL (SELECT, INSERT, CREATE...).
  * Parameter: sql - the SQL text that was run.
  */
 function showResultWithoutRows(sql) {
+  const changedRows = countChangedRows(); // rows changed by all the statements of the SQL
+  if (changedRows > 0) { // e.g. "INSERT ...; INSERT ...;" or "SELECT ...; DELETE ...;"
+    renderMessage(resultsBox, formatChangedRows(changedRows), 'success'); // e.g. "2 rânduri afectate"
+    return; // nothing else to show
+  }
   const firstWord = removeLeadingComments(sql).split(/\s+/)[0].toUpperCase(); // first word of the SQL, e.g. "SELECT"
   if (firstWord === '') { // the editor is empty
     renderMessage(resultsBox, 'Scrie o interogare SQL în editor.', 'info'); // ask the user to write SQL
   } else if (firstWord === 'SELECT' || firstWord === 'WITH') { // a query that found nothing
     renderMessage(resultsBox, 'Interogarea nu a returnat niciun rând.', 'info'); // "the query returned no rows"
   } else if (firstWord === 'INSERT' || firstWord === 'UPDATE' || firstWord === 'DELETE') { // a data change
-    renderMessage(resultsBox, formatChangedRows(countChangedRows()), 'success'); // e.g. "3 rânduri afectate"
+    renderMessage(resultsBox, formatChangedRows(0), 'success'); // no row matched: "0 rânduri afectate"
   } else {
     renderMessage(resultsBox, 'Comanda a fost executată cu succes.', 'success'); // CREATE, DROP, ALTER...
   }
@@ -147,9 +153,9 @@ function handleEditorKeys(event) {
 /**
  * Rebuilds the database with the original data, then tells the user and refreshes the structure panel.
  */
-async function resetAll() {
+function resetAll() {
   try {
-    await resetDatabase(); // recreate the database from seed.sql
+    resetDatabase(); // recreate the database from seed.sql
     renderMessage(resultsBox, 'Baza de date a fost resetată.', 'success'); // confirmation message (green)
   } catch (error) {
     renderMessage(resultsBox, 'Eroare la resetarea bazei de date: ' + error.message, 'error'); // error message (red)

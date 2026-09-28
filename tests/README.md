@@ -11,10 +11,23 @@ node tests/test-db.mjs
 node tests/test-lessons.mjs
 ```
 
-Each file prints one `PASS`/`FAIL` line per check and ends with a summary such as `150 passed, 0 failed`.
+Each file prints one `PASS`/`FAIL` line per check, grouped under `---` headings, and ends with a summary.
+`test-db.mjs` currently ends with `207 passed, 0 failed`. Example lines:
+
+```
+--- LIMIT
+PASS LIMIT -> error => error: LIMIT nu există în Oracle. În Oracle s-ar folosi FETCH FIRST sau ROWNUM, ...
+PASS 'limit' literal allowed => "limit"
+...
+207 passed, 0 failed
+```
+
 If any check fails, the command exits with code 1.
 
-- `test-db.mjs`: the database (`site/js/db.js`): row counts, constraints, the Oracle functions compared with Oracle's values, reset, scratch databases.
+- `test-db.mjs`: the database (`site/js/db.js`): row counts, constraints, the Oracle functions compared with Oracle's values
+  (including `SUBSTR`), `COMMIT` removed and `ROLLBACK`/`LIMIT` stopped with a Romanian message, comments skipped by the
+  Oracle rewrite, `countChangedRows` over several statements, reset, scratch databases, and the Romanian error
+  messages of `translateError` (`site/js/render.js`).
 - `test-lessons.mjs`: the lessons and the exercise checker (`site/js/lessons.js`, `site/js/checker.js`):
   every example runs, every solution is accepted, at least one wrong answer per exercise is rejected for the expected reason,
   some different but correct answers are accepted, and checking exercises never changes the main database.

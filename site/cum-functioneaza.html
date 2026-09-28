@@ -11,6 +11,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"> <!-- fit the page to phone screens -->
   <title>Cum funcționează? - SQL Playground</title> <!-- text shown in the browser tab -->
   <link rel="stylesheet" href="css/style.css"> <!-- all the styles of the site -->
+  <link rel="icon" href="favicon.svg" type="image/svg+xml"> <!-- small icon shown in the browser tab (file favicon.svg) -->
 </head>
 <body>
   <!-- Top menu bar: logo + navigation menu (same on every page) -->
@@ -100,11 +101,12 @@
             <tr><td><code>css/style.css</code></td><td>Toate stilurile. Sus, în blocul <code>:root</code>, sunt toate culorile, fonturile și mărimile, ca variabile comentate.</td></tr> <!-- file: style.css -->
             <tr><td><code>js/main.js</code></td><td>Pornește pagina principală: creează baza de date, leagă butoanele (Rulează, Resetează, Ctrl+Enter) și pornește lecțiile.</td></tr> <!-- file: main.js -->
             <tr><td><code>js/db.js</code></td><td>Încarcă sql.js, creează baza de date din <code>seed.sql</code>, adaugă funcțiile Oracle și rulează interogările.</td></tr> <!-- file: db.js -->
-            <tr><td><code>js/render.js</code></td><td>Afișează rezultatele ca tabele și mesajele (eroare, succes, informație); scrie corect „1 rând”, „5 rânduri”, „40 de rânduri” (<code>formatCount()</code>).</td></tr> <!-- file: render.js -->
+            <tr><td><code>js/render.js</code></td><td>Afișează rezultatele ca tabele (cel mult 500 de rânduri) și mesajele (eroare, succes, informație); traduce erorile SQLite în română (<code>translateError()</code>); scrie corect „1 rând”, „5 rânduri”, „40 de rânduri” (<code>formatCount()</code>).</td></tr> <!-- file: render.js -->
             <tr><td><code>js/lessons.js</code></td><td>Textul celor 9 lecții și exercițiile lor (doar date, fără logică).</td></tr> <!-- file: lessons.js -->
             <tr><td><code>js/lessons-ui.js</code></td><td>Afișează lecțiile pe pagină (butoanele numerotate, exemplele, exercițiile) și salvează progresul în browser.</td></tr> <!-- file: lessons-ui.js -->
             <tr><td><code>js/checker.js</code></td><td>Verifică exercițiile: compară rezultatul elevului cu rezultatul soluției corecte.</td></tr> <!-- file: checker.js -->
             <tr><td><code>data/seed.sql</code></td><td>Baza de date a liceului, scrisă ca SQL citibil: <code>CREATE TABLE</code> și <code>INSERT</code>.</td></tr> <!-- file: seed.sql -->
+            <tr><td><code>favicon.svg</code></td><td>Iconița din tab-ul browserului: semnul „&gt;” mov pe negru, ca logo-ul.</td></tr> <!-- file: favicon.svg -->
             <tr><td><code>vendor/sql-wasm.js</code><br><code>vendor/sql-wasm.wasm</code></td><td>Biblioteca sql.js: motorul SQLite compilat în WebAssembly (nu e scris de mine).</td></tr> <!-- files: the sql.js library -->
             <tr><td><code>fonts/</code></td><td>Fontul JetBrains Mono, păstrat local (două fișiere: litere de bază și ă, ș, ț).</td></tr> <!-- folder: fonts -->
           </tbody>
@@ -132,7 +134,7 @@
         <li class="how-flow-step">
           <span class="how-flow-file">js/db.js</span> <!-- where this step happens -->
           <span class="how-flow-title"><code>createDatabase()</code></span> <!-- function name -->
-          <span class="how-flow-text">Încarcă motorul (<code>sql-wasm.wasm</code>) și descarcă textul din <code>data/seed.sql</code> cu <code>fetch</code>.</span> <!-- explanation -->
+          <span class="how-flow-text">Încarcă motorul (<code>sql-wasm.wasm</code>) și descarcă textul din <code>data/seed.sql</code> cu <code>fetch</code> (cu <code>cache: 'no-cache'</code>, ca o modificare a datelor să apară după F5).</span> <!-- explanation -->
         </li>
         <li class="how-flow-step">
           <span class="how-flow-file">js/db.js</span> <!-- where this step happens -->
@@ -167,12 +169,12 @@
         <li class="how-flow-step">
           <span class="how-flow-file">js/db.js</span> <!-- where this step happens -->
           <span class="how-flow-title"><code>runQuery(sql)</code></span> <!-- function name -->
-          <span class="how-flow-text">O singură linie: <code>db.exec(prepareOracleSql(sql))</code>.</span> <!-- explanation -->
+          <span class="how-flow-text">Trece SQL-ul prin <code>prepareOracleSql(sql)</code>, ține minte câte rânduri fuseseră modificate până atunci (pentru <code>countChangedRows()</code>) și îl rulează cu <code>db.exec()</code>.</span> <!-- explanation -->
         </li>
         <li class="how-flow-step">
           <span class="how-flow-file">js/db.js</span> <!-- where this step happens -->
           <span class="how-flow-title"><code>prepareOracleSql(sql)</code></span> <!-- function name -->
-          <span class="how-flow-text">Adaptează SQL-ul Oracle: <code>SYSDATE</code> devine <code>SYSDATE()</code>, iar <code>COMMIT</code> și <code>ROLLBACK</code> sunt scoase. Textele dintre apostrofuri nu sunt atinse.</span> <!-- explanation -->
+          <span class="how-flow-text">Adaptează SQL-ul Oracle: <code>SYSDATE</code> devine <code>SYSDATE()</code> și <code>COMMIT</code> este scos, iar <code>ROLLBACK</code> și <code>LIMIT</code> opresc comanda cu o eroare în română. Textele dintre apostrofuri sau ghilimele și comentariile nu sunt atinse.</span> <!-- explanation -->
         </li>
         <li class="how-flow-step how-flow-engine">
           <span class="how-flow-file">vendor/sql-wasm.wasm</span> <!-- where this step happens -->
@@ -191,14 +193,14 @@
           <!-- Three possible outcomes, side by side on computers and stacked on phones -->
           <ul class="how-branches">
             <li><strong>Are rânduri:</strong> <code>renderResults()</code></li> <!-- outcome: rows -->
-            <li><strong>Fără rânduri:</strong> <code>showResultWithoutRows()</code> scrie „Interogarea nu a returnat niciun rând” sau, pentru INSERT/UPDATE/DELETE, „N rânduri afectate” (<code>countChangedRows()</code>)</li> <!-- outcome: no rows -->
-            <li><strong>Eroare:</strong> <code>renderMessage(..., 'error')</code> scrie „Eroare SQL: ...” în roșu</li> <!-- outcome: error -->
+            <li><strong>Fără rânduri:</strong> <code>showResultWithoutRows()</code> scrie „Interogarea nu a returnat niciun rând” sau, pentru INSERT/UPDATE/DELETE, „N rânduri afectate” (<code>countChangedRows()</code> adună rândurile tuturor comenzilor din text)</li> <!-- outcome: no rows -->
+            <li><strong>Eroare:</strong> <code>renderMessage(..., 'error')</code> scrie „Eroare SQL: ...” în roșu; <code>translateError()</code> traduce întâi mesajul SQLite în română (de exemplu <code>no such table: elev</code> devine „Tabelul elev nu există...”)</li> <!-- outcome: error -->
           </ul>
         </li>
         <li class="how-flow-step">
           <span class="how-flow-file">js/render.js</span> <!-- where this step happens -->
           <span class="how-flow-title"><code>renderResults(container, results)</code></span> <!-- function name -->
-          <span class="how-flow-text">Construiește tabelul cu <code>createResultTable()</code>, <code>createHeaderRow()</code>, <code>createBodyRows()</code> și <code>createCell()</code>. Valorile NULL apar gri.</span> <!-- explanation -->
+          <span class="how-flow-text">Construiește tabelul cu <code>createResultTable()</code>, <code>createHeaderRow()</code>, <code>createBodyRows()</code> și <code>createCell()</code>. Valorile NULL apar gri. Se desenează cel mult 500 de rânduri (<code>MAX_ROWS</code>), ca pagina să nu se blocheze; pentru mai multe apare „Se afișează primele 500 din N rânduri.”</span> <!-- explanation -->
         </li>
         <li class="how-flow-step">
           <span class="how-flow-file">pagina</span> <!-- the final result -->
@@ -332,10 +334,12 @@
       <ul class="how-list">
         <li><strong>Tabelul DUAL</strong>: <code>addOracleDual()</code> creează tabelul <code>dual</code> cu un singur rând (<code>'X'</code>), ca <code>SELECT 2 + 3 FROM DUAL</code> să funcționeze.</li> <!-- Oracle imitation: DUAL -->
         <li><strong>Funcții Oracle scrise în JavaScript</strong>: <code>addOracleFunctions()</code> le adaugă în SQLite cu <code>create_function</code>. Funcțiile cu un argument opțional (de exemplu <code>TO_CHAR(valoare [, format])</code>) trec prin <code>addFunctionWithOptionalArgument()</code>.</li> <!-- Oracle imitation: functions -->
-        <li><strong>SYSDATE, COMMIT, ROLLBACK</strong>: <code>prepareOracleSql()</code> rescrie SQL-ul înainte de rulare (<code>SYSDATE</code> devine <code>SYSDATE()</code>, <code>COMMIT</code>/<code>ROLLBACK</code> sunt scoase).</li> <!-- Oracle imitation: SQL rewrite -->
+        <li><strong>SYSDATE, COMMIT, ROLLBACK, LIMIT</strong>: <code>prepareOracleSql()</code> rescrie SQL-ul înainte de rulare: <code>SYSDATE</code> devine <code>SYSDATE()</code>, <code>COMMIT</code> este scos (aici fiecare modificare se salvează imediat), iar <code>ROLLBACK</code> (nu are ce anula) și <code>LIMIT</code> (nu există în Oracle) dau o eroare în română.</li> <!-- Oracle imitation: SQL rewrite -->
         <li><strong><code>PRAGMA case_sensitive_like = ON</code></strong>: <code>LIKE 'a%'</code> nu mai găsește „Ana”, exact ca în Oracle (SQLite ignoră implicit literele mari).</li> <!-- Oracle imitation: case-sensitive LIKE -->
         <li><strong><code>PRAGMA foreign_keys = ON</code></strong>: cheile străine sunt verificate (SQLite nu le verifică implicit), deci nu poți pune o notă unui elev care nu există.</li> <!-- Oracle imitation: foreign keys -->
         <li><strong>UPPER și LOWER</strong> sunt înlocuite, pentru că varianta din SQLite nu schimbă literele ă, î, â, ș, ț.</li> <!-- Oracle imitation: Romanian letters -->
+        <li><strong>SUBSTR</strong> este înlocuit, ca să lucreze ca în Oracle: poziția 0 înseamnă 1 (<code>SUBSTR('Ana', 0, 1)</code> dă <code>'A'</code>), iar o poziție negativă numără de la sfârșit (<code>SUBSTR('Popescu', -3)</code> dă <code>'scu'</code>).</li> <!-- Oracle imitation: SUBSTR -->
+        <li><strong>Erori în română</strong>: <code>translateError()</code> din <code>render.js</code> traduce cele mai des întâlnite erori SQLite cu o listă de tipare (<code>ERROR_TRANSLATIONS</code>): tabel, coloană sau funcție care nu există, sintaxă greșită, comandă incompletă, constrângere încălcată, tabel care există deja, număr greșit de argumente. Un mesaj care nu este în listă apare neschimbat.</li> <!-- Oracle imitation: Romanian errors -->
       </ul>
       <h3>Funcțiile adăugate</h3> <!-- heading of the function list -->
       <!-- The Oracle functions added in db.js, as pill badges -->
@@ -354,7 +358,13 @@
         <li><code>ADD_MONTHS</code></li> <!-- function: ADD_MONTHS -->
         <li><code>UPPER</code></li> <!-- function: UPPER -->
         <li><code>LOWER</code></li> <!-- function: LOWER -->
+        <li><code>SUBSTR</code></li> <!-- function: SUBSTR -->
       </ul>
+      <p>
+        Funcțiile pe care SQLite le are deja și care se comportă ca în Oracle nu au fost adăugate, dar pot fi folosite:
+        <code>LENGTH</code>, <code>ROUND</code>, <code>INSTR</code>, <code>REPLACE</code>, <code>TRIM</code>, <code>CONCAT</code>, <code>ABS</code>
+        și funcțiile de grup <code>COUNT</code>, <code>SUM</code>, <code>AVG</code>, <code>MIN</code>, <code>MAX</code>.
+      </p> <!-- built-in SQLite functions that work like in Oracle -->
       <h3>Exemplu: funcția NVL din <code>db.js</code></h3> <!-- heading of the code example -->
       <!-- Code excerpt copied exactly from js/db.js -->
       <pre class="how-code"><code>/**
@@ -405,7 +415,7 @@ function nvl(value, replacement) {
         <li class="how-flow-step">
           <span class="how-flow-file">js/lessons-ui.js</span> <!-- where this step happens -->
           <span class="how-flow-title">Mesajul: verde sau roșu</span> <!-- the feedback -->
-          <span class="how-flow-text">Sub mesaj apare și tabelul cu rândurile elevului. Un exercițiu rezolvat primește „✓ rezolvat” și este salvat în browser (<code>localStorage</code>, sub numele <code>sqlPlayground.solved</code>), deci progresul rămâne și după ce închizi pagina.</span> <!-- explanation -->
+          <span class="how-flow-text">La exercițiile cu <code>SELECT</code>, sub mesaj apare și tabelul cu rândurile elevului. La cele cu INSERT/UPDATE/DELETE/CREATE, tabelul citit de interogarea ascunsă nu este afișat, iar mesajul explică în cuvinte ce diferă. Un exercițiu rezolvat primește „rezolvat” și este salvat în browser (<code>localStorage</code>, sub numele <code>sqlPlayground.solved</code>), deci progresul rămâne și după ce închizi pagina.</span> <!-- explanation -->
         </li>
       </ol>
       <h3>Regulile comparației</h3> <!-- heading of the comparison rules -->
@@ -416,10 +426,18 @@ function nvl(value, replacement) {
         <li>Ca ordinea rândurilor să nu conteze, fiecare rând devine un text (<code>rowKey()</code>), apoi cele două liste de texte sunt sortate și comparate.</li> <!-- rule: rows as texts -->
         <li>Dacă SQL-ul are mai multe comenzi, se compară rezultatul ultimei comenzi care a întors rânduri (<code>lastResultSet()</code>).</li> <!-- rule: last result set -->
         <li>
-          <strong>Exerciții cu INSERT, UPDATE, DELETE, CREATE:</strong> după SQL-ul elevului, o interogare ascunsă (<code>checkQuery</code>)
-          verifică structura și datele tabelului (de exemplu <code>SELECT * FROM elevi ORDER BY id_elev;</code>). La fel se face după soluție,
+          <strong>Exerciții cu INSERT, UPDATE, DELETE:</strong> după SQL-ul elevului, o interogare ascunsă (<code>checkQuery</code>)
+          citește tabelul (de exemplu <code>SELECT * FROM elevi ORDER BY id_elev;</code>). La fel se face după soluție,
           iar cele două rezultate sunt comparate.
-        </li> <!-- rule: DML/DDL with a check query -->
+        </li> <!-- rule: DML with a check query -->
+        <li>
+          <strong>Exerciții cu CREATE TABLE:</strong> interogarea ascunsă încearcă să adauge rânduri greșite cu <code>INSERT OR IGNORE</code>
+          (un id repetat, un <code>NULL</code> într-o coloană <code>NOT NULL</code>, o valoare care nu respectă <code>CHECK</code>, o valoare
+          repetată la <code>UNIQUE</code>), apoi citește tabelul. <code>OR IGNORE</code> sare peste un rând care încalcă o constrângere, deci
+          dacă tabelul are constrângerile cerute, rândurile greșite nu apar; dacă lipsește una, ele apar și rezultatul diferă de al soluției.
+          Cheia străină se verifică separat, cu <code>pragma_foreign_key_list</code> (lista cheilor străine ale tabelului), pentru că
+          o cheie străină încălcată dă eroare chiar și cu <code>OR IGNORE</code>. Numele constrângerilor nu sunt verificate.
+        </li> <!-- rule: DDL checked by trying invalid rows -->
       </ul>
       <h3>Exemple de mesaje</h3> <!-- heading of the message examples -->
       <!-- Messages the checker gives, copied from checker.js -->
@@ -434,7 +452,9 @@ function nvl(value, replacement) {
             <tr><td>Lipsește <code>WHERE oras = 'Brașov'</code></td><td>Rezultatul tău are 40 de rânduri, dar ar trebui să aibă 22 de rânduri.</td></tr> <!-- message: wrong row count -->
             <tr><td>Coloanele în altă ordine</td><td>Valorile sunt corecte, dar coloanele nu sunt în ordinea cerută.</td></tr> <!-- message: wrong column order -->
             <tr><td>Lipsește <code>ORDER BY</code></td><td>Rândurile sunt corecte, dar nu sunt în ordinea cerută. Verifică ORDER BY.</td></tr> <!-- message: wrong row order -->
-            <tr><td>SQL greșit</td><td>Eroare SQL: ... (mesajul motorului)</td></tr> <!-- message: SQL error -->
+            <tr><td>INSERT care nu a adăugat rândul cerut (tabelul <code>elevi</code>)</td><td>După comanda ta, tabelul are 40 de rânduri, dar ar trebui să aibă 41 de rânduri.</td></tr> <!-- message: DML row count differs -->
+            <tr><td>Tabelul are alte valori sau (la CREATE TABLE) îi lipsește o constrângere</td><td>După comanda ta, tabelul nu arată cum trebuie: unele valori sau constrângeri sunt diferite. ...</td></tr> <!-- message: DML/DDL table differs -->
+            <tr><td>SQL greșit (de exemplu un tabel care nu există)</td><td>Eroare SQL: Tabelul elev nu există. Verifică numele tabelului. (mesajul SQLite, tradus de <code>translateExerciseError()</code>, care apelează <code>translateError()</code>)</td></tr> <!-- message: SQL error -->
           </tbody>
         </table>
       </div>
@@ -463,7 +483,14 @@ function nvl(value, replacement) {
             <tr><td><code>VARCHAR2(n)</code>, <code>NUMBER(p,s)</code></td><td>lungimea este verificată</td><td>lungimea nu este verificată</td></tr> <!-- difference: type lengths -->
             <tr><td>Datele calendaristice</td><td>tip <code>DATE</code>, cu oră</td><td>text <code>'YYYY-MM-DD'</code>; <code>SYSDATE</code> fără oră</td></tr> <!-- difference: dates -->
             <tr><td><code>data + 1</code></td><td>ziua următoare</td><td>nu funcționează (<code>'2020-01-01' + 1</code> dă 2021)</td></tr> <!-- difference: date arithmetic -->
-            <tr><td><code>COMMIT</code> / <code>ROLLBACK</code></td><td>salvează / anulează modificările</td><td>ignorate; doar butonul „Resetează” aduce înapoi datele</td></tr> <!-- difference: transactions -->
+            <tr><td><code>COMMIT</code> / <code>ROLLBACK</code></td><td>salvează / anulează modificările</td><td><code>COMMIT</code> este ignorat (modificările se salvează imediat); <code>ROLLBACK</code> dă o eroare în română; doar butonul „Resetează” aduce înapoi datele</td></tr> <!-- difference: transactions -->
+            <tr><td><code>LIMIT 3</code></td><td>nu există (eroare)</td><td>dă o eroare în română (în SQLite ar funcționa, dar nu se învață)</td></tr> <!-- difference: LIMIT -->
+            <tr><td>Text între ghilimele <code>"abc"</code></td><td>nume de coloană (eroare dacă nu există)</td><td>acceptat ca text <code>'abc'</code></td></tr> <!-- difference: double quotes -->
+            <tr><td><code>FROM elevi AS e</code></td><td>eroare (aliasul unui tabel se scrie fără <code>AS</code>)</td><td>acceptat</td></tr> <!-- difference: AS before a table alias -->
+            <tr><td>Dată scrisă ca text: <code>data_nasterii &gt;= '2009-03-15'</code></td><td>poate da ORA-01861 (depinde de setările NLS); corect cu <code>TO_DATE</code></td><td>funcționează și fără <code>TO_DATE</code></td></tr> <!-- difference: date as plain text -->
+            <tr><td><code>TO_DATE(text, format)</code></td><td>orice format (<code>MON</code>, ore, minute...)</td><td>doar formate cu <code>YYYY</code>, <code>MM</code> și <code>DD</code> (de exemplu <code>'DD.MM.YYYY'</code>); fără <code>MON</code> și fără ore</td></tr> <!-- difference: TO_DATE formats -->
+            <tr><td>Numele coloanei pentru <code>SELECT SYSDATE</code></td><td><code>SYSDATE</code></td><td><code>SYSDATE()</code></td></tr> <!-- difference: SYSDATE column header -->
+            <tr><td>Eroare la <code>UNIQUE</code> sau <code>FOREIGN KEY</code></td><td>arată numele constrângerii (de exemplu <code>FK_NOTE_ELEV</code>)</td><td>nu arată numele (doar erorile de <code>CHECK</code> îl arată)</td></tr> <!-- difference: constraint names in errors -->
             <tr><td><code>DUAL</code></td><td>tabel special al sistemului</td><td>tabel obișnuit, creat de <code>db.js</code></td></tr> <!-- difference: DUAL -->
           </tbody>
         </table>
@@ -480,6 +507,9 @@ function nvl(value, replacement) {
         <li><code>EXTRACT</code></li> <!-- unsupported: EXTRACT -->
         <li><code>DECODE</code></li> <!-- unsupported: DECODE -->
         <li><code>TO_CHAR</code> cu format de număr</li> <!-- unsupported: number formats -->
+        <li><code>&gt; ALL (...)</code></li> <!-- unsupported: ALL with a subquery -->
+        <li><code>= ANY (...)</code></li> <!-- unsupported: ANY with a subquery -->
+        <li><code>DELETE note WHERE ...</code> fără <code>FROM</code></li> <!-- unsupported: DELETE without FROM -->
       </ul>
     </section>
 
@@ -488,55 +518,66 @@ function nvl(value, replacement) {
       <h2>Unde modific?</h2> <!-- heading of the "where do I change it" section -->
       <p>
         Fiecare linie de cod are un comentariu, iar toate culorile și mărimile sunt variabile în <code>:root</code>, la începutul
-        fișierului <code>css/style.css</code>. Deschizi fișierul, apeși <strong>Ctrl+F</strong>, cauți textul din ultima coloană,
-        schimbi valoarea, salvezi și reîncarci pagina (F5).
-      </p> <!-- how to use the table below -->
-      <!-- "Where do I change it" table: what to change, which file, what to search for -->
+        fișierului <code>css/style.css</code>.
+      </p> <!-- why every line can be found -->
+      <ol class="how-list">
+        <li>Pornești site-ul cu <code>python3 serve.py</code> (serverul proiectului, care dezactivează cache-ul browserului) și deschizi <code>http://localhost:8000</code>.</li> <!-- live change step 1: start the server -->
+        <li>Deschizi fișierul din coloana „Fișier”, apeși <strong>Ctrl+F</strong> și cauți textul din coloana „Caută”.</li> <!-- live change step 2: find the line -->
+        <li>Schimbi valoarea, salvezi fișierul (Ctrl+S) și apeși <strong>F5</strong> în browser: modificarea apare imediat.</li> <!-- live change step 3: save and reload -->
+      </ol>
+      <p class="how-note">
+        Dublu-clic pe <code>index.html</code> (adresă <code>file://</code>) nu merge: browserul nu lasă sql.js să își încarce fișierul
+        <code>.wasm</code> și baza de date nu pornește. Site-ul trebuie deschis prin server.
+      </p> <!-- note: file:// does not work -->
+      <!-- "Where do I change it" table: what to change, what to search for, which file (on phones every row becomes a small card) -->
       <div class="table-wrapper how-table-wrapper">
-        <table class="result-table how-table how-table-wide">
+        <table class="result-table how-table how-table-wide how-table-stack">
           <thead>
-            <tr><th scope="col">Ce vrei să schimbi</th><th scope="col">Fișier</th><th scope="col">Caută (Ctrl+F)</th></tr> <!-- column names of the "where do I change it" table -->
+            <tr><th scope="col">Ce vrei să schimbi</th><th scope="col">Caută (Ctrl+F)</th><th scope="col">Fișier</th></tr> <!-- column names of the "where do I change it" table -->
           </thead>
           <tbody>
-            <tr><td>Culoarea mov principală (semnul „&gt;”, linkuri, marginile butoanelor)</td><td><code>css/style.css</code></td><td><code>--color-accent:</code></td></tr> <!-- change: accent color -->
-            <tr><td>Tot mov-ul de pe site (apare de mai multe ori: Enter sau F3 duce la următorul)</td><td><code>css/style.css</code></td><td><code>a259ff</code>, <code>162, 89, 255</code> și <code>c9a6ff</code></td></tr> <!-- change: every purple on the site -->
-            <tr><td>Strălucirea mov din jurul butoanelor</td><td><code>css/style.css</code></td><td><code>--color-accent-glow:</code></td></tr> <!-- change: glow color -->
-            <tr><td>Marginea cardurilor</td><td><code>css/style.css</code></td><td><code>--color-border:</code></td></tr> <!-- change: card border color -->
-            <tr><td>Culoarea de fundal a paginii</td><td><code>css/style.css</code></td><td><code>--color-background:</code></td></tr> <!-- change: page background -->
-            <tr><td>Fundalul cardurilor</td><td><code>css/style.css</code></td><td><code>--color-surface:</code></td></tr> <!-- change: card background -->
-            <tr><td>Culoarea textului</td><td><code>css/style.css</code></td><td><code>--color-text:</code></td></tr> <!-- change: text color -->
-            <tr><td>Culoarea titlurilor secțiunilor (h2, h3)</td><td><code>css/style.css</code></td><td><code>--color-heading:</code></td></tr> <!-- change: heading color -->
-            <tr><td>Culorile titlului mare (gradient)</td><td><code>css/style.css</code></td><td><code>--color-title-gradient:</code></td></tr> <!-- change: big title gradient -->
-            <tr><td>Culoarea butonului „Rulează”</td><td><code>css/style.css</code></td><td><code>--color-button-primary:</code></td></tr> <!-- change: run button color -->
-            <tr><td>Culoarea mesajelor de eroare / de succes</td><td><code>css/style.css</code></td><td><code>--color-error:</code> / <code>--color-success:</code></td></tr> <!-- change: message colors -->
-            <tr><td>Fontul</td><td><code>css/style.css</code></td><td><code>--font-main:</code></td></tr> <!-- change: font -->
-            <tr><td>Mărimea textului normal</td><td><code>css/style.css</code></td><td><code>--font-size-base:</code></td></tr> <!-- change: normal text size -->
-            <tr><td>Mărimea titlului mare</td><td><code>css/style.css</code></td><td><code>--font-size-title:</code></td></tr> <!-- change: big title size -->
-            <tr><td>Mărimea titlurilor secțiunilor</td><td><code>css/style.css</code></td><td><code>--font-size-heading:</code></td></tr> <!-- change: heading size -->
-            <tr><td>Rotunjirea colțurilor</td><td><code>css/style.css</code></td><td><code>--radius:</code></td></tr> <!-- change: corner roundness -->
-            <tr><td>Lățimea maximă a paginii</td><td><code>css/style.css</code></td><td><code>--max-width:</code></td></tr> <!-- change: page width -->
-            <tr><td>Textul titlului mare de pe prima pagină</td><td><code>index.html</code></td><td><code>big title of the home page</code></td></tr> <!-- change: home page title text -->
-            <tr><td>Textul de sub titlul mare</td><td><code>index.html</code></td><td><code>short description of the site</code></td></tr> <!-- change: home page description text -->
-            <tr><td>Textul butonului „Rulează”</td><td><code>index.html</code></td><td><code>id="run-button"</code></td></tr> <!-- change: run button text -->
-            <tr><td>Interogarea scrisă la început în editor</td><td><code>index.html</code></td><td><code>with a sample query</code></td></tr> <!-- change: starting query in the editor -->
-            <tr><td>Textul din subsol</td><td><code>index.html</code> și <code>cum-functioneaza.html</code></td><td><code>footer text</code></td></tr> <!-- change: footer text -->
-            <tr><td>Mesajul „Baza de date este pregătită”</td><td><code>js/main.js</code></td><td><code>Baza de date este pregătită</code></td></tr> <!-- change: database ready message -->
-            <tr><td>Datele din tabele (elevi, note...)</td><td><code>data/seed.sql</code></td><td><code>DATA: elevi</code> (sau <code>DATA: note</code> etc.)</td></tr> <!-- change: table data -->
-            <tr><td>Coloanele unui tabel</td><td><code>data/seed.sql</code></td><td><code>CREATE TABLE elevi</code></td></tr> <!-- change: table columns -->
-            <tr><td>Textul unei lecții</td><td><code>js/lessons.js</code></td><td><code>Lesson 1:</code> (până la <code>Lesson 9:</code>)</td></tr> <!-- change: lesson text -->
-            <tr><td>Un exercițiu</td><td><code>js/lessons.js</code></td><td><code>Exercise 1.1:</code></td></tr> <!-- change: an exercise -->
-            <tr><td>Funcțiile Oracle adăugate</td><td><code>js/db.js</code></td><td><code>function addOracleFunctions</code></td></tr> <!-- change: Oracle functions -->
+            <tr><td>Culoarea mov a întregului site (semnul „&gt;”, linkuri, margini, strălucire, fundalurile mov deschis, titlul mare, butoanele „Rulează” și „Verifică”)</td><td><code>--color-accent:</code></td><td><code>css/style.css</code></td></tr> <!-- change: accent color (the whole purple) -->
+            <tr><td>Doar strălucirea din jurul elementelor evidențiate</td><td><code>--color-accent-glow:</code></td><td><code>css/style.css</code></td></tr> <!-- change: glow color -->
+            <tr><td>Doar marginea cardurilor</td><td><code>--color-border:</code></td><td><code>css/style.css</code></td></tr> <!-- change: card border color -->
+            <tr><td>Culoarea de fundal a paginii</td><td><code>--color-background:</code></td><td><code>css/style.css</code></td></tr> <!-- change: page background -->
+            <tr><td>Fundalul cardurilor</td><td><code>--color-surface:</code></td><td><code>css/style.css</code></td></tr> <!-- change: card background -->
+            <tr><td>Culoarea textului</td><td><code>--color-text:</code></td><td><code>css/style.css</code></td></tr> <!-- change: text color -->
+            <tr><td>Culoarea titlurilor secțiunilor (h2, h3)</td><td><code>--color-heading:</code></td><td><code>css/style.css</code></td></tr> <!-- change: heading color -->
+            <tr><td>Culorile titlului mare (gradient)</td><td><code>--color-title-gradient:</code></td><td><code>css/style.css</code></td></tr> <!-- change: big title gradient -->
+            <tr><td>Culoarea butonului „Rulează” și a butoanelor „Verifică” din exerciții (împreună cu strălucirea lor)</td><td><code>--color-button-primary:</code></td><td><code>css/style.css</code></td></tr> <!-- change: run and check button color -->
+            <tr><td>Culoarea mesajelor de eroare / de succes</td><td><code>--color-error:</code> / <code>--color-success:</code></td><td><code>css/style.css</code></td></tr> <!-- change: message colors -->
+            <tr><td>Fontul</td><td><code>--font-main:</code></td><td><code>css/style.css</code></td></tr> <!-- change: font -->
+            <tr><td>Mărimea textului normal</td><td><code>--font-size-base:</code></td><td><code>css/style.css</code></td></tr> <!-- change: normal text size -->
+            <tr><td>Mărimea titlului mare</td><td><code>--font-size-title:</code></td><td><code>css/style.css</code></td></tr> <!-- change: big title size -->
+            <tr><td>Mărimea titlurilor secțiunilor</td><td><code>--font-size-heading:</code></td><td><code>css/style.css</code></td></tr> <!-- change: heading size -->
+            <tr><td>Rotunjirea colțurilor</td><td><code>--radius:</code></td><td><code>css/style.css</code></td></tr> <!-- change: corner roundness -->
+            <tr><td>Lățimea maximă a paginii</td><td><code>--max-width:</code></td><td><code>css/style.css</code></td></tr> <!-- change: page width -->
+            <!-- the next three texts are the same on both pages: change them in index.html, then find the same text in cum-functioneaza.html -->
+            <!-- (&#32; is a normal space written as a code, so that this table itself is not found by Ctrl+F) -->
+            <tr><td>Textul din tab-ul browserului (titlul paginii)</td><td><code>text&#32;shown in the browser tab</code></td><td><code>index.html</code> (și <code>cum-functioneaza.html</code>)</td></tr> <!-- change: browser tab title -->
+            <tr><td>Numele site-ului de lângă logo („Playground”)</td><td><code>site&#32;name next to the logo</code></td><td><code>index.html</code> (și <code>cum-functioneaza.html</code>)</td></tr> <!-- change: brand name -->
+            <tr><td>Textul din subsol</td><td><code>site&#32;footer text</code></td><td><code>index.html</code> (și <code>cum-functioneaza.html</code>)</td></tr> <!-- change: footer -->
+            <tr><td>Textul titlului mare de pe prima pagină</td><td><code>big title of the home page</code></td><td><code>index.html</code></td></tr> <!-- change: home page title text -->
+            <tr><td>Textul de sub titlul mare</td><td><code>short description of the site</code></td><td><code>index.html</code></td></tr> <!-- change: home page description text -->
+            <tr><td>Textul butonului „Rulează”</td><td><code>id="run-button"</code></td><td><code>index.html</code></td></tr> <!-- change: run button text -->
+            <tr><td>Interogarea scrisă la început în editor</td><td><code>with a sample query</code></td><td><code>index.html</code></td></tr> <!-- change: starting query in the editor -->
+            <tr><td>Culoarea iconiței din tab (scrisă direct în fișier, nu în <code>style.css</code>)</td><td><code>icon sign color</code></td><td><code>favicon.svg</code></td></tr> <!-- change: favicon color -->
+            <tr><td>Mesajul „Baza de date este pregătită”</td><td><code>Baza de date este pregătită</code></td><td><code>js/main.js</code></td></tr> <!-- change: database ready message -->
+            <tr><td>Datele din tabele (elevi, note...)</td><td><code>DATA: elevi</code> (sau <code>DATA: note</code> etc.)</td><td><code>data/seed.sql</code></td></tr> <!-- change: table data -->
+            <tr><td>Coloanele unui tabel</td><td><code>CREATE TABLE elevi</code></td><td><code>data/seed.sql</code></td></tr> <!-- change: table columns -->
+            <tr><td>Textul unei lecții</td><td><code>Lesson 1:</code> (până la <code>Lesson 9:</code>)</td><td><code>js/lessons.js</code></td></tr> <!-- change: lesson text -->
+            <tr><td>Un exercițiu</td><td><code>Exercise 1.1:</code></td><td><code>js/lessons.js</code></td></tr> <!-- change: an exercise -->
+            <tr><td>Funcțiile Oracle adăugate</td><td><code>function addOracleFunctions</code></td><td><code>js/db.js</code></td></tr> <!-- change: Oracle functions -->
           </tbody>
         </table>
       </div>
       <p class="how-note">
-        Atenție: <code>--color-accent</code> schimbă doar mov-ul principal. Au culorile lor separate: strălucirea (<code>--color-accent-glow</code>),
-        fundalul mov deschis (<code>--color-accent-soft</code>), marginile (<code>--color-border</code>), butonul „Rulează”
-        (<code>--color-button-primary</code>), titlul mare (<code>--color-title-gradient</code>) și cuvintele de cod
-        (<code>--color-code-background</code>, <code>--color-code-text</code>). Câteva margini și străluciri au mov-ul scris direct,
-        de aceea, pentru a schimba tot mov-ul, caută <code>a259ff</code>, <code>162, 89, 255</code> și <code>c9a6ff</code>.
-        <code>--font-size-base</code> schimbă textul normal; titlurile, butoanele și editorul au mărimile lor.
-      </p> <!-- note about variables that go together -->
+        <code>--color-accent</code> schimbă tot mov-ul: celelalte nuanțe (strălucirea <code>--color-accent-glow</code>, fundalul mov deschis
+        <code>--color-accent-soft</code>, marginile <code>--color-border</code>, cuvintele de cod, titlul mare și butonul „Rulează”) sunt calculate
+        din el (cu <code>color-mix()</code> sau direct cu <code>var(--color-accent)</code>), deci se schimbă singure. Dacă vrei ca una dintre ele să aibă altă culoare, scrii o culoare în locul formulei
+        de pe linia ei. Singura excepție este iconița din tab (<code>favicon.svg</code>), care nu poate citi variabilele din CSS.
+        <code>--font-size-base</code> schimbă doar textul normal; titlurile, butoanele și editorul au mărimile lor.
+      </p> <!-- note about the accent color and the derived colors -->
     </section>
 
     <!-- ===== Section 9: automatic tests ===== -->
@@ -547,8 +588,8 @@ function nvl(value, replacement) {
         Ele nu sunt publicate (se publică doar <code>site/</code>) și rulează în Node.js, pe aceleași fișiere JavaScript ca site-ul.
       </p> <!-- intro of the testing section -->
       <ul class="how-list">
-        <li><code>node tests/test-db.mjs</code>: 148 de verificări pentru <code>db.js</code> (numărul de rânduri, constrângerile, fiecare funcție Oracle comparată cu valoarea dată de Oracle, resetarea).</li> <!-- test file: database -->
-        <li><code>node tests/test-lessons.mjs</code>: 150 de verificări pentru lecții și <code>checker.js</code> (fiecare exemplu rulează, fiecare soluție este acceptată și cel puțin un răspuns greșit la fiecare exercițiu este respins).</li> <!-- test file: lessons and checker -->
+        <li><code>node tests/test-db.mjs</code>: 207 verificări pentru <code>db.js</code> și <code>translateError()</code> (numărul de rânduri, constrângerile, fiecare funcție Oracle comparată cu valoarea dată de Oracle, <code>COMMIT</code>/<code>ROLLBACK</code>/<code>LIMIT</code>, comentariile, rândurile modificate, resetarea, traducerea erorilor).</li> <!-- test file: database -->
+        <li><code>node tests/test-lessons.mjs</code>: 171 de verificări pentru lecții și <code>checker.js</code> (fiecare exemplu rulează, fiecare soluție este acceptată, cel puțin un răspuns greșit la fiecare exercițiu este respins, iar la exercițiile cu CREATE TABLE sunt respinse tabelele fără o constrângere cerută sau cu un <code>CHECK</code> greșit).</li> <!-- test file: lessons and checker -->
       </ul>
     </section>
 
@@ -582,7 +623,7 @@ function nvl(value, replacement) {
 
   <!-- Footer (same on every page) -->
   <footer class="site-footer">
-    Proiect pentru atestatul de competențe profesionale la informatică <!-- footer text -->
+    Proiect pentru atestatul de competențe profesionale la informatică <!-- site footer text -->
   </footer>
 </body>
 </html>

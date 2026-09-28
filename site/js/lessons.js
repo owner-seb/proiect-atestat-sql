@@ -285,11 +285,11 @@ ORDER BY id_materie;`,
       },
       {
         type: 'example',
-        sql: `SELECT id_clasa, COUNT(*) AS numar_elevi
+        sql: `SELECT oras, COUNT(*) AS numar_elevi
 FROM elevi
-GROUP BY id_clasa
-HAVING COUNT(*) >= 5;`,
-        explanation: 'Afișează doar clasele care au cel puțin 5 elevi.',
+GROUP BY oras
+HAVING COUNT(*) >= 3;`,
+        explanation: 'Grupează elevii după oraș și afișează doar orașele din care vin cel puțin 3 elevi (orașele cu 1 sau 2 elevi nu apar).',
       },
     ],
     exercises: [
@@ -315,7 +315,7 @@ HAVING COUNT(*) >= 5;`,
         statement: 'Afișează `id_materie` și media notelor la fiecare materie, rotunjită la 2 zecimale.',
         solution: `SELECT id_materie, ROUND(AVG(nota), 2) FROM note GROUP BY id_materie;`,
         orderMatters: false,
-        hint: 'Folosește `ROUND(AVG(nota), 2)` și `GROUP BY id_materie`.',
+        hint: 'Folosește `ROUND(AVG(nota), 2)` și `GROUP BY id_materie`. Calculează media cu `AVG`: aici `SUM(nota) / COUNT(nota)` împarte două numere întregi și taie zecimalele.',
       },
       // Exercise 5.4: HAVING filters the groups
       {
@@ -504,7 +504,7 @@ WHERE id_profesor NOT IN (SELECT id_diriginte FROM clase WHERE id_diriginte IS N
         ],
       },
       { type: 'p', text: 'Fără `WHERE`, `UPDATE` și `DELETE` se aplică pe toate rândurile din tabel! Verifică mai întâi condiția cu un `SELECT`.' },
-      { type: 'p', text: 'Constrângerile protejează datele: nu poți adăuga un elev într-o clasă care nu există și nu poți șterge un elev care are note. În Oracle, modificările se salvează definitiv cu `COMMIT` sau se anulează cu `ROLLBACK`. Aici modificările se aplică imediat, iar butonul „Resetează baza de date” readuce datele inițiale.' },
+      { type: 'p', text: 'Constrângerile protejează datele: nu poți adăuga un elev într-o clasă care nu există și nu poți șterge un elev care are note. În Oracle, modificările se salvează definitiv cu `COMMIT` sau se anulează cu `ROLLBACK`. Aici modificările se aplică imediat: `COMMIT` este acceptat, dar nu schimbă nimic, iar `ROLLBACK` dă eroare, pentru că nu poate anula nimic. Datele inițiale se readuc cu butonul „Resetează baza de date”.' },
       {
         type: 'example',
         sql: `INSERT INTO materii (id_materie, denumire, ore_pe_saptamana, id_profesor)
@@ -570,15 +570,15 @@ VALUES (900, 'Ionescu', 'Maria', TO_DATE('2009-03-15', 'YYYY-MM-DD'), 'Brașov',
           '`CHECK (condiție)` cere ca fiecare valoare să respecte condiția.',
         ],
       },
-      { type: 'p', text: 'Fiecare constrângere primește un nume cu `CONSTRAINT nume`, ca mesajele de eroare să fie ușor de înțeles. Convenția folosită aici este `tabel_coloană_tip`, de exemplu `cluburi_pk` sau `cluburi_denumire_uk`. Un tabel se șterge cu `DROP TABLE nume_tabel`.' },
+      { type: 'p', text: 'Fiecare constrângere primește un nume cu `CONSTRAINT nume`. În Oracle, numele apare în mesajele de eroare, așa că ele sunt ușor de înțeles (aici, în SQLite, numele apare doar la erorile de `CHECK`). Convenția folosită aici, la fel ca în baza de date a liceului, este `tip_tabel_coloană`: `pk_` pentru cheia primară, `fk_` pentru cheia străină, `uq_` pentru `UNIQUE` și `ck_` pentru `CHECK`, de exemplu `pk_cluburi` sau `uq_cluburi_denumire`. În lecție folosim și `nn_` pentru `NOT NULL` (în baza de date a liceului, constrângerile `NOT NULL` nu au nume). Un tabel se șterge cu `DROP TABLE nume_tabel`.' },
       {
         type: 'example',
         sql: `CREATE TABLE cluburi (
-  id_club NUMBER(4) CONSTRAINT cluburi_pk PRIMARY KEY,
-  denumire VARCHAR2(40) CONSTRAINT cluburi_denumire_nn NOT NULL,
+  id_club NUMBER(4) CONSTRAINT pk_cluburi PRIMARY KEY,
+  denumire VARCHAR2(40) CONSTRAINT nn_cluburi_denumire NOT NULL,
   id_profesor NUMBER(4),
-  CONSTRAINT cluburi_denumire_uk UNIQUE (denumire),
-  CONSTRAINT cluburi_profesor_fk FOREIGN KEY (id_profesor) REFERENCES profesori (id_profesor)
+  CONSTRAINT uq_cluburi_denumire UNIQUE (denumire),
+  CONSTRAINT fk_cluburi_profesor FOREIGN KEY (id_profesor) REFERENCES profesori (id_profesor)
 );`,
         explanation: 'Creează tabelul `cluburi`. A doua rulare dă eroare, pentru că tabelul există deja (folosește resetarea bazei de date).',
       },
@@ -592,77 +592,90 @@ VALUES (900, 'Ionescu', 'Maria', TO_DATE('2009-03-15', 'YYYY-MM-DD'), 'Brașov',
       // Exercise 9.1: simple table with a named primary key, then two rows
       {
         id: 'ddl-1',
-        statement: 'Creează tabelul `cercuri` cu coloanele `id_cerc` (`NUMBER(3)`, cheie primară numită `cercuri_pk`), `denumire` (`VARCHAR2(40)`, obligatorie) și `zi_saptamana` (`VARCHAR2(10)`). Apoi adaugă două rânduri: (1, Șah, Luni) și (2, Informatică, Joi).',
+        statement: 'Creează tabelul `cercuri` cu coloanele `id_cerc` (`NUMBER(3)`, cheie primară numită `pk_cercuri`), `denumire` (`VARCHAR2(40)`, obligatorie) și `zi_saptamana` (`VARCHAR2(10)`). Apoi adaugă două rânduri: (1, Șah, Luni) și (2, Informatică, Joi).',
         solution: `CREATE TABLE cercuri (
-  id_cerc NUMBER(3) CONSTRAINT cercuri_pk PRIMARY KEY,
-  denumire VARCHAR2(40) CONSTRAINT cercuri_denumire_nn NOT NULL,
+  id_cerc NUMBER(3) CONSTRAINT pk_cercuri PRIMARY KEY,
+  denumire VARCHAR2(40) CONSTRAINT nn_cercuri_denumire NOT NULL,
   zi_saptamana VARCHAR2(10)
 );
 INSERT INTO cercuri (id_cerc, denumire, zi_saptamana) VALUES (1, 'Șah', 'Luni');
 INSERT INTO cercuri (id_cerc, denumire, zi_saptamana) VALUES (2, 'Informatică', 'Joi');`,
         orderMatters: false,
-        // hidden check: the rows, plus 1/0 flags that show whether the constraints exist (SQLite introspection)
-        checkQuery: `SELECT id_cerc, denumire, zi_saptamana,
-  -- 1 if id_cerc is the primary key
-  (SELECT COUNT(*) FROM pragma_table_info('cercuri') WHERE LOWER(name) = 'id_cerc' AND pk > 0) AS are_pk,
-  -- 1 if denumire is NOT NULL
-  (SELECT COUNT(*) FROM pragma_table_info('cercuri') WHERE LOWER(name) = 'denumire' AND "notnull" = 1) AS denumire_nn
-FROM cercuri;`,
-        hint: 'Scrie întâi `CREATE TABLE cercuri (...);`, apoi câte un `INSERT` pentru fiecare rând. Separă comenzile cu `;`. Se verifică cheia primară și `NOT NULL`; numele constrângerilor nu sunt verificate, dar este bine să le scrii.',
+        // hidden check: try to add rows that break the constraints, then read the table.
+        // INSERT OR IGNORE skips a row that breaks a constraint (instead of stopping with an error),
+        // so with the right constraints the bad rows are not added; without them, they appear and the result differs.
+        checkQuery: `-- id_cerc 1 again: breaks the PRIMARY KEY
+INSERT OR IGNORE INTO cercuri (id_cerc, denumire, zi_saptamana) VALUES (1, 'Dans', 'Marți');
+-- no denumire: breaks NOT NULL
+INSERT OR IGNORE INTO cercuri (id_cerc, denumire, zi_saptamana) VALUES (3, NULL, 'Vineri');
+-- the rows of the table (the bad rows are not here if the constraints exist)
+SELECT id_cerc, denumire, zi_saptamana FROM cercuri;`,
+        hint: 'Scrie întâi `CREATE TABLE cercuri (...);`, apoi câte un `INSERT` pentru fiecare rând. Separă comenzile cu `;`. La verificare se încearcă și rânduri greșite (un `id_cerc` repetat, o denumire lipsă): dacă tabelul tău le primește, lipsește o constrângere. Numele constrângerilor nu sunt verificate, dar este bine să le scrii.',
       },
       // Exercise 9.2: foreign key to elevi and a CHECK constraint
       {
         id: 'ddl-2',
         statement: 'Creează tabelul `olimpiade` cu coloanele `id_olimpiada` (`NUMBER(4)`, cheie primară), `id_elev` (`NUMBER(5)`, cheie străină spre `elevi`), `disciplina` (`VARCHAR2(30)`, obligatorie) și `punctaj` (`NUMBER(5,2)`, între 0 și 100, verificat cu `CHECK`). Dă un nume fiecărei constrângeri. Apoi adaugă rândul: olimpiada 1, elevul cu `id_elev` 1, disciplina Informatică, punctajul 87.5.',
         solution: `CREATE TABLE olimpiade (
-  id_olimpiada NUMBER(4) CONSTRAINT olimpiade_pk PRIMARY KEY,
+  id_olimpiada NUMBER(4) CONSTRAINT pk_olimpiade PRIMARY KEY,
   id_elev NUMBER(5),
-  disciplina VARCHAR2(30) CONSTRAINT olimpiade_disciplina_nn NOT NULL,
+  disciplina VARCHAR2(30) CONSTRAINT nn_olimpiade_disciplina NOT NULL,
   punctaj NUMBER(5,2),
-  CONSTRAINT olimpiade_elev_fk FOREIGN KEY (id_elev) REFERENCES elevi (id_elev),
-  CONSTRAINT olimpiade_punctaj_ck CHECK (punctaj BETWEEN 0 AND 100)
+  CONSTRAINT fk_olimpiade_elev FOREIGN KEY (id_elev) REFERENCES elevi (id_elev),
+  CONSTRAINT ck_olimpiade_punctaj CHECK (punctaj BETWEEN 0 AND 100)
 );
 INSERT INTO olimpiade (id_olimpiada, id_elev, disciplina, punctaj) VALUES (1, 1, 'Informatică', 87.5);`,
         orderMatters: false,
-        // hidden check: the row, plus 1/0 flags that show whether the constraints exist (SQLite introspection)
-        checkQuery: `SELECT id_olimpiada, id_elev, disciplina, punctaj,
-  -- 1 if id_olimpiada is the primary key
-  (SELECT COUNT(*) FROM pragma_table_info('olimpiade') WHERE LOWER(name) = 'id_olimpiada' AND pk > 0) AS are_pk,
-  -- 1 if disciplina is NOT NULL
-  (SELECT COUNT(*) FROM pragma_table_info('olimpiade') WHERE LOWER(name) = 'disciplina' AND "notnull" = 1) AS disciplina_nn,
-  -- 1 if there is a foreign key from id_elev to the elevi table
-  (SELECT COUNT(*) > 0 FROM pragma_foreign_key_list('olimpiade') WHERE LOWER("from") = 'id_elev' AND LOWER("table") = 'elevi') AS are_fk,
-  -- 1 if the CREATE TABLE text has a CHECK on punctaj
-  (SELECT COUNT(*) FROM sqlite_master WHERE type = 'table' AND LOWER(name) = 'olimpiade' AND UPPER(sql) LIKE '%CHECK%PUNCTAJ%') AS are_check
+        // hidden check: try to add rows that break the constraints (INSERT OR IGNORE skips them if the constraints exist),
+        // add two rows with the lowest and highest allowed punctaj (they must be accepted), then read the table.
+        // Every test row uses an existing student, because a broken FOREIGN KEY is an error even with OR IGNORE;
+        // so the foreign key is checked with pragma_foreign_key_list (the list of foreign keys of a table).
+        checkQuery: `-- id_olimpiada 1 again: breaks the PRIMARY KEY
+INSERT OR IGNORE INTO olimpiade (id_olimpiada, id_elev, disciplina, punctaj) VALUES (1, 2, 'Fizică', 50);
+-- no disciplina: breaks NOT NULL
+INSERT OR IGNORE INTO olimpiade (id_olimpiada, id_elev, disciplina, punctaj) VALUES (2, 3, NULL, 60);
+-- punctaj over 100: breaks the CHECK (id 3 would pass a CHECK written on the wrong column)
+INSERT OR IGNORE INTO olimpiade (id_olimpiada, id_elev, disciplina, punctaj) VALUES (3, 4, 'Chimie', 150);
+-- punctaj under 0: breaks the CHECK
+INSERT OR IGNORE INTO olimpiade (id_olimpiada, id_elev, disciplina, punctaj) VALUES (4, 5, 'Biologie', -1);
+-- punctaj 0: allowed (lowest value), so a CHECK with a wrong range drops it
+INSERT OR IGNORE INTO olimpiade (id_olimpiada, id_elev, disciplina, punctaj) VALUES (5, 6, 'Geografie', 0);
+-- punctaj 100: allowed (highest value), so a CHECK with a wrong range drops it
+INSERT OR IGNORE INTO olimpiade (id_olimpiada, id_elev, disciplina, punctaj) VALUES (6, 7, 'Istorie', 100);
+-- the rows of the table, plus are_fk: 1 if there is a foreign key from id_elev to the elevi table
+SELECT id_olimpiada, id_elev, disciplina, punctaj,
+  (SELECT COUNT(*) FROM pragma_foreign_key_list('olimpiade') WHERE LOWER("from") = 'id_elev' AND LOWER("table") = 'elevi') AS are_fk
 FROM olimpiade;`,
-        hint: 'Cheia străină se scrie la final: `CONSTRAINT olimpiade_elev_fk FOREIGN KEY (id_elev) REFERENCES elevi (id_elev)`, iar verificarea: `CHECK (punctaj BETWEEN 0 AND 100)`. Se verifică toate constrângerile cerute, dar nu și numele lor.',
+        hint: 'Cheia străină se scrie la final: `CONSTRAINT fk_olimpiade_elev FOREIGN KEY (id_elev) REFERENCES elevi (id_elev)`, iar verificarea: `CONSTRAINT ck_olimpiade_punctaj CHECK (punctaj BETWEEN 0 AND 100)`. La verificare se încearcă și rânduri greșite (id repetat, disciplină lipsă, punctaj 150 sau -1) și rânduri corecte cu punctajul 0 și 100. Numele constrângerilor nu sunt verificate.',
       },
       // Exercise 9.3: UNIQUE and NOT NULL on the same column, CHECK on a number
       {
         id: 'ddl-3',
         statement: 'Creează tabelul `sali` cu coloanele `id_sala` (`NUMBER(3)`, cheie primară), `cod` (`VARCHAR2(10)`, obligatoriu și unic) și `capacitate` (`NUMBER(3)`, mai mare decât 0, verificat cu `CHECK`). Dă un nume fiecărei constrângeri. Apoi adaugă sala 1, cu codul L1 și capacitatea 30.',
         solution: `CREATE TABLE sali (
-  id_sala NUMBER(3) CONSTRAINT sali_pk PRIMARY KEY,
-  cod VARCHAR2(10) CONSTRAINT sali_cod_nn NOT NULL,
+  id_sala NUMBER(3) CONSTRAINT pk_sali PRIMARY KEY,
+  cod VARCHAR2(10) CONSTRAINT nn_sali_cod NOT NULL,
   capacitate NUMBER(3),
-  CONSTRAINT sali_cod_uk UNIQUE (cod),
-  CONSTRAINT sali_capacitate_ck CHECK (capacitate > 0)
+  CONSTRAINT uq_sali_cod UNIQUE (cod),
+  CONSTRAINT ck_sali_capacitate CHECK (capacitate > 0)
 );
 INSERT INTO sali (id_sala, cod, capacitate) VALUES (1, 'L1', 30);`,
         orderMatters: false,
-        // hidden check: the row, plus 1/0 flags that show whether the constraints exist (SQLite introspection)
-        checkQuery: `SELECT id_sala, cod, capacitate,
-  -- 1 if id_sala is the primary key
-  (SELECT COUNT(*) FROM pragma_table_info('sali') WHERE LOWER(name) = 'id_sala' AND pk > 0) AS are_pk,
-  -- 1 if cod is NOT NULL
-  (SELECT COUNT(*) FROM pragma_table_info('sali') WHERE LOWER(name) = 'cod' AND "notnull" = 1) AS cod_nn,
-  -- 1 if there is a UNIQUE constraint on cod (a unique index that is not the primary key)
-  (SELECT COUNT(*) > 0 FROM pragma_index_list('sali') il JOIN pragma_index_info(il.name) ii
-   WHERE il."unique" = 1 AND il.origin <> 'pk' AND LOWER(ii.name) = 'cod') AS cod_unique,
-  -- 1 if the CREATE TABLE text has a CHECK on capacitate
-  (SELECT COUNT(*) FROM sqlite_master WHERE type = 'table' AND LOWER(name) = 'sali' AND UPPER(sql) LIKE '%CHECK%CAPACITATE%') AS are_check
-FROM sali;`,
-        hint: 'O coloană poate avea mai multe constrângeri: `NOT NULL` lângă coloană și `UNIQUE (cod)` la final. Se verifică toate constrângerile cerute, dar nu și numele lor.',
+        // hidden check: try to add rows that break the constraints (INSERT OR IGNORE skips them if the constraints exist),
+        // add one room with the smallest allowed capacitate (it must be accepted), then read the table
+        checkQuery: `-- id_sala 1 again: breaks the PRIMARY KEY
+INSERT OR IGNORE INTO sali (id_sala, cod, capacitate) VALUES (1, 'L2', 20);
+-- no cod: breaks NOT NULL
+INSERT OR IGNORE INTO sali (id_sala, cod, capacitate) VALUES (2, NULL, 21);
+-- cod L1 again: breaks UNIQUE
+INSERT OR IGNORE INTO sali (id_sala, cod, capacitate) VALUES (3, 'L1', 22);
+-- capacitate 0: breaks the CHECK (id 4 would pass a CHECK written on the wrong column)
+INSERT OR IGNORE INTO sali (id_sala, cod, capacitate) VALUES (4, 'L4', 0);
+-- capacitate 1: allowed (smallest value), so a CHECK with a wrong limit drops it
+INSERT OR IGNORE INTO sali (id_sala, cod, capacitate) VALUES (5, 'L5', 1);
+-- the rows of the table (the bad rows are not here if the constraints exist)
+SELECT id_sala, cod, capacitate FROM sali;`,
+        hint: 'O coloană poate avea mai multe constrângeri: `NOT NULL` lângă coloană și `CONSTRAINT uq_sali_cod UNIQUE (cod)` la final. La verificare se încearcă și rânduri greșite (id repetat, cod lipsă, cod repetat, capacitate 0) și o sală corectă cu capacitatea 1. Numele constrângerilor nu sunt verificate.',
       },
     ],
   },

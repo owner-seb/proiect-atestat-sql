@@ -120,9 +120,22 @@ function showLessonButtons() {
     progress.textContent = solved + '/' + lesson.exercises.length; // e.g. "2/4"
     button.append(number, progress); // number first, then progress
 
-    button.addEventListener('click', () => openLesson(index)); // lesson button click: open that lesson
+    button.addEventListener('click', () => { // lesson button click
+      openLesson(index); // open that lesson (the buttons are drawn again)
+      focusCurrentLessonButton(); // keep the keyboard focus on the button of the open lesson
+    });
     lessonNav.appendChild(button); // add the button to the row
   });
+}
+
+/**
+ * Puts the keyboard focus on the button of the open lesson.
+ * Needed because the buttons are drawn again when a lesson opens, and the old focused button is gone.
+ * preventScroll: the focus does not move the page (the page may be scrolling to the lessons).
+ */
+function focusCurrentLessonButton() {
+  const currentButton = lessonNav.querySelector('[aria-current="true"]'); // the highlighted lesson button
+  currentButton.focus({ preventScroll: true }); // focus it without scrolling
 }
 
 /**
@@ -262,14 +275,14 @@ function createLessonPager() {
   previous.type = 'button'; // a normal button (not a form submit)
   previous.className = 'button button-secondary'; // style: dark button
   previous.disabled = currentIndex === 0; // no previous lesson before the first one
-  previous.textContent = previous.disabled ? 'Prima lecție' : '← Lecția ' + currentIndex; // e.g. "← Lecția 2" when lesson 3 is open
+  previous.textContent = previous.disabled ? 'Prima lecție' : '‹ Lecția ' + currentIndex; // e.g. "‹ Lecția 2" when lesson 3 is open
   previous.addEventListener('click', () => goToLesson(currentIndex - 1)); // previous button click
 
   const next = document.createElement('button'); // next lesson button
   next.type = 'button'; // a normal button (not a form submit)
   next.className = 'button button-secondary'; // style: dark button
   next.disabled = currentIndex === LESSONS.length - 1; // no next lesson after the last one
-  next.textContent = next.disabled ? 'Ultima lecție' : 'Lecția ' + (currentIndex + 2) + ' →'; // e.g. "Lecția 4 →" when lesson 3 is open
+  next.textContent = next.disabled ? 'Ultima lecție' : 'Lecția ' + (currentIndex + 2) + ' ›'; // e.g. "Lecția 4 ›" when lesson 3 is open
   next.addEventListener('click', () => goToLesson(currentIndex + 1)); // next button click
 
   pager.append(previous, next); // add both buttons to the row
@@ -282,6 +295,7 @@ function createLessonPager() {
  */
 function goToLesson(index) {
   openLesson(index); // show the lesson
+  focusCurrentLessonButton(); // the keyboard focus goes to the button of the new lesson (the clicked button is gone)
   lessonsSection.scrollIntoView({ behavior: 'smooth' }); // scroll to the lesson buttons
 }
 
@@ -318,7 +332,7 @@ function createExercisesList(lesson) {
 
 /**
  * Builds the box of one exercise: statement, answer box, buttons ("Verifică", "Indiciu", "Arată soluția"),
- * the hint, the solution and the feedback area.
+ * the hint, the feedback area and, under it, the solution.
  * Parameters:
  *   exercise       - one exercise from lessons.js
  *   number         - the number of the exercise in the lesson (1, 2, 3...)
@@ -332,9 +346,9 @@ function createExercise(exercise, number, updateProgress) {
   const title = document.createElement('h5'); // exercise title
   title.className = 'exercise-title'; // style of the exercise title
   title.textContent = 'Exercițiul ' + number + ' '; // e.g. "Exercițiul 2"
-  const solvedMark = document.createElement('span'); // green "✓ rezolvat" mark
+  const solvedMark = document.createElement('span'); // green "rezolvat" mark
   solvedMark.className = 'exercise-solved'; // style: green text
-  solvedMark.textContent = '✓ rezolvat'; // mark text
+  solvedMark.textContent = 'rezolvat'; // mark text
   solvedMark.hidden = !solvedIds.has(exercise.id); // shown only when the exercise is solved
   title.appendChild(solvedMark); // put the mark next to the title
   box.appendChild(title); // add the title to the box
@@ -370,14 +384,19 @@ function createExercise(exercise, number, updateProgress) {
   hint.hidden = true; // hidden until the hint button is clicked
   box.appendChild(hint); // add it under the buttons
 
-  const solution = createCodeBlock(exercise.solution); // the correct SQL
-  solution.hidden = true; // hidden until the show solution button is clicked
-  box.appendChild(solution); // add it under the hint
-
   const feedback = document.createElement('div'); // area for the message and the user's result
   feedback.className = 'exercise-feedback'; // style: space above the message
   feedback.setAttribute('aria-live', 'polite'); // screen readers read the new message
-  box.appendChild(feedback); // add it at the bottom of the exercise
+  box.appendChild(feedback); // add it under the hint
+
+  const solution = document.createElement('div'); // box for the solution: a "Soluția:" label and the correct SQL
+  solution.className = 'exercise-solution'; // style: space above the solution
+  const solutionLabel = document.createElement('p'); // "Soluția:" label above the SQL
+  solutionLabel.className = 'exercise-solution-label'; // style: small purple text
+  solutionLabel.textContent = 'Soluția:'; // label text
+  solution.append(solutionLabel, createCodeBlock(exercise.solution)); // label, then the correct SQL
+  solution.hidden = true; // hidden until the show solution button is clicked
+  box.appendChild(solution); // add it at the bottom of the exercise, under the feedback
 
   // check button click: check the answer and show the message
   const check = () => {
@@ -397,8 +416,14 @@ function createExercise(exercise, number, updateProgress) {
       check(); // check the answer
     }
   });
-  hintButton.addEventListener('click', () => { hint.hidden = false; }); // hint button click: show the hint
-  solutionButton.addEventListener('click', () => { solution.hidden = false; }); // show solution button click
+  hintButton.addEventListener('click', () => { // hint button click: show or hide the hint
+    hint.hidden = !hint.hidden; // hidden -> shown, shown -> hidden
+    hintButton.textContent = hint.hidden ? 'Indiciu' : 'Ascunde indiciul'; // button text says what the next click does
+  });
+  solutionButton.addEventListener('click', () => { // show solution button click: show or hide the solution
+    solution.hidden = !solution.hidden; // hidden -> shown, shown -> hidden
+    solutionButton.textContent = solution.hidden ? 'Arată soluția' : 'Ascunde soluția'; // button text says what the next click does
+  });
 
   return box; // the finished exercise
 }

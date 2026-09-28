@@ -17,17 +17,22 @@ on language or length. The project just has to present the theme.
 ```
 Proiect Atestat/
 ├── CLAUDE.md  PLAN.md  PROCESS.md  CODING_RULES.md   (notes, not published)
+├── serve.py                      (local no-cache server: python3 serve.py → http://localhost:8000)
+├── tests/                        (node tests: test-db.mjs, test-lessons.mjs; not published)
 └── site/                         (published to Cloudflare Pages)
-    ├── index.html                (home: lessons + SQL editor + exercises)
-    ├── cum-functioneaza.html     (how the site works: structure, files, code)
-    ├── css/style.css             (all colors and sizes as commented variables at the top)
+    ├── index.html                (home: hero → lessons + exercises → SQL editor)
+    ├── cum-functioneaza.html     (how the site works: structure, files, code, "Unde modific?")
+    ├── favicon.svg
+    ├── css/style.css             (all colors and sizes as commented variables at the top; every purple derives from --color-accent)
     ├── js/
-    │   ├── main.js               (page startup, button wiring)
+    │   ├── main.js               (page startup, editor, buttons)
     │   ├── db.js                 (load sql.js, create the DB from seed.sql, Oracle compatibility, run queries)
-    │   ├── render.js             (render result tables and errors)
+    │   ├── render.js             (result tables, messages, Romanian error translation)
     │   ├── lessons.js            (lesson and exercise data)
+    │   ├── lessons-ui.js         (draws lessons/exercises, saves progress)
     │   └── checker.js            (compare the user's result with the reference result)
     ├── data/seed.sql             (CREATE TABLE + INSERT, Oracle-style)
+    ├── fonts/                    (JetBrains Mono, OFL)
     └── vendor/sql-wasm.js, sql-wasm.wasm
 ```
 
@@ -66,6 +71,8 @@ students with no grades (for LEFT JOIN), a class with no homeroom teacher, NULL 
   - `resetDatabase()`: rebuilds the main DB from seed.sql.
   - `getSchema()`: returns `[{ table, columns: [{ name, type }] }]` (user tables only, `dual` excluded).
   - `createScratchDatabase()`: returns a separate new DB (same functions + seed) for the exercise checker. The caller closes it.
+  - `prepareOracleSql(sql)`: skips quotes/comments; rewrites bare SYSDATE, strips COMMIT, throws a Romanian error on ROLLBACK and LIMIT.
+  - `countChangedRows()` counts over all statements of the last `runQuery` (via `total_changes()`).
 - **`js/lessons.js`**: `export const LESSONS = [{ id, title, blocks, exercises }]`
   - `blocks`: `{ type: 'p', text }` | `{ type: 'list', items: [text] }` | `{ type: 'example', sql, explanation }`.
     Text may contain `` `inline code` `` in backticks (rendered as `<code>`; never innerHTML).
@@ -74,7 +81,7 @@ students with no grades (for LEFT JOIN), a class with no homeroom teacher, NULL 
     With `checkQuery` (DML/DDL), the user's SQL runs on a scratch DB followed by `checkQuery`, and that is compared with `solution` + `checkQuery` run on another scratch DB.
 - **`js/checker.js`**: `checkExercise(exercise, userSql)` returns `{ correct, message, result }` (message in Romanian; result = the user's rows or null).
 - **`js/lessons-ui.js`**: `startLessons(tryInEditor)` draws the lessons and exercises and saves progress in localStorage.
-- **`js/render.js`**: `renderResults(container, results)`, `renderMessage(container, text, kind)`, `formatCount(count, singular, plural)`.
+- **`js/render.js`**: `renderResults(container, results)` (max 500 rows drawn), `renderMessage(container, text, kind)`, `formatCount(count, singular, plural)`, `translateError(message)` (SQLite errors → Romanian).
 
 ## Phases
 
@@ -129,7 +136,8 @@ students with no grades (for LEFT JOIN), a class with no homeroom teacher, NULL 
 - → verify: the student can answer "how does X work?" for every file by using only this page.
 
 ### Phase 7: Polish + exam rehearsal
-- [ ] Responsive layout and accessibility (dark theme only, matching sebastian-ungureanu.com).
+- [x] Responsive layout and accessibility (dark theme only, matching sebastian-ungureanu.com).
+- [x] Code review + exam rehearsal by review agents; all findings fixed (see PROCESS.md).
 - [ ] Rehearse the likely examiner requests: change the heading color, the background color, the font size, a text, a table's data.
 - → verify: each request above is done in under a minute with Ctrl+F.
 

@@ -59,6 +59,14 @@
   --editor-height: 10rem; /* starting height of the SQL editor */
   --results-max-height: 24rem; /* maximum height of a result table (taller tables scroll) */
   --schema-panel-width: 16rem; /* width of the "Structura bazei de date" panel on computers */
+
+  /* Lessons and exercises */
+  --color-chip-background: #111111; /* background color of the numbered lesson buttons */
+  --color-code-background: rgba(162, 89, 255, 0.12); /* background of code words inside the lesson text */
+  --color-code-text: #c9a6ff; /* color of code words inside the lesson text */
+  --radius-pill: 999px; /* fully rounded (pill) shape of the numbered lesson buttons */
+  --exercise-editor-height: 5rem; /* starting height of the answer box of an exercise */
+  --scroll-offset: 7.5rem; /* space kept above a section when the page scrolls to it (room for the menu bar) */
 }
 
 /* ===== Whole page ===== */
@@ -499,4 +507,601 @@ strong {
 
 .schema-query-button:hover {
   border-color: var(--color-accent); /* stronger border on mouse hover */
+}
+
+/* ===== Lessons and exercises ===== */
+/* Home page: the numbered lesson buttons, the open lesson, its examples and its exercises (built by lessons-ui.js). */
+
+/* When a button scrolls to the lessons or to the editor, leave room for the menu bar at the top */
+#lessons,
+#editor {
+  scroll-margin-top: var(--scroll-offset); /* space above the section after scrolling */
+}
+
+.lessons-section {
+  margin-bottom: 2rem; /* space below the lessons section */
+}
+
+/* Row of numbered lesson buttons */
+.lesson-nav {
+  display: flex; /* buttons side by side */
+  flex-wrap: wrap; /* on small screens, move to the next line */
+  gap: 0.5rem; /* space between the buttons */
+  margin-bottom: 1.5rem; /* space between the buttons and the lesson */
+}
+
+/* One numbered lesson button (pill shape): the number and the progress, e.g. "3 2/4" */
+.lesson-chip {
+  display: inline-flex; /* number and progress side by side */
+  align-items: baseline; /* the numbers sit on the same line */
+  gap: 0.4rem; /* space between the number and the progress */
+  padding: 0.35rem 0.9rem; /* space inside the lesson button */
+  background: var(--color-chip-background); /* lesson button background color */
+  color: var(--color-text); /* lesson button text color */
+  font-family: var(--font-main); /* same font as the rest of the site */
+  font-size: 0.9rem; /* lesson number size */
+  font-weight: 700; /* bold lesson number */
+  border: 1px solid var(--color-border); /* thin purple border */
+  border-radius: var(--radius-pill); /* pill shape */
+  cursor: pointer; /* hand cursor on hover */
+}
+
+.lesson-chip:hover {
+  border-color: var(--color-accent); /* stronger border on mouse hover */
+}
+
+.lesson-chip-progress {
+  font-size: var(--font-size-small); /* small progress text, e.g. "2/4" */
+  font-weight: 400; /* normal (not bold) progress text */
+  color: var(--color-text-muted); /* gray progress text */
+}
+
+/* Lesson button of a lesson with all exercises solved: green border and green progress */
+.lesson-chip-done {
+  border-color: var(--color-success); /* green border */
+}
+
+.lesson-chip-done .lesson-chip-progress {
+  color: var(--color-success); /* green progress text */
+}
+
+/* Lesson button of the lesson shown now: purple background, black text, purple glow */
+.lesson-chip[aria-current="true"] {
+  background: var(--color-accent); /* purple background */
+  color: var(--color-button-primary-text); /* black text */
+  border-color: var(--color-accent); /* purple border */
+  box-shadow: 0 0 15px var(--color-accent-glow); /* purple glow */
+}
+
+.lesson-chip[aria-current="true"] .lesson-chip-progress {
+  color: var(--color-button-primary-text); /* black progress text on the purple button */
+}
+
+/* The open lesson */
+.lesson-number {
+  margin: 0; /* no extra space around "Lecția 3 din 9" */
+  font-size: var(--font-size-small); /* small text */
+  color: var(--color-accent); /* purple text */
+  letter-spacing: 1px; /* space between letters */
+}
+
+.lesson h3 {
+  margin-top: 0.25rem; /* small space between "Lecția 3 din 9" and the lesson title */
+}
+
+.lesson-list {
+  padding-left: 1.25rem; /* bullets indented a little */
+}
+
+.lesson-list li + li {
+  margin-top: 0.35rem; /* space between the lines of a list */
+}
+
+/* Code words inside the lesson text, e.g. `SELECT` */
+.lesson code {
+  padding: 0.1rem 0.35rem; /* space around the code word */
+  background: var(--color-code-background); /* light purple background */
+  color: var(--color-code-text); /* light purple text */
+  border-radius: 4px; /* rounded corners */
+  font-family: var(--font-main); /* same monospace font */
+  font-size: var(--font-size-code); /* code text size */
+  overflow-wrap: anywhere; /* long code words may break on phones */
+}
+
+/* Box with SQL code (lesson examples and exercise solutions) */
+.code-block {
+  margin: 0 0 0.75rem; /* space below the code box */
+  padding: 0.75rem 1rem; /* space inside the code box */
+  background: var(--color-editor-background); /* same background as the SQL editor */
+  border: 1px solid var(--color-border); /* thin purple border */
+  border-radius: var(--radius); /* rounded corners */
+  overflow-x: auto; /* long lines scroll inside the box, not the whole page */
+  font-size: var(--font-size-code); /* code text size */
+  line-height: 1.6; /* space between the lines of code */
+}
+
+.lesson .code-block code {
+  padding: 0; /* no extra space: the box already has it */
+  background: none; /* no extra background inside the code box */
+  color: var(--color-text); /* normal text color for the SQL */
+  overflow-wrap: normal; /* keep SQL lines whole (the box scrolls instead) */
+}
+
+/* One example: code, explanation and the "Încearcă în editor" button */
+.lesson-example {
+  margin: 1.5rem 0; /* space above and below the example */
+  padding-left: 1rem; /* space between the purple line and the example */
+  border-left: 3px solid var(--color-accent); /* purple line on the left of the example */
+}
+
+.lesson-example-text {
+  margin: 0 0 0.75rem; /* space between the explanation and the button */
+  color: var(--color-text-muted); /* gray explanation text */
+  font-size: 0.9rem; /* explanation text size */
+}
+
+/* Exercises part of a lesson */
+.exercises {
+  margin-top: 2rem; /* space between the lesson text and the exercises */
+  padding-top: 1rem; /* space below the line */
+  border-top: 1px solid var(--color-border); /* line above the exercises */
+}
+
+.exercises-title {
+  margin: 0; /* no extra space around the "Exerciții" heading */
+  font-size: 1.1rem; /* "Exerciții" heading size */
+  color: var(--color-heading); /* heading color */
+}
+
+.exercises-title::before {
+  content: '> '; /* the ">" sign before the heading, like the other headings */
+  color: var(--color-accent); /* color of the ">" sign */
+}
+
+.lesson-progress {
+  margin: 0.25rem 0 1rem; /* space around "Rezolvate: 2 din 4" */
+  font-size: var(--font-size-small); /* small progress text */
+  color: var(--color-text-muted); /* gray progress text */
+}
+
+/* Box of one exercise */
+.exercise {
+  margin-bottom: 1rem; /* space between two exercises */
+  padding: 1rem; /* space inside the exercise box */
+  border: 1px solid var(--color-border); /* thin purple border */
+  border-radius: var(--radius); /* rounded corners */
+}
+
+.exercise-title {
+  margin: 0 0 0.5rem; /* space below "Exercițiul 2" */
+  font-size: 0.95rem; /* exercise title size */
+  color: var(--color-accent); /* purple exercise title */
+}
+
+.exercise-solved {
+  margin-left: 0.5rem; /* space between the title and the mark */
+  color: var(--color-success); /* green "✓ rezolvat" mark */
+  font-size: var(--font-size-small); /* small mark text */
+}
+
+.exercise-editor {
+  min-height: var(--exercise-editor-height); /* the answer box is shorter than the main editor */
+}
+
+.exercise-hint {
+  margin-top: 1rem; /* space between the buttons and the hint */
+}
+
+.exercise .code-block {
+  margin-top: 1rem; /* space between the buttons and the solution */
+}
+
+.exercise-feedback .message {
+  margin-top: 1rem; /* space between the buttons and the "Corect!" / error message */
+}
+
+.exercise-feedback .results {
+  margin-top: 0.75rem; /* space between the message and the user's rows */
+}
+
+/* Previous / next lesson buttons at the bottom of a lesson */
+.lesson-pager {
+  display: flex; /* buttons side by side */
+  flex-wrap: wrap; /* on small screens, move to the next line */
+  justify-content: space-between; /* one button on the left, one on the right */
+  gap: 0.75rem; /* space between the buttons */
+  margin-top: 1.5rem; /* space above the buttons */
+}
+
+/* Buttons that cannot be used now (e.g. "Rulează" while the database is loading) */
+.button:disabled {
+  opacity: 0.5; /* faded */
+  cursor: not-allowed; /* "not allowed" cursor on hover */
+  box-shadow: none; /* no glow */
+}
+
+/* ===== How it works page (cum-functioneaza.html) ===== */
+/* Every rule starts with ".how-page" (the <main> of that page), so the home page is not affected. */
+/* Colors come from the variables at the top of this file, so changing --color-accent also recolors these diagrams. */
+
+.how-page section[id] {
+  scroll-margin-top: var(--scroll-offset); /* when a table of contents link jumps here, the heading is not hidden under the menu bar */
+}
+
+.how-page h3 {
+  margin-top: 1.75rem; /* space above the small headings inside a card */
+}
+
+/* Inline code (function names, file names) on the how it works page */
+.how-page code {
+  padding: 0.05rem 0.35rem; /* small space around the code text */
+  background: var(--color-code-background); /* light purple background behind code (same as in the lessons) */
+  color: var(--color-code-text); /* light purple code text (same as in the lessons) */
+  font-family: var(--font-main); /* same font as the rest of the site (browsers use another font for code) */
+  font-variant-ligatures: none; /* show "===" as three signs, not joined into one symbol */
+  border-radius: 4px; /* slightly rounded code background */
+  font-size: 0.9em; /* code text a bit smaller than the text around it */
+  overflow-wrap: anywhere; /* long function names break instead of widening the page on phones */
+}
+
+/* Table of contents: pill links under the big title */
+.how-toc {
+  display: flex; /* links side by side */
+  flex-wrap: wrap; /* move to the next line when there is no room */
+  justify-content: center; /* links centered under the title */
+  gap: 0.5rem; /* space between the links */
+  margin-bottom: 2rem; /* space between the links and the first card */
+}
+
+.how-toc a {
+  padding: 0.3rem 0.9rem; /* space inside each pill link */
+  border: 1px solid var(--color-border); /* thin purple border of the pill links */
+  border-radius: 999px; /* fully rounded pill links */
+  color: var(--color-text); /* pill link text color */
+  text-decoration: none; /* no underline on the pill links */
+  font-size: var(--font-size-small); /* small pill link text */
+}
+
+.how-toc a:hover {
+  border-color: var(--color-accent); /* stronger purple border on mouse hover */
+  box-shadow: 0 0 10px var(--color-accent-glow); /* purple glow on mouse hover */
+}
+
+/* Three big numbers in the "Pe scurt" section (9 lessons, 5 tables, 0 servers) */
+.how-stats {
+  display: grid; /* numbers placed in a grid */
+  grid-template-columns: minmax(0, 1fr); /* phones: one number per line */
+  gap: 1rem; /* space between the number boxes */
+  margin: 1.5rem 0; /* space above and below the numbers */
+  padding: 0; /* no list indent */
+  list-style: none; /* no bullets */
+}
+
+@media (min-width: 600px) {
+  .how-stats {
+    grid-template-columns: repeat(3, minmax(0, 1fr)); /* computers: three numbers side by side */
+  }
+}
+
+.how-stats li {
+  padding: 1rem; /* space inside each number box */
+  border: 1px solid var(--color-border); /* thin purple border of each number box */
+  border-radius: var(--radius); /* rounded number box corners */
+  text-align: center; /* number and text centered */
+  font-size: var(--font-size-small); /* small text under the number */
+  color: var(--color-text-muted); /* gray text under the number */
+}
+
+.how-stat-number {
+  display: block; /* the number sits on its own line, above the text */
+  font-size: 2.5rem; /* size of the big numbers */
+  font-weight: 700; /* bold big numbers */
+  line-height: 1.2; /* compact line height for the big numbers */
+  color: var(--color-accent); /* purple big numbers */
+  text-shadow: 0 0 15px var(--color-accent-glow); /* purple glow around the big numbers */
+}
+
+/* Technologies list: a pill badge with a short explanation under it */
+.how-badges {
+  display: grid; /* boxes placed in a grid */
+  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); /* as many columns as fit (one on phones) */
+  gap: 0.75rem; /* space between the boxes */
+  padding: 0; /* no list indent */
+  list-style: none; /* no bullets */
+  font-size: 0.9rem; /* text size of the explanations */
+}
+
+.how-badges li {
+  display: flex; /* pill and explanation one under the other */
+  flex-direction: column; /* pill on top, explanation below */
+  align-items: flex-start; /* the pill is only as wide as its text */
+  gap: 0.3rem; /* space between the pill and its explanation */
+  color: var(--color-text-muted); /* gray explanation text */
+}
+
+.how-badge {
+  display: inline-block; /* pill with its own padding */
+  color: var(--color-text); /* white technology name */
+  padding: 0.15rem 0.75rem; /* space inside the pill */
+  background: var(--color-accent-soft); /* light purple pill background */
+  border: 1px solid var(--color-accent); /* purple pill border */
+  border-radius: 999px; /* fully rounded pill */
+  font-weight: 700; /* bold technology name */
+}
+
+/* Pill lists of code words (Oracle functions, unsupported syntax) */
+.how-badges-code {
+  display: flex; /* pills side by side */
+  flex-wrap: wrap; /* move to the next line when there is no room */
+  gap: 0.5rem; /* space between the pills */
+}
+
+.how-badges-code li {
+  display: block; /* a simple pill (not the pill + explanation layout of the technologies list) */
+  padding: 0.2rem 0.75rem; /* space inside each pill */
+  color: var(--color-text); /* white pill text */
+  border: 1px solid var(--color-accent); /* purple pill border */
+  border-radius: 999px; /* fully rounded pill */
+}
+
+.how-badges-code code {
+  padding: 0; /* the pill already has space inside */
+  background: none; /* the pill already has a border, no extra background */
+}
+
+/* Tables on this page (files, relationships, differences, where to change) reuse .result-table */
+.how-table-wrapper {
+  max-height: none; /* show the whole table, no vertical scroll inside it */
+  margin: 1rem 0; /* space above and below the table */
+}
+
+.how-table-wide {
+  min-width: 34rem; /* tables with 3 columns: on phones they scroll sideways inside their box instead of squeezing the text */
+}
+
+.how-table th,
+.how-table td {
+  white-space: normal; /* long explanations wrap on several lines */
+  vertical-align: top; /* cells of the same row start at the same height */
+}
+
+.how-page .how-table code {
+  white-space: nowrap; /* file names and code in tables stay on one line (the table scrolls sideways instead) */
+  overflow-wrap: normal; /* never cut a file name in the middle */
+}
+
+/* Flow diagram: vertical boxes connected by arrows (query path, startup, publishing) */
+.how-flow {
+  max-width: 40rem; /* the boxes are not too wide on computers */
+  margin: 1.5rem auto; /* centered, with space above and below */
+  padding: 0; /* no list indent */
+  list-style: none; /* no list numbers (the step numbers are drawn below) */
+  counter-reset: flow-step; /* start counting the steps from 1 in each diagram */
+}
+
+.how-flow-step {
+  position: relative; /* lets the arrow and the step number be placed around the box */
+  display: flex; /* the parts of the box one under the other */
+  flex-direction: column; /* file label, title, text from top to bottom */
+  gap: 0.35rem; /* space between the parts of the box */
+  margin-bottom: 2.5rem; /* room for the arrow below the box */
+  padding: 1.1rem 1rem 1rem; /* space inside the box */
+  background: var(--color-editor-background); /* dark box background */
+  border: 1px solid var(--color-accent); /* purple box border */
+  border-radius: var(--radius); /* rounded box corners */
+  box-shadow: 0 0 10px var(--color-accent-soft); /* soft purple glow around the box */
+  counter-increment: flow-step; /* this box is the next step */
+}
+
+.how-flow-step:last-child {
+  margin-bottom: 0; /* no arrow after the last box, so no extra space */
+}
+
+.how-flow-step::before {
+  content: counter(flow-step); /* the step number: 1, 2, 3 ... */
+  position: absolute; /* placed on the top border of the box */
+  top: -0.75rem; /* half above the border */
+  left: 1rem; /* near the left corner */
+  min-width: 1.5rem; /* round badge width */
+  padding: 0 0.4rem; /* space inside the badge */
+  background: var(--color-accent); /* purple step number badge */
+  color: var(--color-button-primary-text); /* black step number */
+  border-radius: 999px; /* round step number badge */
+  font-size: var(--font-size-small); /* small step number */
+  font-weight: 700; /* bold step number */
+  text-align: center; /* number centered in the badge */
+}
+
+.how-flow-step:not(:last-child)::after {
+  content: '↓'; /* the arrow between two boxes */
+  position: absolute; /* placed under the box */
+  bottom: -2.3rem; /* in the space between this box and the next */
+  left: 50%; /* horizontally in the middle */
+  transform: translateX(-50%); /* exactly centered */
+  color: var(--color-accent); /* purple arrow */
+  font-size: 1.4rem; /* arrow size */
+  line-height: 2rem; /* arrow height */
+  text-shadow: 0 0 10px var(--color-accent-glow); /* purple glow around the arrow */
+}
+
+.how-flow-file {
+  align-self: flex-start; /* the label is only as wide as its text */
+  padding: 0 0.6rem; /* space inside the file label */
+  border: 1px solid var(--color-border); /* thin border of the file label */
+  border-radius: 999px; /* pill-shaped file label */
+  color: var(--color-text-muted); /* gray file label text */
+  font-size: var(--font-size-small); /* small file label text */
+}
+
+.how-flow-title {
+  font-weight: 700; /* bold step title */
+  overflow-wrap: anywhere; /* long function names break on phones */
+}
+
+.how-flow-text {
+  font-size: 0.9rem; /* step explanation text size */
+  color: var(--color-text-muted); /* gray step explanation */
+}
+
+.how-flow-engine {
+  background: var(--color-accent-soft); /* the SQL engine box has a purple background */
+  box-shadow: 0 0 20px var(--color-accent-glow); /* stronger glow: the engine is the heart of the site */
+}
+
+.how-page .how-flow-example {
+  display: block; /* example result on its own line */
+  padding: 0.5rem 0.75rem; /* space inside the example box */
+  background: var(--color-background); /* black example background */
+  font-size: var(--font-size-small); /* small example text */
+}
+
+/* The three possible outcomes after a query (rows, no rows, error) */
+.how-branches {
+  display: grid; /* outcomes placed in a grid */
+  grid-template-columns: minmax(0, 1fr); /* one outcome under the other */
+  gap: 0.5rem; /* space between the outcomes */
+  margin: 0.5rem 0 0; /* space above the outcomes */
+  padding: 0; /* no list indent */
+  list-style: none; /* no bullets */
+  font-size: 0.85rem; /* outcome text size */
+}
+
+.how-branches li {
+  padding: 0.6rem 0.75rem; /* space inside each outcome box */
+  border: 1px dashed var(--color-accent); /* dashed purple border: these are alternatives */
+  border-radius: var(--radius); /* rounded outcome box corners */
+}
+
+/* Database diagram: one box per table */
+.how-legend {
+  font-size: var(--font-size-small); /* small legend text */
+  color: var(--color-text-muted); /* gray legend text */
+}
+
+.how-er {
+  display: grid; /* table boxes placed in a grid */
+  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); /* as many columns as fit (one on phones) */
+  gap: 1rem; /* space between the table boxes */
+  margin: 1rem 0; /* space above and below the diagram */
+}
+
+.how-er-table {
+  border: 1px solid var(--color-accent); /* purple border of a table box */
+  border-radius: var(--radius); /* rounded table box corners */
+  background: var(--color-editor-background); /* dark table box background */
+  box-shadow: 0 0 10px var(--color-accent-soft); /* soft purple glow around a table box */
+  overflow: hidden; /* keep the header color inside the rounded corners */
+}
+
+.how-page .how-er-name {
+  display: flex; /* table name and row count on one line */
+  flex-wrap: wrap; /* row count moves below on very small screens */
+  justify-content: space-between; /* name on the left, row count on the right */
+  align-items: center; /* centered vertically */
+  gap: 0.5rem; /* space between name and row count */
+  margin: 0; /* no space around the table name bar */
+  padding: 0.5rem 0.75rem; /* space inside the table name bar */
+  background: var(--color-table-header); /* table name bar background, like result tables */
+  border-bottom: 1px solid var(--color-border); /* line under the table name */
+  color: var(--color-accent); /* purple table name */
+  font-size: 1rem; /* table name size */
+}
+
+.how-er-name::before {
+  content: none; /* no ">" before the table names in the diagram */
+}
+
+.how-er-count {
+  color: var(--color-text-muted); /* gray row count */
+  font-size: var(--font-size-small); /* small row count */
+  font-weight: 400; /* normal (not bold) row count */
+}
+
+.how-er-columns {
+  margin: 0; /* no space around the column list */
+  padding: 0.5rem 0.75rem; /* space inside the column list */
+  list-style: none; /* no bullets */
+  font-size: var(--font-size-small); /* small column text */
+}
+
+.how-er-columns li {
+  display: flex; /* column name and type on the same line */
+  flex-wrap: wrap; /* type moves to the next line if there is no room */
+  justify-content: space-between; /* name on the left, type on the right */
+  gap: 0 0.75rem; /* space between name and type */
+  padding: 0.15rem 0; /* space above and below each column */
+  border-bottom: 1px solid var(--color-table-line); /* thin line between columns */
+}
+
+.how-er-columns li:last-child {
+  border-bottom: none; /* no line after the last column */
+}
+
+.how-er-type {
+  color: var(--color-text-muted); /* gray column types */
+}
+
+/* PK / FK labels (primary key, foreign key) */
+.how-key {
+  display: inline-block; /* small label with its own padding */
+  margin-right: 0.3rem; /* space between the label and the column name */
+  padding: 0 0.3rem; /* space inside the label */
+  border: 1px solid var(--color-accent); /* purple label border */
+  border-radius: 4px; /* slightly rounded label */
+  font-size: 0.65rem; /* very small label text */
+  font-weight: 700; /* bold label text */
+  line-height: 1.5; /* label height */
+}
+
+.how-key-pk {
+  background: var(--color-accent); /* primary key label: purple background */
+  color: var(--color-button-primary-text); /* primary key label: black text */
+}
+
+.how-key-fk {
+  color: var(--color-accent); /* foreign key label: purple text, no background */
+}
+
+/* Normal bullet lists on this page */
+.how-list {
+  padding-left: 1.25rem; /* list indent */
+}
+
+.how-list li {
+  margin-bottom: 0.5rem; /* space between list items */
+}
+
+.how-list li::marker {
+  color: var(--color-accent); /* purple bullets */
+}
+
+/* Code excerpt box (the NVL function from db.js) */
+.how-code {
+  margin: 1rem 0; /* space above and below the code box */
+  padding: 1rem; /* space inside the code box */
+  background: var(--color-editor-background); /* dark code box, like the SQL editor */
+  font-family: var(--font-main); /* same font as the rest of the site (browsers use another font for code) */
+  border: 1px solid var(--color-border); /* thin purple border */
+  border-left: 3px solid var(--color-accent); /* thick purple line on the left */
+  border-radius: var(--radius); /* rounded code box corners */
+  font-size: var(--font-size-code); /* code text size */
+  line-height: 1.6; /* space between code lines */
+  overflow-x: auto; /* long code lines scroll inside the box on phones */
+}
+
+.how-page .how-code code {
+  padding: 0; /* no extra space: the box already has it */
+  background: none; /* no purple background behind the whole code block */
+  color: var(--color-text); /* normal text color for the code, like the SQL in the lessons */
+  font-size: inherit; /* same size as the code box */
+  overflow-wrap: normal; /* code lines keep their shape (the box scrolls instead) */
+}
+
+/* Highlighted note (security, reset button, variables that go together) */
+.how-note {
+  padding: 0.75rem 1rem; /* space inside the note */
+  border-left: 3px solid var(--color-accent); /* purple line on the left of the note */
+  border-radius: var(--radius); /* rounded note corners */
+  background: var(--color-accent-soft); /* light purple note background */
+  font-size: 0.9rem; /* note text size */
 }

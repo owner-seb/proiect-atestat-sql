@@ -1,7 +1,9 @@
 <!DOCTYPE html>
 <!--
-  cum-functioneaza.html - "how it works" page: explains the structure and the code of the site.
-  Styles: css/style.css. No scripts.
+  cum-functioneaza.html - "how it works" page: explains the structure and the code of the site
+  (files, the path of a query, the database, the Oracle imitation, the exercise checker,
+  the differences from Oracle and where to change things during the exam).
+  Styles: css/style.css (section "How it works page"). No scripts: this page is plain HTML.
 -->
 <html lang="ro"> <!-- page language: Romanian -->
 <head>
@@ -25,20 +27,556 @@
     </div>
   </header>
 
-  <main>
+  <main class="how-page"> <!-- "how-page": every style of this page is under this class -->
     <!-- Hero: big title at the top of this page -->
     <section class="hero">
       <h1 class="hero-title">Cum funcționează site-ul?</h1> <!-- big title of this page -->
+      <p class="hero-text">
+        Ce fișiere are site-ul, ce drum parcurge o interogare SQL, cum imită Oracle și unde se modifică fiecare lucru.
+      </p> <!-- short description of this page -->
     </section>
 
-    <!-- Overview section (the full explanation is written in Phase 6) -->
-    <section class="card">
+    <!-- Table of contents: pill links that jump to each section of this page -->
+    <nav class="how-toc" aria-label="Cuprinsul paginii">
+      <a href="#pe-scurt">Pe scurt</a> <!-- jump to the overview section -->
+      <a href="#fisiere">Fișiere</a> <!-- jump to the file structure section -->
+      <a href="#drumul-interogarii">Drumul unei interogări</a> <!-- jump to the query flow section -->
+      <a href="#baza-de-date">Baza de date</a> <!-- jump to the database section -->
+      <a href="#oracle">Imitarea Oracle</a> <!-- jump to the Oracle imitation section -->
+      <a href="#exercitii">Verificarea exercițiilor</a> <!-- jump to the exercise checker section -->
+      <a href="#diferente">Diferențe față de Oracle</a> <!-- jump to the differences section -->
+      <a href="#unde-modific">Unde modific?</a> <!-- jump to the "where do I change it" section -->
+      <a href="#testare">Cum am testat</a> <!-- jump to the testing section -->
+      <a href="#publicare">Publicare</a> <!-- jump to the publishing section -->
+    </nav>
+
+    <!-- ===== Section 1: overview and technologies ===== -->
+    <section id="pe-scurt" class="card">
       <h2>Pe scurt</h2> <!-- heading of the overview section -->
       <p>
-        Site-ul este format doar din fișiere HTML, CSS și JavaScript. Interogările SQL rulează direct în browser,
-        cu ajutorul bibliotecii <strong>sql.js</strong> (motorul SQLite compilat în WebAssembly), deci nu este nevoie de server.
-      </p> <!-- short overview of the technologies -->
-      <p>Explicațiile detaliate despre fișiere și cod vor fi adăugate aici.</p> <!-- placeholder until Phase 6 -->
+        SQL Playground este un site pe care înveți <strong>Oracle SQL</strong> direct în browser: citești o lecție scurtă,
+        rulezi interogări reale pe baza de date a unui liceu și rezolvi exerciții verificate automat.
+      </p> <!-- what the site is -->
+      <p>
+        Ideea principală: <strong>nu există server de baze de date</strong>. Motorul SQL (SQLite, compilat în WebAssembly)
+        rulează chiar în browserul vizitatorului, iar baza de date este creată în memoria calculatorului la fiecare deschidere a paginii.
+        Fiecare vizitator are propria copie, așa că poate șterge sau modifica orice fără să strice nimic altcuiva.
+      </p> <!-- the main idea: everything runs in the browser -->
+      <!-- Three big numbers about the site -->
+      <ul class="how-stats">
+        <li><span class="how-stat-number">9</span> lecții de Oracle SQL</li> <!-- number of lessons -->
+        <li><span class="how-stat-number">5</span> tabele cu date despre un liceu</li> <!-- number of tables -->
+        <li><span class="how-stat-number">0</span> servere de baze de date</li> <!-- no database server -->
+      </ul>
+      <h3>Tehnologii folosite</h3> <!-- heading of the technologies list -->
+      <!-- Technologies as small pill badges, each with a short explanation -->
+      <ul class="how-badges">
+        <li><span class="how-badge">HTML</span> structura paginilor</li> <!-- technology: HTML -->
+        <li><span class="how-badge">CSS</span> culori, fonturi, așezare</li> <!-- technology: CSS -->
+        <li><span class="how-badge">JavaScript</span> logica site-ului (module ES)</li> <!-- technology: JavaScript -->
+        <li><span class="how-badge">sql.js</span> SQLite compilat în WebAssembly</li> <!-- technology: sql.js -->
+        <li><span class="how-badge">GitHub</span> păstrează codul și istoricul</li> <!-- technology: GitHub -->
+        <li><span class="how-badge">Cloudflare Pages</span> publică site-ul</li> <!-- technology: Cloudflare Pages -->
+      </ul>
+      <p>
+        Nu am folosit framework-uri, npm sau un pas de „build”: fișierele scrise de mine sunt exact fișierele pe care le primește browserul.
+        Singura bibliotecă externă este sql.js, copiată în folderul <code>vendor/</code>, deci site-ul merge și fără internet după ce a fost încărcat.
+      </p> <!-- no frameworks, only one library -->
+    </section>
+
+    <!-- ===== Section 2: file structure ===== -->
+    <section id="fisiere" class="card">
+      <h2>Structura fișierelor</h2> <!-- heading of the file structure section -->
+      <p>Tot ce se publică se află în folderul <code>site/</code>. Fiecare fișier are o singură responsabilitate:</p> <!-- intro of the file list -->
+      <!-- File list: one row per file, with what it does -->
+      <div class="table-wrapper how-table-wrapper">
+        <table class="result-table how-table how-table-wide">
+          <thead>
+            <tr><th scope="col">Fișier</th><th scope="col">Ce face</th></tr> <!-- column names of the file table -->
+          </thead>
+          <tbody>
+            <tr><td><code>index.html</code></td><td>Pagina principală, de sus în jos: titlul, lecțiile cu exercițiile, apoi editorul SQL cu rezultatele și structura bazei de date.</td></tr> <!-- file: index.html -->
+            <tr><td><code>cum-functioneaza.html</code></td><td>Pagina aceasta: explică cum funcționează site-ul (fără JavaScript).</td></tr> <!-- file: cum-functioneaza.html -->
+            <tr><td><code>css/style.css</code></td><td>Toate stilurile. Sus, în blocul <code>:root</code>, sunt toate culorile, fonturile și mărimile, ca variabile comentate.</td></tr> <!-- file: style.css -->
+            <tr><td><code>js/main.js</code></td><td>Pornește pagina principală: creează baza de date, leagă butoanele (Rulează, Resetează, Ctrl+Enter) și pornește lecțiile.</td></tr> <!-- file: main.js -->
+            <tr><td><code>js/db.js</code></td><td>Încarcă sql.js, creează baza de date din <code>seed.sql</code>, adaugă funcțiile Oracle și rulează interogările.</td></tr> <!-- file: db.js -->
+            <tr><td><code>js/render.js</code></td><td>Afișează rezultatele ca tabele și mesajele (eroare, succes, informație); scrie corect „1 rând”, „5 rânduri”, „40 de rânduri” (<code>formatCount()</code>).</td></tr> <!-- file: render.js -->
+            <tr><td><code>js/lessons.js</code></td><td>Textul celor 9 lecții și exercițiile lor (doar date, fără logică).</td></tr> <!-- file: lessons.js -->
+            <tr><td><code>js/lessons-ui.js</code></td><td>Afișează lecțiile pe pagină (butoanele numerotate, exemplele, exercițiile) și salvează progresul în browser.</td></tr> <!-- file: lessons-ui.js -->
+            <tr><td><code>js/checker.js</code></td><td>Verifică exercițiile: compară rezultatul elevului cu rezultatul soluției corecte.</td></tr> <!-- file: checker.js -->
+            <tr><td><code>data/seed.sql</code></td><td>Baza de date a liceului, scrisă ca SQL citibil: <code>CREATE TABLE</code> și <code>INSERT</code>.</td></tr> <!-- file: seed.sql -->
+            <tr><td><code>vendor/sql-wasm.js</code><br><code>vendor/sql-wasm.wasm</code></td><td>Biblioteca sql.js: motorul SQLite compilat în WebAssembly (nu e scris de mine).</td></tr> <!-- files: the sql.js library -->
+            <tr><td><code>fonts/</code></td><td>Fontul JetBrains Mono, păstrat local (două fișiere: litere de bază și ă, ș, ț).</td></tr> <!-- folder: fonts -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ===== Section 3: the path of a query (flow diagram) ===== -->
+    <section id="drumul-interogarii" class="card">
+      <h2>Drumul unei interogări</h2> <!-- heading of the query flow section -->
+
+      <h3>1. Când se deschide pagina</h3> <!-- heading of the startup flow -->
+      <!-- Startup flow: vertical boxes connected by arrows (drawn by CSS) -->
+      <ol class="how-flow">
+        <li class="how-flow-step">
+          <span class="how-flow-file">index.html</span> <!-- where this step happens -->
+          <span class="how-flow-title">Încarcă <code>vendor/sql-wasm.js</code> și <code>js/main.js</code></span> <!-- what happens -->
+          <span class="how-flow-text">Primul fișier aduce funcția <code>initSqlJs</code>, al doilea pornește logica paginii.</span> <!-- explanation -->
+        </li>
+        <li class="how-flow-step">
+          <span class="how-flow-file">js/main.js</span> <!-- where this step happens -->
+          <span class="how-flow-title"><code>start()</code></span> <!-- function name -->
+          <span class="how-flow-text">Cere crearea bazei de date, apoi o testează cu <code>SELECT 1 FROM DUAL</code> și aprinde punctul verde.</span> <!-- explanation -->
+        </li>
+        <li class="how-flow-step">
+          <span class="how-flow-file">js/db.js</span> <!-- where this step happens -->
+          <span class="how-flow-title"><code>createDatabase()</code></span> <!-- function name -->
+          <span class="how-flow-text">Încarcă motorul (<code>sql-wasm.wasm</code>) și descarcă textul din <code>data/seed.sql</code> cu <code>fetch</code>.</span> <!-- explanation -->
+        </li>
+        <li class="how-flow-step">
+          <span class="how-flow-file">js/db.js</span> <!-- where this step happens -->
+          <span class="how-flow-title"><code>buildDatabase()</code></span> <!-- function name -->
+          <span class="how-flow-text">Creează o bază de date goală în memorie, pornește regulile Oracle (<code>PRAGMA</code>), adaugă tabelul <code>DUAL</code> (<code>addOracleDual()</code>), funcțiile Oracle (<code>addOracleFunctions()</code>) și rulează tot <code>seed.sql</code>.</span> <!-- explanation -->
+        </li>
+        <li class="how-flow-step">
+          <span class="how-flow-file">js/main.js</span> <!-- where this step happens -->
+          <span class="how-flow-title"><code>showSchema()</code></span> <!-- function name -->
+          <span class="how-flow-text">Cere lista tabelelor cu <code>getSchema()</code> și completează panoul „Structura bazei de date”.</span> <!-- explanation -->
+        </li>
+        <li class="how-flow-step">
+          <span class="how-flow-file">js/main.js + js/lessons-ui.js</span> <!-- where this step happens -->
+          <span class="how-flow-title"><code>startLessons(tryInEditor)</code></span> <!-- function name -->
+          <span class="how-flow-text">Înapoi în <code>start()</code>: butoanele „Rulează” și „Resetează” sunt pornite (până acum erau dezactivate), apoi <code>startLessons()</code> afișează lecțiile din <code>lessons.js</code> și redeschide ultima lecție deschisă (ținută minte în <code>localStorage</code>).</span> <!-- explanation -->
+        </li>
+      </ol>
+
+      <h3>2. Când apeși „Rulează”</h3> <!-- heading of the query flow -->
+      <!-- Query flow: vertical boxes connected by arrows (drawn by CSS) -->
+      <ol class="how-flow">
+        <li class="how-flow-step">
+          <span class="how-flow-file">index.html</span> <!-- where this step happens -->
+          <span class="how-flow-title">Editorul (<code>&lt;textarea id="sql-editor"&gt;</code>)</span> <!-- the editor element -->
+          <span class="how-flow-text">Scrii SQL și apeși butonul „Rulează” sau Ctrl+Enter (tastele sunt prinse de <code>handleEditorKeys()</code>).</span> <!-- explanation -->
+        </li>
+        <li class="how-flow-step">
+          <span class="how-flow-file">js/main.js</span> <!-- where this step happens -->
+          <span class="how-flow-title"><code>runEditorQuery()</code></span> <!-- function name -->
+          <span class="how-flow-text">Citește textul din editor și apelează <code>runQuery(sql)</code> într-un bloc <code>try/catch</code>, ca pagina să nu se strice la o greșeală.</span> <!-- explanation -->
+        </li>
+        <li class="how-flow-step">
+          <span class="how-flow-file">js/db.js</span> <!-- where this step happens -->
+          <span class="how-flow-title"><code>runQuery(sql)</code></span> <!-- function name -->
+          <span class="how-flow-text">O singură linie: <code>db.exec(prepareOracleSql(sql))</code>.</span> <!-- explanation -->
+        </li>
+        <li class="how-flow-step">
+          <span class="how-flow-file">js/db.js</span> <!-- where this step happens -->
+          <span class="how-flow-title"><code>prepareOracleSql(sql)</code></span> <!-- function name -->
+          <span class="how-flow-text">Adaptează SQL-ul Oracle: <code>SYSDATE</code> devine <code>SYSDATE()</code>, iar <code>COMMIT</code> și <code>ROLLBACK</code> sunt scoase. Textele dintre apostrofuri nu sunt atinse.</span> <!-- explanation -->
+        </li>
+        <li class="how-flow-step how-flow-engine">
+          <span class="how-flow-file">vendor/sql-wasm.wasm</span> <!-- where this step happens -->
+          <span class="how-flow-title">sql.js / SQLite (WebAssembly)</span> <!-- the SQL engine -->
+          <span class="how-flow-text">Motorul execută SQL-ul pe baza de date din memorie. Când întâlnește <code>NVL</code>, <code>TO_CHAR</code> etc., apelează funcțiile JavaScript din <code>db.js</code>.</span> <!-- explanation -->
+        </li>
+        <li class="how-flow-step">
+          <span class="how-flow-file">rezultatul</span> <!-- what comes back -->
+          <span class="how-flow-title"><code>[{ columns, values }]</code></span> <!-- shape of the result -->
+          <span class="how-flow-text">O listă cu câte un obiect pentru fiecare <code>SELECT</code>, de exemplu:</span> <!-- explanation -->
+          <code class="how-flow-example">[{ columns: ['nume', 'prenume', 'oras'], values: [['Popa', 'Andrei', 'Brașov'], ...] }]</code> <!-- example result -->
+        </li>
+        <li class="how-flow-step">
+          <span class="how-flow-file">js/main.js</span> <!-- where this step happens -->
+          <span class="how-flow-title">Alege ce se afișează</span> <!-- the decision step -->
+          <!-- Three possible outcomes, side by side on computers and stacked on phones -->
+          <ul class="how-branches">
+            <li><strong>Are rânduri:</strong> <code>renderResults()</code></li> <!-- outcome: rows -->
+            <li><strong>Fără rânduri:</strong> <code>showResultWithoutRows()</code> scrie „Interogarea nu a returnat niciun rând” sau, pentru INSERT/UPDATE/DELETE, „N rânduri afectate” (<code>countChangedRows()</code>)</li> <!-- outcome: no rows -->
+            <li><strong>Eroare:</strong> <code>renderMessage(..., 'error')</code> scrie „Eroare SQL: ...” în roșu</li> <!-- outcome: error -->
+          </ul>
+        </li>
+        <li class="how-flow-step">
+          <span class="how-flow-file">js/render.js</span> <!-- where this step happens -->
+          <span class="how-flow-title"><code>renderResults(container, results)</code></span> <!-- function name -->
+          <span class="how-flow-text">Construiește tabelul cu <code>createResultTable()</code>, <code>createHeaderRow()</code>, <code>createBodyRows()</code> și <code>createCell()</code>. Valorile NULL apar gri.</span> <!-- explanation -->
+        </li>
+        <li class="how-flow-step">
+          <span class="how-flow-file">pagina</span> <!-- the final result -->
+          <span class="how-flow-title">Tabelul cu rezultate + „N rânduri”</span> <!-- what the user sees -->
+          <span class="how-flow-text">Apoi <code>showSchema()</code> reîmprospătează panoul cu tabele (poate ai creat sau șters un tabel).</span> <!-- explanation -->
+        </li>
+      </ol>
+      <p class="how-note">
+        <strong>Butoanele „Încearcă în editor” din lecții</strong> folosesc același drum: <code>tryInEditor(sql)</code> din <code>main.js</code>
+        scrie exemplul în editor, apelează <code>runEditorQuery()</code> și derulează pagina până la editor.
+      </p> <!-- note: lesson examples use the same path -->
+      <p class="how-note">
+        <strong>Securitate:</strong> rezultatele sunt puse în pagină doar cu <code>document.createElement</code> și <code>textContent</code>,
+        niciodată ca text HTML. Astfel, chiar dacă cineva scrie cod HTML într-o interogare, el apare ca text și nu se execută.
+        La fel și lecțiile: <code>appendTextWithCode()</code> din <code>lessons-ui.js</code> transformă textul dintre semnele <code>`</code> în elemente <code>&lt;code&gt;</code>, tot cu <code>textContent</code>.
+      </p> <!-- security note: no HTML injection -->
+      <p class="how-note">
+        <strong>Butonul „Resetează baza de date”:</strong> <code>resetAll()</code> din <code>main.js</code> apelează <code>resetDatabase()</code>
+        din <code>db.js</code>, care închide baza veche și construiește una nouă tot cu <code>buildDatabase()</code>.
+      </p> <!-- reset button note -->
+    </section>
+
+    <!-- ===== Section 4: the database (ER-style diagram) ===== -->
+    <section id="baza-de-date" class="card">
+      <h2>Baza de date</h2> <!-- heading of the database section -->
+      <p>
+        Baza de date descrie un liceu. Este scrisă în <code>data/seed.sql</code> în stil Oracle: tipuri <code>VARCHAR2</code>,
+        <code>NUMBER</code>, <code>DATE</code> și constrângeri cu nume (de exemplu <code>pk_elevi</code>, <code>fk_note_elev</code>).
+      </p> <!-- intro of the database section -->
+      <!-- Legend of the small labels used in the table boxes -->
+      <p class="how-legend">
+        <span class="how-key how-key-pk">PK</span> cheie primară <!-- legend: primary key -->
+        <span class="how-key how-key-fk">FK</span> cheie străină (arată spre alt tabel) <!-- legend: foreign key -->
+      </p>
+      <!-- ER diagram: one box per table (a grid: 1 column on phones, more on computers) -->
+      <div class="how-er">
+        <!-- Table box: profesori -->
+        <article class="how-er-table">
+          <h3 class="how-er-name">profesori <span class="how-er-count">15 rânduri</span></h3> <!-- table name + row count -->
+          <ul class="how-er-columns">
+            <li><span><span class="how-key how-key-pk">PK</span> id_profesor</span><span class="how-er-type">NUMBER(4)</span></li> <!-- column: id_profesor -->
+            <li><span>nume</span><span class="how-er-type">VARCHAR2(30) NOT NULL</span></li> <!-- column: nume -->
+            <li><span>prenume</span><span class="how-er-type">VARCHAR2(30) NOT NULL</span></li> <!-- column: prenume -->
+            <li><span>email</span><span class="how-er-type">VARCHAR2(50) UNIQUE</span></li> <!-- column: email -->
+            <li><span>data_angajarii</span><span class="how-er-type">DATE</span></li> <!-- column: data_angajarii -->
+            <li><span>salariu</span><span class="how-er-type">NUMBER(7,2)</span></li> <!-- column: salariu -->
+            <li><span><span class="how-key how-key-fk">FK</span> id_sef</span><span class="how-er-type">profesori</span></li> <!-- column: id_sef -->
+          </ul>
+        </article>
+        <!-- Table box: clase -->
+        <article class="how-er-table">
+          <h3 class="how-er-name">clase <span class="how-er-count">8 rânduri</span></h3> <!-- table name + row count -->
+          <ul class="how-er-columns">
+            <li><span><span class="how-key how-key-pk">PK</span> id_clasa</span><span class="how-er-type">NUMBER(4)</span></li> <!-- column: id_clasa -->
+            <li><span>nume</span><span class="how-er-type">VARCHAR2(10) NOT NULL UNIQUE</span></li> <!-- column: nume -->
+            <li><span>an_studiu</span><span class="how-er-type">NUMBER(2) CHECK 9-12</span></li> <!-- column: an_studiu -->
+            <li><span>profil</span><span class="how-er-type">VARCHAR2(30)</span></li> <!-- column: profil -->
+            <li><span><span class="how-key how-key-fk">FK</span> id_diriginte</span><span class="how-er-type">profesori</span></li> <!-- column: id_diriginte -->
+          </ul>
+        </article>
+        <!-- Table box: materii -->
+        <article class="how-er-table">
+          <h3 class="how-er-name">materii <span class="how-er-count">12 rânduri</span></h3> <!-- table name + row count -->
+          <ul class="how-er-columns">
+            <li><span><span class="how-key how-key-pk">PK</span> id_materie</span><span class="how-er-type">NUMBER(4)</span></li> <!-- column: id_materie -->
+            <li><span>denumire</span><span class="how-er-type">VARCHAR2(40) NOT NULL</span></li> <!-- column: denumire -->
+            <li><span>ore_pe_saptamana</span><span class="how-er-type">NUMBER(2)</span></li> <!-- column: ore_pe_saptamana -->
+            <li><span><span class="how-key how-key-fk">FK</span> id_profesor</span><span class="how-er-type">profesori</span></li> <!-- column: id_profesor -->
+          </ul>
+        </article>
+        <!-- Table box: elevi -->
+        <article class="how-er-table">
+          <h3 class="how-er-name">elevi <span class="how-er-count">40 rânduri</span></h3> <!-- table name + row count -->
+          <ul class="how-er-columns">
+            <li><span><span class="how-key how-key-pk">PK</span> id_elev</span><span class="how-er-type">NUMBER(5)</span></li> <!-- column: id_elev -->
+            <li><span>nume</span><span class="how-er-type">VARCHAR2(30) NOT NULL</span></li> <!-- column: nume -->
+            <li><span>prenume</span><span class="how-er-type">VARCHAR2(30) NOT NULL</span></li> <!-- column: prenume -->
+            <li><span>data_nasterii</span><span class="how-er-type">DATE</span></li> <!-- column: data_nasterii -->
+            <li><span>oras</span><span class="how-er-type">VARCHAR2(30)</span></li> <!-- column: oras -->
+            <li><span>email</span><span class="how-er-type">VARCHAR2(50)</span></li> <!-- column: email -->
+            <li><span><span class="how-key how-key-fk">FK</span> id_clasa</span><span class="how-er-type">clase</span></li> <!-- column: id_clasa -->
+          </ul>
+        </article>
+        <!-- Table box: note -->
+        <article class="how-er-table">
+          <h3 class="how-er-name">note <span class="how-er-count">153 rânduri</span></h3> <!-- table name + row count -->
+          <ul class="how-er-columns">
+            <li><span><span class="how-key how-key-pk">PK</span> id_nota</span><span class="how-er-type">NUMBER(6)</span></li> <!-- column: id_nota -->
+            <li><span><span class="how-key how-key-fk">FK</span> id_elev</span><span class="how-er-type">elevi</span></li> <!-- column: id_elev -->
+            <li><span><span class="how-key how-key-fk">FK</span> id_materie</span><span class="how-er-type">materii</span></li> <!-- column: id_materie -->
+            <li><span>nota</span><span class="how-er-type">NUMBER(2) CHECK 1-10</span></li> <!-- column: nota -->
+            <li><span>data_notei</span><span class="how-er-type">DATE</span></li> <!-- column: data_notei -->
+          </ul>
+        </article>
+      </div>
+
+      <h3>Legăturile dintre tabele</h3> <!-- heading of the relationships table -->
+      <!-- Relationships: which foreign key points to which table -->
+      <div class="table-wrapper how-table-wrapper">
+        <table class="result-table how-table how-table-wide">
+          <thead>
+            <tr><th scope="col">Cheia străină</th><th scope="col">Arată spre</th><th scope="col">Înseamnă</th></tr> <!-- column names of the relationships table -->
+          </thead>
+          <tbody>
+            <tr><td><code>elevi.id_clasa</code></td><td><code>clase.id_clasa</code></td><td>Fiecare elev este într-o clasă; o clasă are mulți elevi.</td></tr> <!-- relationship: elevi - clase -->
+            <tr><td><code>note.id_elev</code></td><td><code>elevi.id_elev</code></td><td>Fiecare notă aparține unui elev; un elev are multe note.</td></tr> <!-- relationship: note - elevi -->
+            <tr><td><code>note.id_materie</code></td><td><code>materii.id_materie</code></td><td>Fiecare notă este la o materie.</td></tr> <!-- relationship: note - materii -->
+            <tr><td><code>materii.id_profesor</code></td><td><code>profesori.id_profesor</code></td><td>Profesorul care predă materia.</td></tr> <!-- relationship: materii - profesori -->
+            <tr><td><code>clase.id_diriginte</code></td><td><code>profesori.id_profesor</code></td><td>Dirigintele clasei.</td></tr> <!-- relationship: clase - profesori -->
+            <tr><td><code>profesori.id_sef</code></td><td><code>profesori.id_profesor</code></td><td>Șeful de catedră, tot un profesor (tabelul arată spre el însuși: „self-join”).</td></tr> <!-- relationship: profesori - profesori -->
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Rânduri „speciale”, puse intenționat</h3> <!-- heading of the special rows list -->
+      <ul class="how-list">
+        <li>Elevii 8, 23 și 37 <strong>nu au nicio notă</strong>: apar doar cu <code>LEFT JOIN</code>, nu cu <code>JOIN</code> simplu.</li> <!-- special rows: students without grades -->
+        <li>6 elevi și profesorul 15 au <strong>email NULL</strong>: pentru exerciții cu <code>IS NULL</code> și <code>NVL</code>.</li> <!-- special rows: NULL emails -->
+        <li>Profesorii 1, 2 și 3 sunt șefi de catedră, deci au <code>id_sef</code> NULL: pentru self-join.</li> <!-- special rows: heads of department -->
+        <li>Clasa 12B nu are diriginte, iar materia 12 nu are profesor și nici note: pentru <code>LEFT JOIN</code> și <code>IS NULL</code>.</li> <!-- special rows: class and subject without links -->
+      </ul>
+    </section>
+
+    <!-- ===== Section 5: how the site imitates Oracle ===== -->
+    <section id="oracle" class="card">
+      <h2>Cum face site-ul să semene cu Oracle</h2> <!-- heading of the Oracle imitation section -->
+      <p>
+        Oracle adevărat nu poate rula într-un browser, așa că motorul este SQLite. Diferențele cele mai importante sunt
+        acoperite în <code>db.js</code>, în funcția <code>buildDatabase()</code>:
+      </p> <!-- intro of the Oracle imitation section -->
+      <ul class="how-list">
+        <li><strong>Tabelul DUAL</strong>: <code>addOracleDual()</code> creează tabelul <code>dual</code> cu un singur rând (<code>'X'</code>), ca <code>SELECT 2 + 3 FROM DUAL</code> să funcționeze.</li> <!-- Oracle imitation: DUAL -->
+        <li><strong>Funcții Oracle scrise în JavaScript</strong>: <code>addOracleFunctions()</code> le adaugă în SQLite cu <code>create_function</code>. Funcțiile cu un argument opțional (de exemplu <code>TO_CHAR(valoare [, format])</code>) trec prin <code>addFunctionWithOptionalArgument()</code>.</li> <!-- Oracle imitation: functions -->
+        <li><strong>SYSDATE, COMMIT, ROLLBACK</strong>: <code>prepareOracleSql()</code> rescrie SQL-ul înainte de rulare (<code>SYSDATE</code> devine <code>SYSDATE()</code>, <code>COMMIT</code>/<code>ROLLBACK</code> sunt scoase).</li> <!-- Oracle imitation: SQL rewrite -->
+        <li><strong><code>PRAGMA case_sensitive_like = ON</code></strong>: <code>LIKE 'a%'</code> nu mai găsește „Ana”, exact ca în Oracle (SQLite ignoră implicit literele mari).</li> <!-- Oracle imitation: case-sensitive LIKE -->
+        <li><strong><code>PRAGMA foreign_keys = ON</code></strong>: cheile străine sunt verificate (SQLite nu le verifică implicit), deci nu poți pune o notă unui elev care nu există.</li> <!-- Oracle imitation: foreign keys -->
+        <li><strong>UPPER și LOWER</strong> sunt înlocuite, pentru că varianta din SQLite nu schimbă literele ă, î, â, ș, ț.</li> <!-- Oracle imitation: Romanian letters -->
+      </ul>
+      <h3>Funcțiile adăugate</h3> <!-- heading of the function list -->
+      <!-- The Oracle functions added in db.js, as pill badges -->
+      <ul class="how-badges how-badges-code">
+        <li><code>NVL</code></li> <!-- function: NVL -->
+        <li><code>NVL2</code></li> <!-- function: NVL2 -->
+        <li><code>SYSDATE</code></li> <!-- function: SYSDATE -->
+        <li><code>TO_DATE</code></li> <!-- function: TO_DATE -->
+        <li><code>TO_CHAR</code></li> <!-- function: TO_CHAR -->
+        <li><code>INITCAP</code></li> <!-- function: INITCAP -->
+        <li><code>MOD</code></li> <!-- function: MOD -->
+        <li><code>TRUNC</code></li> <!-- function: TRUNC -->
+        <li><code>LPAD</code></li> <!-- function: LPAD -->
+        <li><code>RPAD</code></li> <!-- function: RPAD -->
+        <li><code>MONTHS_BETWEEN</code></li> <!-- function: MONTHS_BETWEEN -->
+        <li><code>ADD_MONTHS</code></li> <!-- function: ADD_MONTHS -->
+        <li><code>UPPER</code></li> <!-- function: UPPER -->
+        <li><code>LOWER</code></li> <!-- function: LOWER -->
+      </ul>
+      <h3>Exemplu: funcția NVL din <code>db.js</code></h3> <!-- heading of the code example -->
+      <!-- Code excerpt copied exactly from js/db.js -->
+      <pre class="how-code"><code>/**
+ * NVL(value, replacement): returns replacement when value is NULL, otherwise value.
+ */
+function nvl(value, replacement) {
+  return value === null ? replacement : value; // NULL arrives in JavaScript as null
+}</code></pre>
+      <p>
+        Când SQLite întâlnește <code>NVL(email, 'fără email')</code>, apelează această funcție JavaScript pentru fiecare rând.
+        Valoarea NULL din SQL ajunge în JavaScript ca <code>null</code>: dacă <code>value</code> este <code>null</code>, funcția întoarce
+        înlocuitorul, altfel întoarce valoarea neschimbată. Legătura dintre numele SQL și funcția JavaScript se face într-o singură linie:
+        <code>database.create_function('NVL', nvl)</code>.
+      </p> <!-- explanation of the code example -->
+    </section>
+
+    <!-- ===== Section 6: how exercises are checked ===== -->
+    <section id="exercitii" class="card">
+      <h2>Cum sunt verificate exercițiile</h2> <!-- heading of the exercise checker section -->
+      <p>
+        Fiecare exercițiu din <code>js/lessons.js</code> are un enunț (<code>statement</code>), soluția corectă (<code>solution</code>),
+        un indiciu (<code>hint</code>), <code>orderMatters</code> (contează ordinea rândurilor?) și, la exercițiile cu
+        INSERT/UPDATE/DELETE/CREATE, o interogare de control (<code>checkQuery</code>). Site-ul nu compară textul SQL, ci
+        <strong>rezultatele</strong>: o problemă poate fi rezolvată corect în mai multe feluri.
+      </p> <!-- intro of the exercise checker section -->
+      <!-- Checker flow: vertical boxes connected by arrows (drawn by CSS) -->
+      <ol class="how-flow">
+        <li class="how-flow-step">
+          <span class="how-flow-file">js/lessons-ui.js</span> <!-- where this step happens -->
+          <span class="how-flow-title">Butonul „Verifică” (sau Ctrl+Enter)</span> <!-- what starts the check -->
+          <span class="how-flow-text"><code>checkAnswer()</code> trimite exercițiul și SQL-ul elevului la <code>checkExercise(exercise, userSql)</code>.</span> <!-- explanation -->
+        </li>
+        <li class="how-flow-step">
+          <span class="how-flow-file">js/checker.js</span> <!-- where this step happens -->
+          <span class="how-flow-title"><code>runOnScratchDatabase(userSql, checkQuery)</code></span> <!-- function name -->
+          <span class="how-flow-text">Creează o copie nouă a bazei de date cu <code>createScratchDatabase()</code>, rulează pe ea SQL-ul elevului (trecut prin <code>prepareOracleSql()</code>), apoi închide copia. Baza de date din editor nu este atinsă.</span> <!-- explanation -->
+        </li>
+        <li class="how-flow-step">
+          <span class="how-flow-file">js/checker.js</span> <!-- where this step happens -->
+          <span class="how-flow-title"><code>runOnScratchDatabase(exercise.solution, checkQuery)</code></span> <!-- function name -->
+          <span class="how-flow-text">La fel pentru soluția corectă, pe o altă copie curată.</span> <!-- explanation -->
+        </li>
+        <li class="how-flow-step how-flow-engine">
+          <span class="how-flow-file">js/checker.js</span> <!-- where this step happens -->
+          <span class="how-flow-title"><code>findDifference(userResult, expectedResult, exercise)</code></span> <!-- function name -->
+          <span class="how-flow-text">Compară cele două rezultate, pe rând: numărul de coloane, numărul de rânduri, valorile (fără să conteze ordinea rândurilor) și, doar dacă <code>orderMatters</code> este <code>true</code>, ordinea rândurilor.</span> <!-- explanation -->
+        </li>
+        <li class="how-flow-step">
+          <span class="how-flow-file">js/lessons-ui.js</span> <!-- where this step happens -->
+          <span class="how-flow-title">Mesajul: verde sau roșu</span> <!-- the feedback -->
+          <span class="how-flow-text">Sub mesaj apare și tabelul cu rândurile elevului. Un exercițiu rezolvat primește „✓ rezolvat” și este salvat în browser (<code>localStorage</code>, sub numele <code>sqlPlayground.solved</code>), deci progresul rămâne și după ce închizi pagina.</span> <!-- explanation -->
+        </li>
+      </ol>
+      <h3>Regulile comparației</h3> <!-- heading of the comparison rules -->
+      <ul class="how-list">
+        <li>Se compară doar <strong>valorile</strong>, nu și numele coloanelor, deci aliasurile pot fi oricare.</li> <!-- rule: values only -->
+        <li>Ordinea rândurilor contează doar dacă enunțul cere <code>ORDER BY</code> (<code>orderMatters: true</code>).</li> <!-- rule: row order -->
+        <li>Numerele sunt rotunjite la 6 zecimale (<code>normalizeValue()</code>), deci <code>7</code> și <code>7.0</code> sunt egale.</li> <!-- rule: rounding -->
+        <li>Ca ordinea rândurilor să nu conteze, fiecare rând devine un text (<code>rowKey()</code>), apoi cele două liste de texte sunt sortate și comparate.</li> <!-- rule: rows as texts -->
+        <li>Dacă SQL-ul are mai multe comenzi, se compară rezultatul ultimei comenzi care a întors rânduri (<code>lastResultSet()</code>).</li> <!-- rule: last result set -->
+        <li>
+          <strong>Exerciții cu INSERT, UPDATE, DELETE, CREATE:</strong> după SQL-ul elevului, o interogare ascunsă (<code>checkQuery</code>)
+          verifică structura și datele tabelului (de exemplu <code>SELECT * FROM elevi ORDER BY id_elev;</code>). La fel se face după soluție,
+          iar cele două rezultate sunt comparate.
+        </li> <!-- rule: DML/DDL with a check query -->
+      </ul>
+      <h3>Exemple de mesaje</h3> <!-- heading of the message examples -->
+      <!-- Messages the checker gives, copied from checker.js -->
+      <div class="table-wrapper how-table-wrapper">
+        <table class="result-table how-table how-table-wide">
+          <thead>
+            <tr><th scope="col">Situația</th><th scope="col">Mesajul afișat</th></tr> <!-- column names of the messages table -->
+          </thead>
+          <tbody>
+            <tr><td>Rezultat identic cu al soluției</td><td>Corect! Exercițiul este rezolvat.</td></tr> <!-- message: correct -->
+            <tr><td>Lipsește o coloană</td><td>Rezultatul tău are 2 coloane, dar ar trebui să aibă 3 coloane.</td></tr> <!-- message: wrong column count -->
+            <tr><td>Lipsește <code>WHERE oras = 'Brașov'</code></td><td>Rezultatul tău are 40 de rânduri, dar ar trebui să aibă 22 de rânduri.</td></tr> <!-- message: wrong row count -->
+            <tr><td>Coloanele în altă ordine</td><td>Valorile sunt corecte, dar coloanele nu sunt în ordinea cerută.</td></tr> <!-- message: wrong column order -->
+            <tr><td>Lipsește <code>ORDER BY</code></td><td>Rândurile sunt corecte, dar nu sunt în ordinea cerută. Verifică ORDER BY.</td></tr> <!-- message: wrong row order -->
+            <tr><td>SQL greșit</td><td>Eroare SQL: ... (mesajul motorului)</td></tr> <!-- message: SQL error -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ===== Section 7: differences from Oracle ===== -->
+    <section id="diferente" class="card">
+      <h2>Diferențe față de Oracle</h2> <!-- heading of the differences section -->
+      <p>
+        SQLite seamănă mult cu Oracle, dar nu este identic. Lecțiile și exercițiile evită aceste cazuri;
+        lista de mai jos este aici ca să fie clar ce <strong>nu</strong> se comportă la fel.
+      </p> <!-- intro of the differences section -->
+      <!-- Differences table: what Oracle does and what happens on this site -->
+      <div class="table-wrapper how-table-wrapper">
+        <table class="result-table how-table how-table-wide">
+          <thead>
+            <tr><th scope="col">Situația</th><th scope="col">Oracle</th><th scope="col">Aici (SQLite)</th></tr> <!-- column names of the differences table -->
+          </thead>
+          <tbody>
+            <tr><td><code>7 / 2</code></td><td>3.5</td><td>3 (împărțire întreagă; scrie <code>7 / 2.0</code>)</td></tr> <!-- difference: integer division -->
+            <tr><td><code>'a' || NULL</code></td><td><code>'a'</code></td><td>NULL (<code>CONCAT('a', NULL)</code> dă <code>'a'</code>, ca în Oracle)</td></tr> <!-- difference: concatenation with NULL -->
+            <tr><td>Textul gol <code>''</code></td><td>este NULL</td><td>nu este NULL</td></tr> <!-- difference: empty text -->
+            <tr><td><code>ORDER BY</code> crescător</td><td>NULL-urile la final</td><td>NULL-urile la început (scrie <code>NULLS LAST</code>)</td></tr> <!-- difference: NULL sort order -->
+            <tr><td>Coloană negrupată în <code>SELECT</code> cu <code>GROUP BY</code></td><td>eroare ORA-00979</td><td>acceptată (valoare dintr-un rând oarecare)</td></tr> <!-- difference: GROUP BY check -->
+            <tr><td>Numele coloanelor în rezultat</td><td>cu majuscule (<code>NUME</code>)</td><td>cum le-ai scris (<code>nume</code>)</td></tr> <!-- difference: column header case -->
+            <tr><td><code>VARCHAR2(n)</code>, <code>NUMBER(p,s)</code></td><td>lungimea este verificată</td><td>lungimea nu este verificată</td></tr> <!-- difference: type lengths -->
+            <tr><td>Datele calendaristice</td><td>tip <code>DATE</code>, cu oră</td><td>text <code>'YYYY-MM-DD'</code>; <code>SYSDATE</code> fără oră</td></tr> <!-- difference: dates -->
+            <tr><td><code>data + 1</code></td><td>ziua următoare</td><td>nu funcționează (<code>'2020-01-01' + 1</code> dă 2021)</td></tr> <!-- difference: date arithmetic -->
+            <tr><td><code>COMMIT</code> / <code>ROLLBACK</code></td><td>salvează / anulează modificările</td><td>ignorate; doar butonul „Resetează” aduce înapoi datele</td></tr> <!-- difference: transactions -->
+            <tr><td><code>DUAL</code></td><td>tabel special al sistemului</td><td>tabel obișnuit, creat de <code>db.js</code></td></tr> <!-- difference: DUAL -->
+          </tbody>
+        </table>
+      </div>
+      <h3>Nu sunt suportate (dau eroare)</h3> <!-- heading of the unsupported list -->
+      <!-- Oracle syntax the engine does not understand, as pill badges -->
+      <ul class="how-badges how-badges-code">
+        <li><code>ROWNUM</code></li> <!-- unsupported: ROWNUM -->
+        <li><code>FETCH FIRST n ROWS</code></li> <!-- unsupported: FETCH FIRST -->
+        <li><code>(+)</code> join vechi</li> <!-- unsupported: old-style outer join -->
+        <li><code>MINUS</code></li> <!-- unsupported: MINUS -->
+        <li>secvențe</li> <!-- unsupported: sequences -->
+        <li><code>DATE '...'</code></li> <!-- unsupported: date literals -->
+        <li><code>EXTRACT</code></li> <!-- unsupported: EXTRACT -->
+        <li><code>DECODE</code></li> <!-- unsupported: DECODE -->
+        <li><code>TO_CHAR</code> cu format de număr</li> <!-- unsupported: number formats -->
+      </ul>
+    </section>
+
+    <!-- ===== Section 8: where to change things (for live changes at the exam) ===== -->
+    <section id="unde-modific" class="card">
+      <h2>Unde modific?</h2> <!-- heading of the "where do I change it" section -->
+      <p>
+        Fiecare linie de cod are un comentariu, iar toate culorile și mărimile sunt variabile în <code>:root</code>, la începutul
+        fișierului <code>css/style.css</code>. Deschizi fișierul, apeși <strong>Ctrl+F</strong>, cauți textul din ultima coloană,
+        schimbi valoarea, salvezi și reîncarci pagina (F5).
+      </p> <!-- how to use the table below -->
+      <!-- "Where do I change it" table: what to change, which file, what to search for -->
+      <div class="table-wrapper how-table-wrapper">
+        <table class="result-table how-table how-table-wide">
+          <thead>
+            <tr><th scope="col">Ce vrei să schimbi</th><th scope="col">Fișier</th><th scope="col">Caută (Ctrl+F)</th></tr> <!-- column names of the "where do I change it" table -->
+          </thead>
+          <tbody>
+            <tr><td>Culoarea mov principală (semnul „&gt;”, linkuri, marginile butoanelor)</td><td><code>css/style.css</code></td><td><code>--color-accent:</code></td></tr> <!-- change: accent color -->
+            <tr><td>Tot mov-ul de pe site (apare de mai multe ori: Enter sau F3 duce la următorul)</td><td><code>css/style.css</code></td><td><code>a259ff</code>, <code>162, 89, 255</code> și <code>c9a6ff</code></td></tr> <!-- change: every purple on the site -->
+            <tr><td>Strălucirea mov din jurul butoanelor</td><td><code>css/style.css</code></td><td><code>--color-accent-glow:</code></td></tr> <!-- change: glow color -->
+            <tr><td>Marginea cardurilor</td><td><code>css/style.css</code></td><td><code>--color-border:</code></td></tr> <!-- change: card border color -->
+            <tr><td>Culoarea de fundal a paginii</td><td><code>css/style.css</code></td><td><code>--color-background:</code></td></tr> <!-- change: page background -->
+            <tr><td>Fundalul cardurilor</td><td><code>css/style.css</code></td><td><code>--color-surface:</code></td></tr> <!-- change: card background -->
+            <tr><td>Culoarea textului</td><td><code>css/style.css</code></td><td><code>--color-text:</code></td></tr> <!-- change: text color -->
+            <tr><td>Culoarea titlurilor secțiunilor (h2, h3)</td><td><code>css/style.css</code></td><td><code>--color-heading:</code></td></tr> <!-- change: heading color -->
+            <tr><td>Culorile titlului mare (gradient)</td><td><code>css/style.css</code></td><td><code>--color-title-gradient:</code></td></tr> <!-- change: big title gradient -->
+            <tr><td>Culoarea butonului „Rulează”</td><td><code>css/style.css</code></td><td><code>--color-button-primary:</code></td></tr> <!-- change: run button color -->
+            <tr><td>Culoarea mesajelor de eroare / de succes</td><td><code>css/style.css</code></td><td><code>--color-error:</code> / <code>--color-success:</code></td></tr> <!-- change: message colors -->
+            <tr><td>Fontul</td><td><code>css/style.css</code></td><td><code>--font-main:</code></td></tr> <!-- change: font -->
+            <tr><td>Mărimea textului normal</td><td><code>css/style.css</code></td><td><code>--font-size-base:</code></td></tr> <!-- change: normal text size -->
+            <tr><td>Mărimea titlului mare</td><td><code>css/style.css</code></td><td><code>--font-size-title:</code></td></tr> <!-- change: big title size -->
+            <tr><td>Mărimea titlurilor secțiunilor</td><td><code>css/style.css</code></td><td><code>--font-size-heading:</code></td></tr> <!-- change: heading size -->
+            <tr><td>Rotunjirea colțurilor</td><td><code>css/style.css</code></td><td><code>--radius:</code></td></tr> <!-- change: corner roundness -->
+            <tr><td>Lățimea maximă a paginii</td><td><code>css/style.css</code></td><td><code>--max-width:</code></td></tr> <!-- change: page width -->
+            <tr><td>Textul titlului mare de pe prima pagină</td><td><code>index.html</code></td><td><code>big title of the home page</code></td></tr> <!-- change: home page title text -->
+            <tr><td>Textul de sub titlul mare</td><td><code>index.html</code></td><td><code>short description of the site</code></td></tr> <!-- change: home page description text -->
+            <tr><td>Textul butonului „Rulează”</td><td><code>index.html</code></td><td><code>id="run-button"</code></td></tr> <!-- change: run button text -->
+            <tr><td>Interogarea scrisă la început în editor</td><td><code>index.html</code></td><td><code>with a sample query</code></td></tr> <!-- change: starting query in the editor -->
+            <tr><td>Textul din subsol</td><td><code>index.html</code> și <code>cum-functioneaza.html</code></td><td><code>footer text</code></td></tr> <!-- change: footer text -->
+            <tr><td>Mesajul „Baza de date este pregătită”</td><td><code>js/main.js</code></td><td><code>Baza de date este pregătită</code></td></tr> <!-- change: database ready message -->
+            <tr><td>Datele din tabele (elevi, note...)</td><td><code>data/seed.sql</code></td><td><code>DATA: elevi</code> (sau <code>DATA: note</code> etc.)</td></tr> <!-- change: table data -->
+            <tr><td>Coloanele unui tabel</td><td><code>data/seed.sql</code></td><td><code>CREATE TABLE elevi</code></td></tr> <!-- change: table columns -->
+            <tr><td>Textul unei lecții</td><td><code>js/lessons.js</code></td><td><code>Lesson 1:</code> (până la <code>Lesson 9:</code>)</td></tr> <!-- change: lesson text -->
+            <tr><td>Un exercițiu</td><td><code>js/lessons.js</code></td><td><code>Exercise 1.1:</code></td></tr> <!-- change: an exercise -->
+            <tr><td>Funcțiile Oracle adăugate</td><td><code>js/db.js</code></td><td><code>function addOracleFunctions</code></td></tr> <!-- change: Oracle functions -->
+          </tbody>
+        </table>
+      </div>
+      <p class="how-note">
+        Atenție: <code>--color-accent</code> schimbă doar mov-ul principal. Au culorile lor separate: strălucirea (<code>--color-accent-glow</code>),
+        fundalul mov deschis (<code>--color-accent-soft</code>), marginile (<code>--color-border</code>), butonul „Rulează”
+        (<code>--color-button-primary</code>), titlul mare (<code>--color-title-gradient</code>) și cuvintele de cod
+        (<code>--color-code-background</code>, <code>--color-code-text</code>). Câteva margini și străluciri au mov-ul scris direct,
+        de aceea, pentru a schimba tot mov-ul, caută <code>a259ff</code>, <code>162, 89, 255</code> și <code>c9a6ff</code>.
+        <code>--font-size-base</code> schimbă textul normal; titlurile, butoanele și editorul au mărimile lor.
+      </p> <!-- note about variables that go together -->
+    </section>
+
+    <!-- ===== Section 9: automatic tests ===== -->
+    <section id="testare" class="card">
+      <h2>Cum am testat</h2> <!-- heading of the testing section -->
+      <p>
+        Pe lângă verificarea în browser (pe calculator și pe telefon), proiectul are teste automate în folderul <code>tests/</code>.
+        Ele nu sunt publicate (se publică doar <code>site/</code>) și rulează în Node.js, pe aceleași fișiere JavaScript ca site-ul.
+      </p> <!-- intro of the testing section -->
+      <ul class="how-list">
+        <li><code>node tests/test-db.mjs</code>: 148 de verificări pentru <code>db.js</code> (numărul de rânduri, constrângerile, fiecare funcție Oracle comparată cu valoarea dată de Oracle, resetarea).</li> <!-- test file: database -->
+        <li><code>node tests/test-lessons.mjs</code>: 150 de verificări pentru lecții și <code>checker.js</code> (fiecare exemplu rulează, fiecare soluție este acceptată și cel puțin un răspuns greșit la fiecare exercițiu este respins).</li> <!-- test file: lessons and checker -->
+      </ul>
+    </section>
+
+    <!-- ===== Section 10: publishing ===== -->
+    <section id="publicare" class="card">
+      <h2>Publicare</h2> <!-- heading of the publishing section -->
+      <!-- Publishing flow: three steps connected by arrows (drawn by CSS) -->
+      <ol class="how-flow">
+        <li class="how-flow-step">
+          <span class="how-flow-file">calculatorul meu</span> <!-- where this step happens -->
+          <span class="how-flow-title"><code>git commit</code> + <code>git push</code></span> <!-- what happens -->
+          <span class="how-flow-text">Salvez modificările și le trimit pe GitHub.</span> <!-- explanation -->
+        </li>
+        <li class="how-flow-step">
+          <span class="how-flow-file">GitHub</span> <!-- where this step happens -->
+          <span class="how-flow-title">Depozitul (repository) proiectului</span> <!-- what happens -->
+          <span class="how-flow-text">Păstrează codul și istoricul tuturor modificărilor.</span> <!-- explanation -->
+        </li>
+        <li class="how-flow-step">
+          <span class="how-flow-file">Cloudflare Pages</span> <!-- where this step happens -->
+          <span class="how-flow-title">Publicare automată</span> <!-- what happens -->
+          <span class="how-flow-text">La fiecare push, publică folderul <code>site/</code> așa cum este (fără „build”), în câteva secunde.</span> <!-- explanation -->
+        </li>
+      </ol>
+      <p>
+        Pentru că toate fișierele sunt statice (HTML, CSS, JavaScript, SQL) și baza de date rulează în browser, site-ul nu are nevoie
+        de un server propriu, de PHP sau de o bază de date găzduită.
+      </p> <!-- why no server is needed -->
     </section>
   </main>
 

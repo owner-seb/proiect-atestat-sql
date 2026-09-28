@@ -1,15 +1,17 @@
 /*
   main.js - starts the home page: creates the database, shows whether it is ready,
-  and connects the SQL editor, the buttons and the database structure panel.
+  and connects the SQL editor, the buttons, the database structure panel and the lessons.
   Used by: index.html.
   Order in this file: page elements, startup, SQL editor, reset button, database structure panel.
 */
 
 import { createDatabase, runQuery, countChangedRows, resetDatabase, getSchema } from './db.js'; // database functions
-import { renderResults, renderMessage } from './render.js'; // functions that show results and messages
+import { renderResults, renderMessage, formatCount } from './render.js'; // functions that show results and messages
+import { startLessons } from './lessons-ui.js'; // shows the lessons and the exercises
 
 // ===== Page elements used by this file =====
 const statusText = document.getElementById('db-status'); // the paragraph where the database status is shown
+const editorSection = document.getElementById('editor'); // the whole SQL editor section (used for scrolling)
 const sqlEditor = document.getElementById('sql-editor'); // the text box where the user writes SQL
 const runButton = document.getElementById('run-button'); // the "Rulează" (run) button
 const resetButton = document.getElementById('reset-button'); // the "Resetează baza de date" (reset) button
@@ -21,7 +23,8 @@ const schemaList = document.getElementById('schema-list'); // the area where the
 /**
  * Creates the database and tests it with "SELECT 1 FROM DUAL".
  * Shows a green message if it works, or a red error message if it does not.
- * Then fills in the database structure panel and connects the buttons.
+ * Then fills in the database structure panel, turns on the buttons and shows the lessons.
+ * If the database cannot be loaded, the buttons stay disabled (they are disabled in index.html).
  */
 async function start() {
   try {
@@ -34,10 +37,14 @@ async function start() {
   } catch (error) {
     statusText.textContent = 'Eroare la încărcarea bazei de date: ' + error.message; // error message
     statusText.classList.add('status-error'); // show it in the error color
+    return; // stop here: without a database the buttons and the lessons cannot work
   }
+  runButton.disabled = false; // the database is ready: turn on the run button
+  resetButton.disabled = false; // and the reset button
   runButton.addEventListener('click', runEditorQuery); // run button click
   resetButton.addEventListener('click', resetAll); // reset button click
   sqlEditor.addEventListener('keydown', handleEditorKeys); // keyboard shortcut in the editor (Ctrl+Enter)
+  startLessons(tryInEditor); // show the lessons and the exercises (lessons-ui.js)
 }
 
 // ===== SQL editor =====
@@ -63,12 +70,23 @@ function runEditorQuery() {
 }
 
 /**
+ * Puts an example from a lesson in the editor, runs it and scrolls to the editor
+ * (used by the "Încearcă în editor" buttons of the lessons).
+ * Parameter: sql - the SQL of the example.
+ */
+function tryInEditor(sql) {
+  sqlEditor.value = sql; // write the example in the editor
+  runEditorQuery(); // run it and show the result
+  editorSection.scrollIntoView({ behavior: 'smooth' }); // scroll down to the editor
+}
+
+/**
  * Shows a message when the SQL ran but returned no rows.
  * The message depends on the first word of the SQL (SELECT, INSERT, CREATE...).
  * Parameter: sql - the SQL text that was run.
  */
 function showResultWithoutRows(sql) {
-  const firstWord = sql.trim().split(/\s+/)[0].toUpperCase(); // first word of the SQL, e.g. "SELECT"
+  const firstWord = removeLeadingComments(sql).split(/\s+/)[0].toUpperCase(); // first word of the SQL, e.g. "SELECT"
   if (firstWord === '') { // the editor is empty
     renderMessage(resultsBox, 'Scrie o interogare SQL în editor.', 'info'); // ask the user to write SQL
   } else if (firstWord === 'SELECT' || firstWord === 'WITH') { // a query that found nothing
@@ -81,15 +99,36 @@ function showResultWithoutRows(sql) {
 }
 
 /**
- * Builds the text for the number of changed rows, e.g. "1 rând afectat" or "3 rânduri afectate".
+ * Removes the comments at the start of the SQL text (line comments that start with two dashes
+ * and block comments that start with slash-star), so that the first real word of the SQL can be found.
+ * Parameter: sql - the SQL text.
+ * Returns: the SQL text without the comments at its start.
+ */
+function removeLeadingComments(sql) {
+  let text = sql.trim(); // start without the spaces at the ends
+  while (text.startsWith('--') || text.startsWith('/*')) { // the text starts with a comment
+    let end; // position of the last character of the comment
+    if (text.startsWith('--')) { // a line comment ends at the end of the line
+      end = text.indexOf('\n'); // position of the line break
+    } else { // a block comment ends at "*/"
+      end = text.indexOf('*/') + 1; // position of the "/" in "*/"
+    }
+    if (end < 1) { // the comment never ends: there is no SQL after it
+      return '';
+    }
+    text = text.slice(end + 1).trim(); // cut the comment and the spaces after it
+  }
+  return text; // the SQL, starting with its first real word
+}
+
+/**
+ * Builds the text for the number of changed rows, e.g. "1 rând afectat", "3 rânduri afectate"
+ * or "25 de rânduri afectate".
  * Parameter: count - number of rows changed by INSERT/UPDATE/DELETE.
  * Returns: the text to show.
  */
 function formatChangedRows(count) {
-  if (count === 1) { // singular form
-    return '1 rând afectat'; // "1 row affected"
-  }
-  return count + ' rânduri afectate'; // plural form: "N rows affected"
+  return formatCount(count, 'rând afectat', 'rânduri afectate'); // Romanian grammar is handled by render.js
 }
 
 /**

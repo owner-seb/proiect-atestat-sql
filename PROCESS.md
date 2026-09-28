@@ -107,7 +107,7 @@ as a badge with a green or red dot.
   and scratch databases for the checker).
 - **Front-end developer:** the SQL editor (Rulează, Ctrl+Enter, Resetează baza de date), result tables, Romanian messages,
   and the schema panel (`js/render.js`, `js/main.js`, `index.html`, `style.css`).
-- **Lessons writer:** `js/lessons.js`, with 9 lessons, 26 examples and 34 exercises in Romanian, Oracle style.
+- **Lessons writer:** `js/lessons.js`, with 9 lessons, 26 examples and 33 exercises in Romanian, Oracle style.
 
 **Decisions:**
 - Before the agents started, the coordinator wrote the table structure and each file's functions ("contracts") into `PLAN.md`,
@@ -124,3 +124,23 @@ as a badge with a green or red dot.
 scratch databases), and all 59 lesson queries run on the real database. Checked in the browser, including at 360px width.
 
 **Next:** Phase 4 UI + Phase 5 checker (lessons on the page, exercises checked automatically).
+
+## 2026-09-28: Phases 4–6: lessons on the page, exercise checker, "Cum funcționează?" page
+**Done (round 2 of the agent team):**
+- **Lessons and exercises** (`js/lessons-ui.js`, `js/checker.js`): numbered lesson buttons showing progress, an "Încearcă în editor"
+  button on every example, and an answer box per exercise with Verifică / Indiciu / Arată soluția. Progress is saved in localStorage.
+  Page order: hero → lessons → editor.
+- **Checker:** the user's SQL and the solution each run on their own scratch copy of the database (the main one is never touched),
+  and the results are compared by value only (not column names), as a multiset unless the order matters. DML/DDL exercises
+  use a hidden query that also checks the constraints (PK, NOT NULL, UNIQUE, FK, CHECK).
+- **"Cum funcționează?" page:** file table, diagrams of how the page starts and how a query travels, the database diagram,
+  how Oracle is imitated, how exercises are checked, differences from Oracle, an "Unde modific?" table (what to change → file → Ctrl+F term),
+  how it was tested, and publishing.
+- **Tests** in `tests/` (not published): `node tests/test-db.mjs` (148 checks), `node tests/test-lessons.mjs` (159 checks: every
+  solution is accepted, and at least one wrong answer per exercise is rejected).
+
+**Problems:**
+- The first DDL checks only looked at the data, so a table without constraints passed → the hidden query now also reads the constraints.
+- Two agents edited `style.css` at the same time → each owned a separate, clearly marked section, and the result was checked afterwards.
+
+**Next:** round 3, a review of the whole project (code rules, exam rehearsal) and fixes.

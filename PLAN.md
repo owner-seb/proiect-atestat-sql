@@ -72,8 +72,9 @@ students with no grades (for LEFT JOIN), a class with no homeroom teacher, NULL 
   - `exercises`: `{ id, statement, solution, orderMatters, checkQuery?, hint }`.
     Without `checkQuery`, the result of the user's SQL is compared with the result of `solution`.
     With `checkQuery` (DML/DDL), the user's SQL runs on a scratch DB followed by `checkQuery`, and that is compared with `solution` + `checkQuery` run on another scratch DB.
-- **`js/checker.js`**: `checkExercise(exercise, userSql)` returns `{ correct, message }` (message in Romanian).
-- **`js/render.js`**: `renderResults(container, results)`, `renderMessage(container, text, kind)`.
+- **`js/checker.js`**: `checkExercise(exercise, userSql)` returns `{ correct, message, result }` (message in Romanian; result = the user's rows or null).
+- **`js/lessons-ui.js`**: `startLessons(tryInEditor)` draws the lessons and exercises and saves progress in localStorage.
+- **`js/render.js`**: `renderResults(container, results)`, `renderMessage(container, text, kind)`, `formatCount(count, singular, plural)`.
 
 ## Phases
 
@@ -113,18 +114,18 @@ students with no grades (for LEFT JOIN), a class with no homeroom teacher, NULL 
 7. Subinterogări
 8. DML: INSERT, UPDATE, DELETE
 9. DDL: CREATE TABLE, tipuri Oracle, constrângeri (PRIMARY KEY, FOREIGN KEY, NOT NULL, UNIQUE, CHECK)
-- [ ] Each lesson: a short explanation, a one-click example, and 2–4 exercises.
+- [x] Each lesson: a short explanation, a one-click example, and 2–4 exercises.
 - → verify: every example runs without error.
 
 ### Phase 5: Exercise checker
-- [ ] Compare the user's result with the reference query's result (row order ignored unless the exercise needs ORDER BY).
-- [ ] Feedback in Romanian. Progress saved in `localStorage`.
+- [x] Compare the user's result with the reference query's result (row order ignored unless the exercise needs ORDER BY).
+- [x] Feedback in Romanian. Progress saved in `localStorage`.
 - → verify: every reference query is accepted, and at least one wrong query per exercise is rejected.
 
 ### Phase 6: "Cum funcționează?" page
-- [ ] Sections: overview and technologies, file structure, the path of a query (editor → db.js → sql.js → render.js),
+- [x] Sections: overview and technologies, file structure, the path of a query (editor → db.js → sql.js → render.js),
       the database schema (diagram), how exercises are checked, differences from Oracle, where to change colors and texts.
-- [ ] Short code excerpts with explanations.
+- [x] Short code excerpts with explanations.
 - → verify: the student can answer "how does X work?" for every file by using only this page.
 
 ### Phase 7: Polish + exam rehearsal

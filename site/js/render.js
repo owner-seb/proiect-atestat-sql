@@ -1,6 +1,6 @@
 /*
   render.js - shows query results (as tables) and messages (errors, success, info) on the page.
-  Used by: index.html (through main.js).
+  Used by: index.html (through main.js and lessons-ui.js).
   Security: everything is built with document.createElement and textContent, never by inserting HTML text,
   because the results come from SQL typed by the user (it may contain HTML).
 */
@@ -99,15 +99,34 @@ function createCell(value) {
 }
 
 /**
- * Builds the row count text in Romanian, e.g. "1 rând" or "5 rânduri".
+ * Builds the row count text in Romanian, e.g. "1 rând", "5 rânduri" or "40 de rânduri".
  * Parameter: count - number of rows.
  * Returns: the text to show.
  */
 function formatRowCount(count) {
+  return formatCount(count, 'rând', 'rânduri'); // e.g. "5 rânduri"
+}
+
+/**
+ * Writes a number followed by a word, with correct Romanian grammar:
+ * "1 rând", "5 rânduri", "40 de rânduri". In Romanian, "de" is added from 20 up,
+ * except when the last two digits are 01-19 (e.g. "101 rânduri", but "120 de rânduri").
+ * Parameters:
+ *   count    - the number
+ *   singular - the word used for 1, e.g. 'rând'
+ *   plural   - the word used for any other number, e.g. 'rânduri'
+ * Returns: the text, e.g. "40 de rânduri".
+ * Used by: this file, main.js and checker.js.
+ */
+export function formatCount(count, singular, plural) {
   if (count === 1) { // singular form
-    return '1 rând'; // "1 row"
+    return '1 ' + singular; // e.g. "1 rând"
   }
-  return count + ' rânduri'; // plural form: "N rows"
+  const lastTwoDigits = count % 100; // e.g. 120 -> 20, 101 -> 1
+  if (count >= 20 && (lastTwoDigits === 0 || lastTwoDigits >= 20)) { // numbers that need "de"
+    return count + ' de ' + plural; // e.g. "40 de rânduri"
+  }
+  return count + ' ' + plural; // e.g. "5 rânduri"
 }
 
 /**

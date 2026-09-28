@@ -425,6 +425,86 @@ strong { /* bold words */
   }
 }
 
+/* ===== Home page on computers: the page fits the screen like an app ===== */
+/* The page itself does not scroll. Only the lesson box and the structure box scroll, each one by itself.
+   (Only on screens tall enough; on short screens the page scrolls as before.) */
+@media (min-width: 1100px) and (min-height: 600px) {
+  .home-page { /* the whole home page */
+    height: 100vh; /* exactly as tall as the screen */
+    display: flex; /* menu bar, then content, one under the other */
+    flex-direction: column; /* one under the other */
+    overflow: hidden; /* the page itself never scrolls */
+  }
+
+  .home-page .site-header { /* the menu bar */
+    position: static; /* no need to stick: the page does not scroll */
+    width: 100%; /* full width (up to its maximum width) */
+    flex: none; /* keeps its own height */
+  }
+
+  .home-page main { /* the content under the menu bar */
+    flex: 1; /* takes all the height that is left */
+    min-height: 0; /* allowed to be smaller than its content */
+    width: 100%; /* full width (up to its maximum width) */
+    display: flex; /* title strip, then the 3 columns */
+    flex-direction: column; /* one under the other */
+  }
+
+  .home-page .site-footer { /* the footer */
+    display: none; /* hidden on computers: there is no room under the columns (still shown on phones) */
+  }
+
+  .workspace { /* the 3 columns */
+    flex: 1; /* take all the height under the title strip */
+    min-height: 0; /* allowed to be smaller than their content */
+    grid-template-rows: minmax(0, 1fr); /* one row, as tall as the free height */
+    align-items: stretch; /* every column is as tall as the row */
+  }
+
+  #lessons, /* the lessons column */
+  #editor, /* the editor column */
+  #schema { /* the structure column */
+    position: static; /* no need to stick: the page does not scroll */
+    height: auto; /* the height comes from the grid row */
+    margin-bottom: 0; /* all 3 columns end at the same line */
+    min-height: 0; /* allowed to be smaller than its content */
+    display: flex; /* column title, then the rest */
+    flex-direction: column; /* one under the other */
+  }
+
+  #lesson-content { /* the open lesson: the part of the lessons column that scrolls */
+    flex: 1; /* takes the height under the lesson buttons */
+    min-height: 0; /* allowed to be smaller than its content (then it scrolls) */
+    overflow-y: auto; /* the lesson scrolls inside its box */
+    scrollbar-width: thin; /* thin scroll bar */
+    scrollbar-color: var(--color-border) transparent; /* scroll bar in a faint accent color */
+    padding-right: 0.5rem; /* small space between the lesson and its scroll bar */
+  }
+
+  .editor-card { /* the editor box: editor and buttons on top, the results take the rest */
+    display: flex; /* one under the other */
+    flex-direction: column; /* one under the other */
+  }
+
+  .editor-card .results { /* the results area in the editor box */
+    flex: 1; /* takes the height under the buttons */
+    min-height: 0; /* allowed to be smaller than its content */
+    display: flex; /* result tables one under the other */
+    flex-direction: column; /* one under the other */
+  }
+
+  .editor-card .result-block { /* one result (table + row count) in the editor box */
+    display: flex; /* table, then the row count */
+    flex-direction: column; /* one under the other */
+    min-height: 0; /* allowed to be smaller than its content */
+  }
+
+  .editor-card .table-wrapper { /* a result table in the editor box */
+    max-height: none; /* no fixed limit: it gets the free height of the box */
+    min-height: 0; /* allowed to be smaller than the table (then it scrolls, the column names stay on top) */
+  }
+}
+
 .editor-label { /* the text above the editor ("Scrie o interogare SQL:") */
   display: block; /* the label sits on its own line, above the editor */
   margin-bottom: 0.5rem; /* space between the label and the editor */

@@ -156,6 +156,7 @@ function countSolved(lesson) {
 function openLesson(index) {
   currentIndex = index; // remember which lesson is open
   saveLastLesson(); // so the same lesson opens after a reload
+  lessonContent.scrollTop = 0; // on computers the lesson box scrolls by itself: start the new lesson from its top
   showLessonButtons(); // highlight the right lesson button
   const lesson = LESSONS[index]; // the lesson to show
 
@@ -290,13 +291,16 @@ function createLessonPager() {
 }
 
 /**
- * Opens another lesson and scrolls up to the start of the lessons section.
+ * Opens another lesson and, if the lesson buttons are above the screen (phones and tablets, where the whole page scrolls),
+ * scrolls up to the start of the lessons section. On computers the page does not scroll, so nothing moves.
  * Parameter: index - position of the lesson in LESSONS.
  */
 function goToLesson(index) {
   openLesson(index); // show the lesson
   focusCurrentLessonButton(); // the keyboard focus goes to the button of the new lesson (the clicked button is gone)
-  lessonsSection.scrollIntoView({ behavior: 'smooth' }); // scroll to the lesson buttons
+  if (lessonsSection.getBoundingClientRect().top < 0) { // the lesson buttons were scrolled out of the screen
+    lessonsSection.scrollIntoView({ behavior: 'smooth' }); // scroll to the lesson buttons
+  }
 }
 
 // ===== Exercises =====

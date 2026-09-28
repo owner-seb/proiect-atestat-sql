@@ -199,3 +199,8 @@ developed on the branch `layout-v2` and published only as a Cloudflare preview, 
   (title and description on the left, database status on the right). All three columns have the same small uppercase title above an
   identical box. The structure and editor columns fill the screen height, the result table uses the free height under the editor, and the scroll bars are thin.
   The structure panel is compact, with each column name and type on one line and "SELECT * FROM ..." as a small link.
+- **Third version: "app" mode on computers** (screens ≥1100px wide and ≥600px tall). The page itself no longer scrolls
+  (`.home-page` is `height: 100vh; overflow: hidden`). Only the open lesson (`#lesson-content`) and the structure box scroll, each
+  on its own, with thin scroll bars. The lesson buttons 1–9 stay fixed above the lesson. In the editor column the result table takes the
+  free height, and its column names stay on top. Changing lessons starts the new lesson from its top and doesn't move the page. On phones
+  and tablets the page scrolls as before. The footer is hidden in this mode (no room) and still shown on phones.

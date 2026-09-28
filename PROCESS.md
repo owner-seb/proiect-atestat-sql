@@ -206,3 +206,5 @@ developed on the branch `layout-v2` and published only as a Cloudflare preview, 
   and tablets the page scrolls as before. The footer is hidden in this mode (no room) and still shown on phones.
 - **The home page is now called "Mediu de învățare"** (the student's choice, was "Acasă"), in the menu of both pages. Menu links
   stay on one line; on phones the menu text is smaller, so both links fit on one row.
+- **Published to production (2026-09-28):** after the student's approval, `layout-v2` was merged into `main` and deployed to
+  https://proiect.atzpeak.com. The previous version is still available as the tag `v1-stabil`.

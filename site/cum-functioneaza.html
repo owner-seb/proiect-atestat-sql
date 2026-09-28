@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<!--
+  cum-functioneaza.html - "how it works" page: explains the structure and the code of the site.
+  Styles: css/style.css. No scripts.
+-->
+<html lang="ro"> <!-- page language: Romanian -->
+<head>
+  <meta charset="UTF-8"> <!-- text encoding, needed for ș ț ă î â -->
+  <meta name="viewport" content="width=device-width, initial-scale=1"> <!-- fit the page to phone screens -->
+  <title>Cum funcționează? - SQL Playground</title> <!-- text shown in the browser tab -->
+  <link rel="stylesheet" href="css/style.css"> <!-- all the styles of the site -->
+</head>
+<body>
+  <!-- Top header bar: site title + navigation menu (same on every page) -->
+  <header class="site-header">
+    <div class="site-header-inner">
+      <h1 class="site-title">SQL Playground</h1> <!-- site title in the header -->
+      <nav class="site-nav" aria-label="Meniu principal"> <!-- navigation menu -->
+        <a href="index.html">Acasă</a> <!-- link to the home page -->
+        <a href="cum-functioneaza.html" aria-current="page">Cum funcționează?</a> <!-- link to this page (current page) -->
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <!-- Overview section (the full explanation is written in Phase 6) -->
+    <section class="card">
+      <h2>Cum funcționează site-ul?</h2> <!-- main heading of this page -->
+      <p>
+        Site-ul este format doar din fișiere HTML, CSS și JavaScript. Interogările SQL rulează direct în browser,
+        cu ajutorul bibliotecii <strong>sql.js</strong> (motorul SQLite compilat în WebAssembly), deci nu este nevoie de server.
+      </p> <!-- short overview of the technologies -->
+      <p>Explicațiile detaliate despre fișiere și cod vor fi adăugate aici.</p> <!-- placeholder until Phase 6 -->
+    </section>
+  </main>
+
+  <!-- Footer (same on every page) -->
+  <footer class="site-footer">
+    Proiect pentru atestatul de competențe profesionale la informatică <!-- footer text -->
+  </footer>
+</body>
+</html>

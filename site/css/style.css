@@ -1,0 +1,153 @@
+/*
+  style.css - all the styles of the site.
+  Used by: index.html and cum-functioneaza.html.
+  To change a color, font or size, edit the variables in the ":root" block below.
+*/
+
+/* ===== Variables: colors, fonts and sizes (light theme) ===== */
+:root {
+  --color-background: #f8fafc; /* page background color */
+  --color-surface: #ffffff; /* background color of cards / boxes */
+  --color-text: #1e293b; /* main text color */
+  --color-text-muted: #64748b; /* color of secondary text (footer, notes) */
+  --color-heading: #1d4ed8; /* color of all headings (h1, h2, h3) */
+  --color-header-background: #1e3a8a; /* background color of the top header bar */
+  --color-header-text: #ffffff; /* text color in the top header bar */
+  --color-link: #2563eb; /* color of links */
+  --color-border: #e2e8f0; /* color of borders and lines */
+  --color-success: #15803d; /* color of success messages */
+  --color-error: #b91c1c; /* color of error messages */
+
+  --font-main: system-ui, 'Segoe UI', Roboto, sans-serif; /* font of normal text */
+  --font-code: ui-monospace, Consolas, monospace; /* font of SQL code */
+  --font-size-base: 1rem; /* normal text size */
+  --font-size-title: 1.5rem; /* size of the site title in the header */
+
+  --space: 1rem; /* basic spacing between elements */
+  --radius: 8px; /* roundness of box corners */
+  --max-width: 60rem; /* maximum width of the page content */
+}
+
+/* ===== Variables: dark theme (used when the device is in dark mode) ===== */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-background: #0f172a; /* page background color (dark) */
+    --color-surface: #1e293b; /* background color of cards / boxes (dark) */
+    --color-text: #e2e8f0; /* main text color (dark) */
+    --color-text-muted: #94a3b8; /* secondary text color (dark) */
+    --color-heading: #93c5fd; /* color of all headings (dark) */
+    --color-header-background: #172554; /* header bar background (dark) */
+    --color-link: #60a5fa; /* color of links (dark) */
+    --color-border: #334155; /* borders and lines (dark) */
+    --color-success: #4ade80; /* success messages (dark) */
+    --color-error: #f87171; /* error messages (dark) */
+  }
+}
+
+/* ===== Whole page ===== */
+* {
+  box-sizing: border-box; /* width includes padding and border (easier sizing) */
+}
+
+body {
+  margin: 0; /* remove the browser's default margin */
+  background: var(--color-background); /* page background color */
+  color: var(--color-text); /* main text color */
+  font-family: var(--font-main); /* main font */
+  font-size: var(--font-size-base); /* normal text size */
+  line-height: 1.6; /* space between lines of text */
+}
+
+/* ===== Top header bar (site title + navigation) ===== */
+.site-header {
+  background: var(--color-header-background); /* header background color */
+  color: var(--color-header-text); /* header text color */
+}
+
+.site-header-inner {
+  max-width: var(--max-width); /* same width as the page content */
+  margin: 0 auto; /* center it horizontally */
+  padding: var(--space); /* space inside the header */
+  display: flex; /* place title and menu side by side */
+  flex-wrap: wrap; /* on small screens, the menu moves below the title */
+  align-items: center; /* center them vertically */
+  justify-content: space-between; /* title on the left, menu on the right */
+  gap: var(--space); /* space between title and menu */
+}
+
+.site-title {
+  margin: 0; /* remove the default heading margin */
+  font-size: var(--font-size-title); /* site title size */
+  color: var(--color-header-text); /* site title color (not the heading color) */
+}
+
+/* ===== Navigation menu ===== */
+.site-nav {
+  display: flex; /* menu links in a row */
+  gap: var(--space); /* space between menu links */
+}
+
+.site-nav a {
+  color: var(--color-header-text); /* menu link color */
+  text-decoration: none; /* no underline on menu links */
+  padding: 0.25rem 0.5rem; /* clickable area around each menu link */
+  border-radius: var(--radius); /* rounded corners on the link highlight */
+}
+
+.site-nav a:hover,
+.site-nav a[aria-current="page"] {
+  background: rgba(255, 255, 255, 0.15); /* highlight for the hovered / current page link */
+}
+
+/* ===== Main content ===== */
+main {
+  max-width: var(--max-width); /* limit line length on wide screens */
+  margin: 0 auto; /* center the content */
+  padding: var(--space); /* space around the content */
+}
+
+h2,
+h3 {
+  color: var(--color-heading); /* heading color */
+  line-height: 1.3; /* tighter line spacing for headings */
+}
+
+a {
+  color: var(--color-link); /* link color */
+}
+
+a:focus-visible,
+button:focus-visible {
+  outline: 3px solid var(--color-link); /* visible outline when using the keyboard */
+  outline-offset: 2px; /* small gap between element and outline */
+}
+
+/* ===== Cards (white boxes around sections) ===== */
+.card {
+  background: var(--color-surface); /* card background color */
+  border: 1px solid var(--color-border); /* card border */
+  border-radius: var(--radius); /* rounded card corners */
+  padding: var(--space); /* space inside the card */
+  margin-bottom: var(--space); /* space below each card */
+}
+
+/* ===== Database status message ===== */
+.status {
+  font-family: var(--font-code); /* show the status in the code font */
+}
+
+.status-success {
+  color: var(--color-success); /* status color when the database loaded */
+}
+
+.status-error {
+  color: var(--color-error); /* status color when something went wrong */
+}
+
+/* ===== Footer ===== */
+.site-footer {
+  text-align: center; /* center the footer text */
+  color: var(--color-text-muted); /* footer text color */
+  padding: var(--space); /* space around the footer */
+  font-size: 0.875rem; /* smaller footer text */
+}

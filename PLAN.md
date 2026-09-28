@@ -45,14 +45,14 @@ Real Oracle cannot run in a browser. The engine is **SQLite (sql.js)**, and we m
 ### Phase 0: Setup
 - [x] Create the folder structure. `git init`, first commit.
 - [x] Create the GitHub repository and push (`owner-seb/proiect-atestat-sql`, public).
-- [ ] Connect the repo in the Cloudflare dashboard: Workers & Pages → Create → Pages → Connect to Git.
+- [x] Connect the repo in the Cloudflare dashboard: Workers & Pages → Create → Pages → Connect to Git.
       Framework preset: None. Build command: empty. Build output directory: `site`.
 - → verify: a push to `main` updates the live `*.pages.dev` URL.
 
 ### Phase 1: Skeleton + sql.js
-- [ ] Vendor sql.js into `site/vendor/`.
-- [ ] `index.html` + `cum-functioneaza.html` with the shared layout and navigation.
-- [ ] `db.js` loads sql.js and runs `SELECT 1 FROM DUAL`.
+- [x] Vendor sql.js into `site/vendor/` (v1.14.2, MIT license included).
+- [x] `index.html` + `cum-functioneaza.html` with the shared layout and navigation.
+- [x] `db.js` loads sql.js and runs `SELECT 1 FROM DUAL`.
 - → verify: the result shows on the page, the console has no errors, and it works both locally and on the live URL.
 
 ### Phase 2: School database + Oracle compatibility

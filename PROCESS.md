@@ -204,3 +204,5 @@ developed on the branch `layout-v2` and published only as a Cloudflare preview, 
   on its own, with thin scroll bars. The lesson buttons 1–9 stay fixed above the lesson. In the editor column the result table takes the
   free height, and its column names stay on top. Changing lessons starts the new lesson from its top and doesn't move the page. On phones
   and tablets the page scrolls as before. The footer is hidden in this mode (no room) and still shown on phones.
+- **The home page is now called "Mediu de învățare"** (the student's choice, was "Acasă"), in the menu of both pages. Menu links
+  stay on one line; on phones the menu text is smaller, so both links fit on one row.

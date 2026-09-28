@@ -147,6 +147,7 @@ body { /* the whole page */
   font-size: 0.85rem; /* menu link text size */
   padding: 0.35rem 0.75rem; /* clickable area around each menu link */
   border-radius: var(--radius); /* rounded corners on the link highlight */
+  white-space: nowrap; /* keep each menu link on one line */
 }
 
 .site-nav a:hover { /* menu link under the mouse */
@@ -186,6 +187,12 @@ body { /* the whole page */
   .site-nav { /* the menu on phones */
     order: 1; /* move the menu after the name pill, on its own row */
     width: 100%; /* the menu takes a whole row */
+    flex-wrap: wrap; /* very narrow phones: a link that does not fit moves to the next row */
+  }
+
+  .site-nav a { /* the menu links on phones */
+    font-size: 0.75rem; /* smaller menu text, so both links fit on one row */
+    padding: 0.35rem 0.6rem; /* smaller clickable area on phones */
   }
 }
 

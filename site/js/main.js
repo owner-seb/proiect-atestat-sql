@@ -18,6 +18,12 @@ const resetButton = document.getElementById('reset-button'); // the "Resetează 
 const resultsBox = document.getElementById('results'); // the area where results and errors are shown
 const schemaList = document.getElementById('schema-list'); // the area where the tables and columns are listed
 
+// Screen width from which the page has 3 columns (the same value as in style.css, "Home page layout")
+const WIDE_SCREEN = '(min-width: 1100px)';
+
+// Becomes true after the structure panel was shown once (see showSchema)
+let schemaShownBefore = false;
+
 // ===== Startup =====
 
 /**
@@ -70,14 +76,19 @@ function runEditorQuery() {
 }
 
 /**
- * Puts an example from a lesson in the editor, runs it and scrolls to the editor
- * (used by the "Încearcă în editor" buttons of the lessons).
+ * Puts an example from a lesson in the editor, runs it and, only if the editor is not on the screen,
+ * scrolls to it (used by the "Încearcă în editor" buttons of the lessons).
+ * On computers the editor column stays on screen, so the page does not move and the lesson stays in place.
  * Parameter: sql - the SQL of the example.
  */
 function tryInEditor(sql) {
   sqlEditor.value = sql; // write the example in the editor
   runEditorQuery(); // run it and show the result
-  editorSection.scrollIntoView({ behavior: 'smooth' }); // scroll down to the editor
+  const box = sqlEditor.getBoundingClientRect(); // position of the editor on the screen
+  const editorIsVisible = box.top >= 0 && box.bottom <= window.innerHeight; // the whole editor box is on the screen
+  if (!editorIsVisible) { // phones and tablets: the editor is further down the page
+    editorSection.scrollIntoView({ behavior: 'smooth' }); // scroll down to the editor
+  }
 }
 
 /**
@@ -168,8 +179,12 @@ function resetAll() {
 /**
  * Lists every table of the database with its columns and their types.
  * Each table is a <details> element that opens on click. Tables that were open stay open.
+ * The first time, on computers, all the tables start open.
  */
 function showSchema() {
+  // the first time, on computers (where the structure column stays on screen), every table starts open
+  const openAll = !schemaShownBefore && window.matchMedia(WIDE_SCREEN).matches;
+  schemaShownBefore = true; // later refreshes keep the tables the user opened or closed
   const openTables = []; // names of the tables the user has opened
   for (const details of schemaList.querySelectorAll('details[open]')) { // every open table
     openTables.push(details.dataset.table); // remember its name
@@ -178,7 +193,7 @@ function showSchema() {
   try {
     for (const table of getSchema()) { // every table in the database
       const details = createSchemaTable(table); // build the box for this table
-      details.open = openTables.includes(table.table); // keep it open if it was open before
+      details.open = openAll || openTables.includes(table.table); // open it the first time on computers, or if it was open before
       schemaList.appendChild(details); // add it to the panel
     }
   } catch (error) {

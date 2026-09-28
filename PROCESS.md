@@ -179,3 +179,19 @@ live changes, then restored the files. Two fixer agents then fixed everything, e
 **Problems:** Wrangler 4, run without a Pages config, silently created a Workers config (`wrangler.jsonc`) and edited `.gitignore`
 → reverted, and `wrangler.toml` with `pages_build_output_dir` now prevents it. New projects are sent to Workers by default
 → the project was created once with `--force` as a classic Pages project.
+
+## 2026-09-28: 3-column layout on desktop + author name (branch `layout-v2`)
+**Why:** Going up and down between the lessons, the editor and the database structure was unproductive, and the student
+lost their place in the exercises.
+**Done:**
+- The home page now has a "workspace" grid. On computers (≥1100px) it has 3 columns: database structure on the left,
+  lessons in the middle and the SQL editor on the right. The structure and the editor are `position: sticky`, so they stay on
+  screen while only the lessons scroll, and all the tables in the structure start open. Tablets: lessons on top, then editor + structure side by side.
+  Phones: stacked, as before.
+- "Încearcă în editor" only scrolls when the editor is not already on the screen (on computers the page no longer jumps).
+- The menu bar has the author's name as a pill („Ungureanu Sebastian”) on the right. On phones it sits next to the logo, with the menu on a second row.
+- A dark strip behind the sticky menu bar, so scrolled text doesn't show above it.
+
+**Safety:** before these changes, the approved version was tagged `v1-stabil` (git tag, pushed to GitHub). The new layout was
+developed on the branch `layout-v2` and published only as a Cloudflare preview, so the live site stayed on v1 until approval.
+**Not yet updated:** the "Cum funcționează?" page still describes the old order of the home page (planned for a later session).

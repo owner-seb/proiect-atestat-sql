@@ -3,7 +3,8 @@
   index.html - home page: the working SQL site (lessons, SQL editor, exercises).
   Styles: css/style.css. Scripts: vendor/sql-wasm.js (SQL engine) and js/main.js (page logic; it loads
   db.js, render.js, lessons-ui.js, lessons.js and checker.js).
-  Order of the page: title (hero), lessons, SQL editor.
+  Order of the page: title (hero), then the workspace: lessons, SQL editor, database structure
+  (on computers: 3 columns, structure left, lessons middle, editor right; see style.css "Home page layout").
 -->
 <html lang="ro"> <!-- page language: Romanian -->
 <head>
@@ -15,7 +16,7 @@
   <script src="vendor/sql-wasm.js"></script> <!-- SQL engine (sql.js); provides initSqlJs -->
   <script type="module" src="js/main.js"></script> <!-- page logic; runs after the page is loaded -->
 </head>
-<body>
+<body class="home-page"> <!-- home-page: wide 3-column layout (see style.css) -->
   <!-- Top menu bar: logo + navigation menu (same on every page) -->
   <header class="site-header">
     <div class="site-header-inner">
@@ -27,6 +28,7 @@
         <a href="index.html" aria-current="page">Acasă</a> <!-- link to the home page (current page) -->
         <a href="cum-functioneaza.html">Cum funcționează?</a> <!-- link to the "how it works" page -->
       </nav>
+      <span class="author-pill">Ungureanu Sebastian</span> <!-- author name pill in the menu bar -->
     </div>
   </header>
 
@@ -38,22 +40,22 @@
       <p id="db-status" class="status">Se încarcă baza de date...</p> <!-- database status badge (filled in by main.js) -->
     </section>
 
-    <!-- Lessons section: numbered lesson buttons + one lesson at a time with its exercises (filled in by lessons-ui.js) -->
-    <section id="lessons" class="lessons-section" aria-labelledby="lessons-title">
-      <h2 id="lessons-title">Lecții</h2> <!-- heading of the lessons section -->
-      <nav id="lesson-nav" class="lesson-nav" aria-label="Lista lecțiilor"></nav> <!-- numbered lesson buttons -->
-      <div id="lesson-content"> <!-- the open lesson is shown here -->
-        <p class="message message-info">Lecțiile apar după ce se încarcă baza de date.</p> <!-- text shown while loading -->
-      </div>
-    </section>
+    <!-- Workspace: lessons + SQL editor + database structure (3 columns on computers, stacked on phones) -->
+    <div class="workspace">
 
-    <!-- SQL editor section: editor + results on the left, database structure on the right -->
-    <section id="editor" class="editor-section" aria-labelledby="editor-title">
-      <h2 id="editor-title">Editor SQL</h2> <!-- heading of the SQL editor section -->
-      <div class="editor-layout"> <!-- two columns on computers, one column on phones -->
+      <!-- Lessons section: numbered lesson buttons + one lesson at a time with its exercises (filled in by lessons-ui.js) -->
+      <section id="lessons" class="lessons-section" aria-labelledby="lessons-title">
+        <h2 id="lessons-title">Lecții</h2> <!-- heading of the lessons section -->
+        <nav id="lesson-nav" class="lesson-nav" aria-label="Lista lecțiilor"></nav> <!-- numbered lesson buttons -->
+        <div id="lesson-content"> <!-- the open lesson is shown here -->
+          <p class="message message-info">Lecțiile apar după ce se încarcă baza de date.</p> <!-- text shown while loading -->
+        </div>
+      </section>
 
-        <!-- Left column: the editor, the buttons and the results -->
-        <div class="card">
+      <!-- SQL editor section: the editor, the buttons and the results (right column on computers, stays on screen) -->
+      <section id="editor" class="editor-section" aria-labelledby="editor-title">
+        <h2 id="editor-title">Editor SQL</h2> <!-- heading of the SQL editor section -->
+        <div class="card editor-card">
           <label for="sql-editor" class="editor-label">Scrie o interogare SQL:</label> <!-- text above the editor -->
           <textarea id="sql-editor" class="sql-editor" rows="6" spellcheck="false" autocomplete="off" autocapitalize="off">SELECT nume, prenume, oras FROM elevi;</textarea> <!-- the SQL editor, with a sample query -->
           <div class="editor-buttons"> <!-- row with the buttons and the keyboard hint -->
@@ -65,15 +67,15 @@
             <p class="message message-info">Rezultatele interogării vor apărea aici.</p> <!-- text shown before the first run -->
           </div>
         </div>
+      </section>
 
-        <!-- Right column: the tables of the database and their columns -->
-        <aside class="card schema-panel" aria-labelledby="schema-title">
-          <h3 id="schema-title">Structura bazei de date</h3> <!-- heading of the database structure panel -->
-          <div id="schema-list" class="schema-list"></div> <!-- list of tables (filled in by main.js) -->
-        </aside>
+      <!-- Database structure panel: the tables and their columns (left column on computers, stays on screen) -->
+      <aside id="schema" class="card schema-panel" aria-labelledby="schema-title">
+        <h3 id="schema-title">Structura bazei de date</h3> <!-- heading of the database structure panel -->
+        <div id="schema-list" class="schema-list"></div> <!-- list of tables (filled in by main.js) -->
+      </aside>
 
-      </div>
-    </section>
+    </div> <!-- end of the workspace -->
   </main>
 
   <!-- Footer (same on every page) -->

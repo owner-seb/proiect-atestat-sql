@@ -58,7 +58,10 @@
   --max-width: 60rem; /* maximum width of the page content */
   --editor-height: 10rem; /* starting height of the SQL editor */
   --results-max-height: 24rem; /* maximum height of a result table (taller tables scroll) */
-  --schema-panel-width: 16rem; /* width of the "Structura bazei de date" panel on computers */
+  --schema-panel-width: 15rem; /* width of the "Structura bazei de date" panel (left column on computers) */
+  --editor-column-width: 28rem; /* width of the SQL editor column (right column on computers) */
+  --max-width-home: 110rem; /* maximum width of the home page (3 columns: structure, lessons, editor) */
+  --sticky-top: 5.5rem; /* distance from the top of the screen of the fixed columns (room for the menu bar) */
 
   /* Lessons and exercises */
   --color-chip-background: #111111; /* background color of the numbered lesson buttons */
@@ -90,11 +93,12 @@ body { /* the whole page */
 /* ===== Top menu bar (floating capsule, stays at the top when scrolling) ===== */
 .site-header {
   position: sticky; /* stays visible at the top while scrolling */
-  top: var(--space); /* distance from the top of the screen */
+  top: 0; /* stuck to the very top of the screen */
   z-index: 10; /* stays above the page content */
   max-width: var(--max-width); /* same width as the page content */
-  margin: var(--space) auto 0; /* centered, with space above */
-  padding: 0 var(--space); /* side space on small screens */
+  margin: 0 auto; /* centered */
+  padding: var(--space) var(--space) 0.5rem; /* space above the capsule and side space on small screens */
+  background: linear-gradient(to bottom, var(--color-background) 75%, transparent); /* dark strip behind the menu bar, so scrolled text does not show above it */
 }
 
 .site-header-inner { /* the visible capsule of the menu bar */
@@ -150,6 +154,36 @@ body { /* the whole page */
   background: var(--color-accent); /* current page link: purple background */
   color: #000000; /* current page link: black text */
   font-weight: 700; /* current page link: bold */
+}
+
+/* ===== Author name pill ("Ungureanu Sebastian") in the menu bar ===== */
+.author-pill {
+  padding: 0.3rem 0.85rem; /* space inside the name pill */
+  border: 1px solid var(--color-accent); /* accent-colored border of the name pill */
+  border-radius: var(--radius-pill); /* pill shape */
+  background: var(--color-accent-soft); /* light accent background of the name pill */
+  color: var(--color-text); /* author name color */
+  font-size: 0.8rem; /* author name size */
+  font-weight: 700; /* bold author name */
+  white-space: nowrap; /* keep the name on one line */
+}
+
+@media (min-width: 700px) { /* computers and tablets: logo left, then menu and name pill on the right */
+  .brand { /* the logo */
+    margin-right: auto; /* push the menu and the name pill to the right */
+  }
+}
+
+@media (max-width: 699px) { /* phones: first row logo + name pill, second row the menu */
+  .author-pill { /* the name pill on phones */
+    font-size: 0.7rem; /* smaller author name on phones */
+    padding: 0.2rem 0.6rem; /* smaller name pill on phones */
+  }
+
+  .site-nav { /* the menu on phones */
+    order: 1; /* move the menu after the name pill, on its own row */
+    width: 100%; /* the menu takes a whole row */
+  }
 }
 
 /* ===== Main content ===== */
@@ -276,21 +310,78 @@ strong { /* bold words */
   margin-bottom: 2rem; /* space below the editor section */
 }
 
-.editor-layout { /* the grid with the editor and the structure panel */
-  display: grid; /* editor and structure panel placed in a grid */
-  grid-template-columns: minmax(0, 1fr); /* phones: one column (editor above, structure panel below) */
-  gap: 1.5rem; /* space between the editor and the structure panel */
-  align-items: start; /* each box is only as tall as its content */
+/* ===== Home page layout: lessons, SQL editor, database structure ===== */
+/* Phones: one column (lessons, then editor, then structure).
+   Tablets: lessons on top, editor and structure side by side under them.
+   Computers: 3 columns (structure left, lessons middle, editor right); the structure and the editor
+   stay on screen while only the lessons scroll. */
+.workspace {
+  display: grid; /* the three parts are placed in a grid */
+  grid-template-columns: minmax(0, 1fr); /* phones: one column */
+  grid-template-areas: /* phones: order of the parts, top to bottom */
+    "lessons"
+    "editor"
+    "schema";
+  gap: 1.5rem; /* space between the parts */
+  align-items: start; /* each part is only as tall as its content */
 }
 
-@media (min-width: 900px) { /* screens at least 900px wide (computers) */
-  .editor-layout { /* the editor grid on computers */
-    grid-template-columns: minmax(0, 1fr) var(--schema-panel-width); /* computers: editor on the left, structure panel on the right */
+#lessons { /* the lessons part of the grid */
+  grid-area: lessons; /* goes in the "lessons" place */
+}
+
+#editor { /* the SQL editor part of the grid */
+  grid-area: editor; /* goes in the "editor" place */
+}
+
+#schema { /* the database structure part of the grid */
+  grid-area: schema; /* goes in the "schema" place */
+  margin-bottom: 0; /* the grid gap already adds the space */
+}
+
+@media (min-width: 800px) { /* tablets: editor and structure side by side under the lessons */
+  .workspace { /* the grid on tablets */
+    grid-template-columns: minmax(0, 1fr) var(--schema-panel-width); /* wide editor, narrow structure */
+    grid-template-areas: /* tablets: lessons on the whole first row */
+      "lessons lessons"
+      "editor schema";
   }
 }
 
-.editor-layout > .card { /* the boxes directly inside the editor grid */
-  margin-bottom: 0; /* the grid gap already adds the space between boxes */
+@media (min-width: 1100px) { /* computers: 3 columns */
+  .home-page main, /* the home page content on computers */
+  .home-page .site-header { /* and its menu bar */
+    max-width: var(--max-width-home); /* wider than the other pages, so 3 columns fit */
+  }
+
+  .workspace { /* the grid on computers */
+    grid-template-columns: var(--schema-panel-width) minmax(0, 1fr) var(--editor-column-width); /* structure | lessons | editor */
+    grid-template-areas: "schema lessons editor"; /* one row: structure left, lessons middle, editor right */
+  }
+
+  #editor, /* the editor column on computers */
+  #schema { /* and the structure column */
+    position: sticky; /* stays on screen while the lessons scroll */
+    top: var(--sticky-top); /* just under the menu bar */
+    max-height: calc(100vh - var(--sticky-top) - var(--space)); /* never taller than the screen */
+    overflow-y: auto; /* if the content is taller, it scrolls inside the column */
+  }
+
+  #editor h2 { /* the "Editor SQL" heading in the fixed column */
+    margin-top: 0; /* line up with the top of the other columns */
+  }
+
+  .lessons-section h2 { /* the "Lecții" heading in the middle column */
+    margin-top: 0; /* line up with the top of the other columns */
+  }
+
+  .home-page .hero { /* the big title area of the home page on computers */
+    padding: 2.5rem 0 2rem; /* less space above and below, so the 3 columns start higher */
+  }
+}
+
+.editor-card { /* the box with the editor, the buttons and the results */
+  margin-bottom: 0; /* the grid gap already adds the space */
 }
 
 .editor-label { /* the text above the editor ("Scrie o interogare SQL:") */

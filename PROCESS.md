@@ -208,3 +208,19 @@ developed on the branch `layout-v2` and published only as a Cloudflare preview, 
   stay on one line; on phones the menu text is smaller, so both links fit on one row.
 - **Published to production (2026-09-28):** after the student's approval, `layout-v2` was merged into `main` and deployed to
   https://proiect.atzpeak.com. The previous version is still available as the tag `v1-stabil`.
+
+## 2026-10-01: Password for the live site (branch `parola`)
+**Why:** the student wants to keep strangers out of the live site until the exam.
+**Done:**
+- `functions/_middleware.js`: a Cloudflare Pages Function that runs before every file of the site is sent. Without the right
+  password it answers `401` and the browser shows its own login box; with it, the file is sent as before. Only the password is
+  checked (any user name works). The whole site is protected: both pages, CSS, JS, `seed.sql`, sql.js.
+- The password is the Cloudflare secret `SITE_PASSWORD`, not in the code, because the GitHub repo is public. If the secret is
+  missing, the site shows an error instead of opening (it fails closed).
+- `tests/test-auth.mjs` (12 checks), and a local run with `wrangler pages dev`: every file gets 401 without or with a wrong password,
+  and in Chromium with the password the site works normally (the database loads, no console errors).
+
+**Decisions:** a server-side check (on Cloudflare) instead of a JavaScript login page, because a password in browser code can be
+read by anyone or skipped with DevTools. Cloudflare Access (email codes) was the other option; a shared password was simpler.
+Locally (`python3 serve.py`) there is no password, so the exam-room offline setup is unchanged.
+

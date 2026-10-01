@@ -36,7 +36,9 @@
 ## 5. Security
 - Query results and user input are **never** inserted with `innerHTML`. Use `textContent` or `document.createElement`.
   (Results come from SQL the user typed, which may contain HTML.)
-- Every query runs against the in-memory browser database only. There is no server.
+- Every query runs against the in-memory browser database only. There is no server for the app itself; the only
+  server code is `functions/_middleware.js`, the password check that Cloudflare runs before sending any file.
+- Never commit the site password: it lives only in the Cloudflare secret `SITE_PASSWORD` (the repo is public).
 - Errors from sql.js are caught and shown as a friendly Romanian message. The page must never break because of a bad query.
 
 ## 6. HTML and CSS

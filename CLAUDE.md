@@ -16,6 +16,7 @@ The website **is** the whole deliverable (no PDF/PowerPoint). It has two pages: 
   Code identifiers, code comments and commit messages are in **English**.
 - **Deployable folder:** only `site/` is published (Cloudflare Pages "build output directory" = `site`, no build command).
   Project notes (`CLAUDE.md`, `PLAN.md`, `PROCESS.md`, `CODING_RULES.md`), `serve.py`, `wrangler.toml` and `tests/` live at the root and must never be inside `site/`.
+  `functions/` (at the root, not in `site/`) holds Cloudflare Pages Functions; wrangler finds it because the deploy runs from the root.
 - **Live site:** https://proiect.atzpeak.com (custom subdomain, added by the student) = https://proiect-atestat-sql.pages.dev (Cloudflare Pages project `proiect-atestat-sql`, direct upload, not Git-connected).
 - **Deploy:** after committing and pushing to GitHub (`owner-seb/proiect-atestat-sql`), run from the project root:
   ```bash
@@ -26,6 +27,12 @@ The website **is** the whole deliverable (no PDF/PowerPoint). It has two pages: 
   The student has authorized Claude to commit, push and deploy after each verified step.
 - **Trying changes safely:** work on a git branch and deploy it with `--branch <name>` → preview at `https://<name>.proiect-atestat-sql.pages.dev`;
   production (`--branch main`) only after the student approves. Tag `v1-stabil` = the first approved version (restore with `git checkout v1-stabil`).
+- **Password:** the live site (production and previews) asks for a password: `functions/_middleware.js` checks HTTP Basic Auth
+  on Cloudflare before any file is sent (only the password is checked, any user name works). The password is the Cloudflare secret
+  `SITE_PASSWORD`, never in the repo (it is public). If the secret is missing, the site answers with an error instead of opening.
+  Set/change it for production: `npx -y wrangler@4 pages secret put SITE_PASSWORD --project-name proiect-atestat-sql`, then redeploy.
+  Previews need it set separately in the dashboard (Workers & Pages → proiect-atestat-sql → Settings → Variables and Secrets → Preview).
+  To remove the password: delete `functions/` and redeploy. `python3 serve.py` (localhost) never asks for it.
 - **Deadline:** February 2027.
 
 ## Run locally

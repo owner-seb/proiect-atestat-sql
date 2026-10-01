@@ -9,6 +9,7 @@ Run them from the project root (Node.js 18 or newer):
 ```
 node tests/test-db.mjs
 node tests/test-lessons.mjs
+node tests/test-auth.mjs
 ```
 
 Each file prints one `PASS`/`FAIL` line per check, grouped under `---` headings, and ends with a summary.
@@ -31,5 +32,8 @@ If any check fails, the command exits with code 1.
 - `test-lessons.mjs`: the lessons and the exercise checker (`site/js/lessons.js`, `site/js/checker.js`):
   every example runs, every solution is accepted, at least one wrong answer per exercise is rejected for the expected reason,
   some different but correct answers are accepted, and checking exercises never changes the main database.
+- `test-auth.mjs`: the password check of the live site (`functions/_middleware.js`): the correct password lets the file
+  through with any user name, a wrong, missing or malformed password gets 401 with the browser's login request, passwords with
+  diacritics and `:` work, and a missing `SITE_PASSWORD` secret keeps the site closed (500).
 
 When you add an exercise to `lessons.js`, add at least one wrong answer for it in `WRONG_ANSWERS` in `test-lessons.mjs`.
